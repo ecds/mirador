@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" type="text/css" href="build/mirador/css/mirador-combined.css">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static "frontend/mirador/css/mirador-combined.css"%}">
     <title>Mirador Viewer</title>
     <style type="text/css">
      #viewer {
@@ -16,7 +17,7 @@
   <body>
     <div id="viewer"></div>
 
-    <script src="build/mirador/mirador.js"></script>
+    <script src="{% static "frontend/mirador/mirador.js"%}"></script>
     <script type="text/javascript">
 
      $(function() {
@@ -78,7 +79,7 @@
            { "manifestUri": "https://scta.info/iiif/plaoulcommentary/sorb/manifest"}
          ],
          "windowObjects": [],
-         "annotationEndpoint": { "name":"Local Storage", "module": "LocalStorageEndpoint" },
+         "annotationEndpoint": { "name":"Readux", "module": "ReaduxEndpoint" },
          "sidePanelOptions" : {
            "tocTabAvailable": true,
            "layersTabAvailable": true,
@@ -91,5 +92,6 @@
     <!-- This enables live reloading of assets for improved developer experience. -->
     <!-- Remove if copying this page as a basis for another project. -->
     <script src="//localhost:35729/livereload.js"></script>
+    {% csrf_token%}
   </body>
 </html>
