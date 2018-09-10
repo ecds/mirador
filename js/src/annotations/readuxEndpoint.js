@@ -73,7 +73,7 @@
     deleteAnnotation: function(annotationID, successCallback, errorCallback) {
       var _this = this;        
       jQuery.ajax({
-        url: '',
+        url: '/readux/annotations/' + annotationID,
         type: 'DELETE',
         dataType: 'json',
         headers: {
@@ -96,12 +96,12 @@
     //Update an annotation given the OA version
     update: function(oaAnnotation, successCallback, errorCallback) {
       delete oaAnnotation.endpoint;
-      var annotation = this.getAnnotationInEndpoint(oaAnnotation),
+      // var annotation = this.getAnnotationInEndpoint(oaAnnotation),
       _this = this;
       
       jQuery.ajax({
         url: '/readux/annotations/' + oaAnnotation['@id'],
-        type: 'POST',
+        type: 'PUT',
         dataType: 'json',
         headers: {
           'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
@@ -126,6 +126,7 @@
     //if successful, MUST return the OA rendering of the annotation
     create: function(oaAnnotation, successCallback, errorCallback) {
       var _this = this;
+      console.log('before pus: ', _this.annotationsList);
       jQuery.ajax({
         url: '/readux/annotations',
         type: 'POST',
@@ -139,7 +140,13 @@
           console.log('data', data);
           // if (typeof successCallback === "function") {
           //   successCallback(_this.getAnnotationInOA(data));
-          // }
+          // } else {
+          data.oa_annotation.endpoint = _this;
+          _this.annotationsList.push(data.oa_annotation);
+          console.log('after push: ', _this.annotationsList);
+          _this.dfd.resolve(true);
+          // _this.search({ uri: data.oa_annotation.on[0].full }, null, null);
+      // }
         },
         error: function(error) {
           if (typeof errorCallback === "function") {
