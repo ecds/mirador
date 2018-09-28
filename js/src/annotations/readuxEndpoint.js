@@ -14,13 +14,13 @@
  * getAnnotationInOA(endpointAnnotation)
  * getAnnotationInEndpoint(oaAnnotation)
  */
-(function($){
+(function($) {
 
   $.ReaduxEndpoint = function(options) {
 
     jQuery.extend(this, {
-      dfd:             jQuery.Deferred(),
-      annotationsList: [],        //OA list for Mirador use
+      dfd:             null,
+      annotationsList: [],
       windowID:        null,
       eventEmitter:    null
     }, options);
@@ -29,47 +29,19 @@
   };
 
   $.ReaduxEndpoint.prototype = {
-    init: function() {
-      //whatever initialization your endpoint needs       
-    },
+    init: function() {},
 
-    //Search endpoint for all annotations with a given URI in options
+    // Search endpoint for all annotations with a given URI in options
     search: function(options, successCallback, errorCallback) {
       var _this = this;
-      var volume = options.uri.split('/').reverse()[2];
-      var page = options.uri.split('/').reverse()[0];
+      _this.volume = options.uri.split('/').reverse()[2];
+      _this.page = options.uri.split('/').reverse()[0];
       this.annotationsList = [];
 
-      //use options.uri
-      jQuery.ajax({
-        url: '/readux/annotations/' + volume + '/' + page,
-        type: 'GET',
-        dataType: 'json',
-        headers: { },
-        data: { },
-        contentType: "application/json; charset=utf-8",
-        success: function(data) {
-          //check if a function has been passed in, otherwise, treat it as a normal search
-          if (typeof successCallback === "function") {
-            // successCallback(data);
-          } else {
-            jQuery.each(data, function(index, value) {
-            value.oa_annotation.endpoint = _this;
-            _this.annotationsList.push(value.oa_annotation);
-            });
-            console.log(_this.annotationsList);
-            _this.dfd.resolve(true);
-          }
-        },
-        error: function() {
-          if (typeof errorCallback === "function") {
-            errorCallback();
-          }
-        }
-      });
+      this.getAnnotationList();
     },
     
-    //Delete an annotation by endpoint identifier
+    // Delete an annotation by endpoint identifier
     deleteAnnotation: function(annotationID, successCallback, errorCallback) {
       var _this = this;        
       jQuery.ajax({
@@ -93,10 +65,9 @@
       });
     },
     
-    //Update an annotation given the OA version
+    // Update an annotation given the OA version
     update: function(oaAnnotation, successCallback, errorCallback) {
       delete oaAnnotation.endpoint;
-      // var annotation = this.getAnnotationInEndpoint(oaAnnotation),
       _this = this;
       
       jQuery.ajax({
@@ -109,9 +80,6 @@
         data: JSON.stringify({ "iiif_annotation": JSON.stringify(oaAnnotation) }),
         contentType: "application/json; charset=utf-8",
         success: function(data) {
-          // if (typeof successCallback === "function") {
-          //   successCallback();
-          // }
           oaAnnotation.endpoint = _this;
         },
         error: function() {
@@ -122,11 +90,27 @@
       });
     },
 
-    //takes OA Annotation, gets Endpoint Annotation, and saves
-    //if successful, MUST return the OA rendering of the annotation
+    // takes OA Annotation, gets Endpoint Annotation, and saves
+    // if successful, MUST return the OA rendering of the annotation
     create: function(oaAnnotation, successCallback, errorCallback) {
       var _this = this;
-      console.log('before pus: ', _this.annotationsList);
+      var keys = [];
+
+      jQuery.each(oaAnnotation.on, function(index, value) {
+        if (jQuery.inArray(value.full, keys) === -1) {
+          keys.push(value.full);
+        }
+      });
+
+      if (keys.length === 0) {
+        if (typeof errorCallback === "function") {
+          errorCallback();
+        }
+      }
+
+      oaAnnotation.annotatedBy = { name: 'Me' };
+      _this.annotationsList.push(oaAnnotation);
+
       jQuery.ajax({
         url: '/readux/annotations',
         type: 'POST',
@@ -137,16 +121,8 @@
         data: JSON.stringify({ "iiif_annotation": JSON.stringify(oaAnnotation) }),
         contentType: "application/json; charset=utf-8",
         success: function(data) {
-          console.log('data', data);
-          // if (typeof successCallback === "function") {
-          //   successCallback(_this.getAnnotationInOA(data));
-          // } else {
           data.oa_annotation.endpoint = _this;
-          _this.annotationsList.push(data.oa_annotation);
-          console.log('after push: ', _this.annotationsList);
-          _this.dfd.resolve(true);
-          // _this.search({ uri: data.oa_annotation.on[0].full }, null, null);
-      // }
+          successCallback(data.oa_annotation);
         },
         error: function(error) {
           if (typeof errorCallback === "function") {
@@ -164,17 +140,32 @@
       }
     },
 
-    //Convert Endpoint annotation to OA
-    getAnnotationInOA: function(annotation) {
-    },
-
-    // Converts OA Annotation to endpoint format
-    getAnnotationInEndpoint: function(oaAnnotation) {
-    },
-
     userAuthorize: function(action, annotation) {
-      return true;
+      return !0;
+    },
+
+    getAnnotationList: function() {
+      var _this = this;
+
+      //use options.uri
+      jQuery.ajax({
+        url: '/readux/annotations/' + _this.volume + '/' + _this.page,
+        type: 'GET',
+        dataType: 'json',
+        headers: { },
+        data: { },
+        contentType: "application/json; charset=utf-8",
+        success: function(data) {
+          jQuery.each(data, function(index, value) {
+            value.oa_annotation.endpoint = _this;
+            _this.annotationsList.push(value.oa_annotation);
+          });
+          _this.dfd.resolve(true);
+        },
+        error: function() {
+          //
+        }
+      });
     }
   };
-
 }(Mirador));
