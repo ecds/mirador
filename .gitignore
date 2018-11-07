@@ -1,8 +1,6 @@
 .grunt/
 _SpecRunner.html
 bkp
-css/discovery.css
-css/mirador.css
 dev.html
 discovery.html
 js/discovery
@@ -12,6 +10,5 @@ coverage/
 data/ecodices
 data/BnF
 data/Harvard
-build/
 .idea/
 bower_components/
