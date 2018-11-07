@@ -62,8 +62,8 @@
       "overlay" : true, //whether or not to make the metadata overlay available/visible in this window
       "canvasControls": { // The types of controls available to be displayed on a canvas
         "annotations" : {
-          "annotationLayer" : true, //whether or not to make annotation layer available in this window
-          "annotationCreation" : true, /*whether or not to make annotation creation available in this window,
+          "annotationLayer" : false, //whether or not to make annotation layer available in this window
+          "annotationCreation" : false, /*whether or not to make annotation creation available in this window,
                        only valid if annotationLayer is set to True and an annotationEndpoint is defined.
                        This setting does NOT affect whether or not a user can edit an individual annotation that has already been created.*/
           "annotationState" : 'off', //[_'off'_, 'on'] whether or not to turn on the annotation layer on window load
