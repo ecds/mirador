@@ -1,5 +1,5 @@
-(function($) {
-  $.OsdRegionDrawTool = function(options) {
+(function ($) {
+  $.OsdRegionDrawTool = function (options) {
     jQuery.extend(this, {
       osdViewer: null,
       parent: null,
@@ -16,17 +16,18 @@
 
   $.OsdRegionDrawTool.prototype = {
 
-    init: function() {
+    init: function () {
       this.svgOverlay = this.osdViewer.svgOverlay(this.osdViewer.id, this.windowId, this.state, this.eventEmitter);
       this.svgOverlay.show();
       this.svgOverlay.disable();
+      console.log('init', this.svgOverlay.currentTool)
 
       this.horizontallyFlipped = false;
 
       this.listenForActions();
     },
 
-    enterDisplayAnnotations: function() {
+    enterDisplayAnnotations: function () {
       this.svgOverlay.setMouseTool();
 
       // if a user selected the pointer mode but is still actively
@@ -39,9 +40,10 @@
       }
     },
 
-    enterCreateAnnotation: function() {
+    enterCreateAnnotation: function () {
       // if a user selected went from pointer to a shape but is still actively
       // working on an annotation, don't re-render
+      var _this = this
       if (!this.svgOverlay.inEditOrCreateMode) {
         this.osdViewer.setMouseNavEnabled(false);
         this.svgOverlay.show();
@@ -52,7 +54,7 @@
       }
     },
 
-    enterCreateShape: function() {
+    enterCreateShape: function () {
       if (!this.svgOverlay.inEditOrCreateMode) {
         this.osdViewer.setMouseNavEnabled(false);
         this.svgOverlay.show();
@@ -62,13 +64,13 @@
       }
     },
 
-    enterEditAnnotation: function() {
+    enterEditAnnotation: function () {
       this.osdViewer.setMouseNavEnabled(false);
       this.svgOverlay.show();
       this.svgOverlay.enableEdit();
     },
 
-    enterDefault: function() {
+    enterDefault: function () {
       // Removing the Tool explicitly because otherwise mouse events keep
       // firing in default mode where they shouldn't.
       this.svgOverlay.removeMouseTool();
@@ -76,7 +78,7 @@
       this.exitEditMode(false);
     },
 
-    exitEditMode: function(showAnnotations) {
+    exitEditMode: function (showAnnotations) {
       this.osdViewer.setMouseNavEnabled(true);
       this.svgOverlay.disable();
       if (showAnnotations) {
@@ -87,32 +89,51 @@
     },
 
     render: function () {
-      if(this.parent.mode !== $.AnnotationsLayer.DISPLAY_ANNOTATIONS){
-        return ;
+      if (this.parent.mode !== $.AnnotationsLayer.DISPLAY_ANNOTATIONS) {
+        return;
       }
       this.svgOverlay.restoreEditedShapes();
       this.svgOverlay.paperScope.activate();
       this.svgOverlay.paperScope.project.clear();
       var _this = this;
+      // new Mirador.TextOverlay({
+        //   osd: _this.osd,
+        //   canvasID: _this.canvasID,
+        //   words: _this.ocrAnnotations,
+        //   eventEmitter: _this.eventEmitter,
+        //   state: _this.state,
+        //   windowId: _this.windowId
+        // });
       _this.annotationsToShapesMap = {};
       var strategies = [
         new $.Mirador21Strategy(),
         new $.LegacyOpenAnnotationStrategy(),
         new $.MiradorLegacyStrategy(),
-        new $.MiradorDualStrategy()
+        new $.MiradorDualStrategy(),
+        new $.MiradorOcrStrategy()
       ];
 
       for (var i = 0; i < this.list.length; i++) {
         var annotation = this.list[i];
         try {
           var shapeArray = this.prepareShapeArray(annotation, strategies);
-          if (shapeArray.length > 0) {
+          if (shapeArray.length > 0 && !shapeArray[0].hasOwnProperty('@context')) {
             _this.svgOverlay.restoreLastView(shapeArray);
             _this.annotationsToShapesMap[annotation['@id']] = shapeArray;
+            // console.log('shapeArray', shapeArray);
+          } else if (!shapeArray[0].hasOwnProperty('@context')) {
+            // var word = new Mirador.TextOverlay({
+            //     osd: this.osdViewer,
+            //     canvasID: _this.canvasID,
+            //     words: _this.ocrAnnotations,
+            //     eventEmitter: _this.eventEmitter,
+            //     state: _this.state,
+            //     windowId: _this.windowId
+            //   });
           } else {
-            console.log("ERROR couldn't find a strategy for " + annotation["@id"]);
+            // console.log("ERROR couldn't find a strategy for " + annotation['@id']);
           }
-        } catch(e) {
+        } catch (e) {
           console.log('ERROR OsdRegionDrawTool#render anno:', annotation, 'error:', e);
         }
       }
@@ -133,11 +154,12 @@
       _this.eventEmitter.publish('annotationsRendered.' + _this.windowId);
     },
 
-    prepareShapeArray: function(annotation, strategies) {
+    prepareShapeArray: function (annotation, strategies) {
       if (typeof annotation === 'object' && annotation.on) {
         for (var i = 0; i < strategies.length; i++) {
           if (strategies[i].isThisType(annotation)) {
             shapeArray = strategies[i].parseRegion(annotation, this);
+            // console.log(shapeArray);
             return shapeArray;
           }
         }
@@ -145,19 +167,19 @@
       return [];
     },
 
-    parseRectangle: function(rectString, annotation) {
+    parseRectangle: function (rectString, annotation) {
       var shapeArray = rectString.split('=')[1].split(','),
-      shape = {
-        'x': parseInt(shapeArray[0]),
-        'y': parseInt(shapeArray[1]),
-        'width': parseInt(shapeArray[2]),
-        'height': parseInt(shapeArray[3])
-      };
+        shape = {
+          x: parseInt(shapeArray[0]),
+          y: parseInt(shapeArray[1]),
+          width: parseInt(shapeArray[2]),
+          height: parseInt(shapeArray[3])
+        };
 
       return this.svgOverlay.createRectangle(shape, annotation);
     },
 
-    showTooltipsFromMousePosition: function(event, location, absoluteLocation) {
+    showTooltipsFromMousePosition: function (event, location, absoluteLocation) {
       var _this = this;
       var originWindow = this.state.getWindowObjectById(this.windowId);
       var currentCanvasModel = originWindow.canvases[originWindow.canvasID];
@@ -180,30 +202,28 @@
             var hoverWidth = shapeArray[idx].data.strokeWidth / this.svgOverlay.paperScope.view.zoom;
             if (shapeArray[idx].hitTest(location, hitOptions)) {
               annotations.push(shapeArray[idx].data.annotation);
-              if(shapeTool.onHover){
-                for(var k=0;k<shapeArray.length;k++){
-                  shapeTool.onHover(true,shapeArray[k],hoverWidth,hoverColor);
+              if (shapeTool.onHover) {
+                for (var k = 0; k < shapeArray.length; k++) {
+                  shapeTool.onHover(true, shapeArray[k], hoverWidth, hoverColor);
                 }
               }
               break;
-            }else{
-              if(shapeTool.onHover){
-                shapeTool.onHover(false,shapeArray[idx],hoverWidth);
-              }
+            } else if (shapeTool.onHover) {
+              shapeTool.onHover(false, shapeArray[idx], hoverWidth);
             }
           }
         }
       }
       this.svgOverlay.paperScope.view.draw();
-      //if (_this.svgOverlay.availableExternalCommentsPanel) {
+      // if (_this.svgOverlay.availableExternalCommentsPanel) {
      //   _this.eventEmitter.publish('annotationMousePosition.' + _this.windowId, [annotations]);
       //  return;
-      //}
+      // }
       _this.annoTooltip.showViewer({
         annotations: annotations,
         triggerEvent: event,
-        shouldDisplayTooltip: function(api) {
-          //track whether the cursor is within the tooltip (with the specified tolerance) and disables show/hide/update functionality.
+        shouldDisplayTooltip: function (api) {
+          // track whether the cursor is within the tooltip (with the specified tolerance) and disables show/hide/update functionality.
           if (api.elements.tooltip) {
             var cursorWithinTooltip = true;
             var leftSide = api.elements.tooltip.offset().left - _this.svgOverlay.hitOptions.tolerance;
@@ -223,64 +243,64 @@
       });
     },
 
-    listenForActions: function() {
+    listenForActions: function () {
       var _this = this;
 
-      this._thisDestroy = function(){
+      this._thisDestroy = function () {
         _this.destroy();
       };
 
       _this.osdViewer.addHandler('close', this._thisDestroy);
 
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe('DESTROY_EVENTS.'+this.windowId, function(event) {
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('DESTROY_EVENTS.' + this.windowId, function (event) {
         _this.destroy();
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('updateTooltips.' + _this.windowId, function(event, location, absoluteLocation) {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('updateTooltips.' + _this.windowId, function (event, location, absoluteLocation) {
         if (_this.annoTooltip && !_this.annoTooltip.inEditOrCreateMode) {
           _this.showTooltipsFromMousePosition(event, location, absoluteLocation);
         }
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('removeTooltips.' + _this.windowId, function() {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('removeTooltips.' + _this.windowId, function () {
         jQuery(_this.osdViewer.element).qtip('destroy', true);
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('disableTooltips.' + _this.windowId, function() {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('disableTooltips.' + _this.windowId, function () {
         if (_this.annoTooltip) {
           _this.annoTooltip.inEditOrCreateMode = true;
         }
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('enableTooltips.' + _this.windowId, function() {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('enableTooltips.' + _this.windowId, function () {
         if (_this.annoTooltip) {
           _this.annoTooltip.inEditOrCreateMode = false;
         }
         _this.svgOverlay.restoreDraftShapes();
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('SET_ANNOTATION_EDITING.' + _this.windowId, function(event, options) {
-        jQuery.each(_this.annotationsToShapesMap, function(key, paths) {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('SET_ANNOTATION_EDITING.' + _this.windowId, function (event, options) {
+        jQuery.each(_this.annotationsToShapesMap, function (key, paths) {
           // if we have a matching annotationId, pass the boolean value on for each path, otherwise, always pass false
           if (key === options.annotationId) {
             if (options.isEditable) {
-              _this.eventEmitter.publish('SET_OVERLAY_TOOLTIP.' + _this.windowId, {"tooltip" : options.tooltip, "visible" : true, "paths" : paths});
+              _this.eventEmitter.publish('SET_OVERLAY_TOOLTIP.' + _this.windowId, { tooltip: options.tooltip, visible: true, paths: paths });
             } else {
-              _this.eventEmitter.publish('SET_OVERLAY_TOOLTIP.' + _this.windowId, {"tooltip" : null, "visible" : false, "paths" : []});
+              _this.eventEmitter.publish('SET_OVERLAY_TOOLTIP.' + _this.windowId, { tooltip: null, visible: false, paths: [] });
             }
-            jQuery.each(paths, function(index, path) {
+            jQuery.each(paths, function (index, path) {
               path.data.editable = options.isEditable;
               if (options.isEditable) {
                 path.strokeWidth = (path.data.strokeWidth + 5) / _this.svgOverlay.paperScope.view.zoom;
               } else {
                 path.strokeWidth = path.data.strokeWidth / _this.svgOverlay.paperScope.view.zoom;
               }
-              //just in case, force the shape to be non hovered
+              // just in case, force the shape to be non hovered
               var tool = _this.svgOverlay.getTool(path);
               tool.onHover(false, path, path.strokeWidth);
             });
           } else {
-            jQuery.each(paths, function(index, path) {
+            jQuery.each(paths, function (index, path) {
               path.data.editable = false;
             });
           }
@@ -292,28 +312,28 @@
         _this.render();
       }));
 
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe("enableManipulation",function(event, tool){
-        if(tool === 'mirror') {
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('enableManipulation', function (event, tool) {
+        if (tool === 'mirror') {
           _this.horizontallyFlipped = true;
         }
       }));
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe("disableManipulation",function(event, tool){
-        if(tool === 'mirror') {
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('disableManipulation', function (event, tool) {
+        if (tool === 'mirror') {
           _this.horizontallyFlipped = false;
         }
       }));
     },
 
-    getAnnoFromRegion: function(regionId) {
-      return this.list.filter(function(annotation) {
+    getAnnoFromRegion: function (regionId) {
+      return this.list.filter(function (annotation) {
         return annotation['@id'] === regionId;
       });
     },
 
     destroy: function () {
       var _this = this;
-      this.eventsSubscriptions.forEach(function(event){
-        _this.eventEmitter.unsubscribe(event.name,event.handler);
+      this.eventsSubscriptions.forEach(function (event) {
+        _this.eventEmitter.unsubscribe(event.name, event.handler);
       });
       this.osdViewer.removeHandler('close', this._thisDestroy);
     }

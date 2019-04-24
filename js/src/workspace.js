@@ -1,22 +1,19 @@
-(function($) {
-
-  $.Workspace = function(options) {
-
+(function ($) {
+  $.Workspace = function (options) {
     jQuery.extend(true, this, {
       workspaceSlotCls: 'slot',
-      focusedSlot:      null,
-      slots:            [],
-      windows:          [],
-      appendTo:         null,
-      layoutDescription:    null,
-      state:            null,
-      eventEmitter:     null
+      focusedSlot: null,
+      slots: [],
+      windows: [],
+      appendTo: null,
+      layoutDescription: null,
+      state: null,
+      eventEmitter: null
     }, options);
 
     var uid = $.genUUID();
-    this.element  = this.element || jQuery('<div class="workspace-container" id="workspace-'+uid+'">');
+    this.element = this.element || jQuery('<div class="workspace-container" id="workspace-' + uid + '">');
     this.init();
-
   };
 
   $.Workspace.prototype = {
@@ -34,14 +31,14 @@
       this.listenForActions();
     },
 
-    listenForActions: function() {
+    listenForActions: function () {
       var _this = this;
 
-      _this.eventEmitter.subscribe('resizeMirador', function(event) {
+      _this.eventEmitter.subscribe('resizeMirador', function (event) {
         _this.calculateLayout();
       });
 
-      _this.eventEmitter.subscribe('manifestQueued', function(event, manifestPromise) {
+      _this.eventEmitter.subscribe('manifestQueued', function (event, manifestPromise) {
         // Trawl windowObjects preemptively for slotAddresses and
         // notify those slots to display a "loading" state.
         // Similar to the operation of the manifestLoadStatusIndicator
@@ -49,73 +46,73 @@
         var targetSlot;
 
         if (_this.state.getStateProperty('windowObjects')) {
-          var check = _this.state.getStateProperty('windowObjects').forEach(function(windowConfig, index) {
+          var check = _this.state.getStateProperty('windowObjects').forEach(function (windowConfig, index) {
             // windowConfig.slotAddress will give the slot;
             // change the state on that slot to be "loading"
             if (windowConfig.slotAddress) {
               targetSlot = _this.getSlotFromAddress(windowConfig.slotAddress);
             } else {
-              targetSlot = _this.focusedSlot || _this.slots.filter(function(slot) {
-                return slot.hasOwnProperty('window') ? true : false;
+              targetSlot = _this.focusedSlot || _this.slots.filter(function (slot) {
+                return !!slot.hasOwnProperty('window');
               })[0];
             }
           });
         }
       });
 
-      _this.eventEmitter.subscribe('REMOVE_WINDOW', function(event, windowId){
+      _this.eventEmitter.subscribe('REMOVE_WINDOW', function (event, windowId) {
         _this.removeWindow(windowId);
       });
 
-      _this.eventEmitter.subscribe('REMOVE_NODE', function(event, node){
+      _this.eventEmitter.subscribe('REMOVE_NODE', function (event, node) {
         _this.removeNode(node);
       });
 
-      _this.eventEmitter.subscribe('ADD_SLOT_ITEM', function(event, slot){
+      _this.eventEmitter.subscribe('ADD_SLOT_ITEM', function (event, slot) {
         _this.addItem(slot);
       });
 
-      _this.eventEmitter.subscribe('ADD_WINDOW', function(event, windowConfig) {
+      _this.eventEmitter.subscribe('ADD_WINDOW', function (event, windowConfig) {
         _this.addWindow(windowConfig);
       });
 
-      _this.eventEmitter.subscribe('SPLIT_RIGHT', function(event, slot) {
+      _this.eventEmitter.subscribe('SPLIT_RIGHT', function (event, slot) {
         _this.splitRight(slot);
       });
 
-      _this.eventEmitter.subscribe('SPLIT_LEFT', function(event, slot) {
+      _this.eventEmitter.subscribe('SPLIT_LEFT', function (event, slot) {
         _this.splitLeft(slot);
       });
 
-      _this.eventEmitter.subscribe('SPLIT_DOWN', function(event, slot) {
+      _this.eventEmitter.subscribe('SPLIT_DOWN', function (event, slot) {
         _this.splitDown(slot);
       });
 
-      _this.eventEmitter.subscribe('SPLIT_UP', function(event, slot) {
+      _this.eventEmitter.subscribe('SPLIT_UP', function (event, slot) {
         _this.splitUp(slot);
       });
 
-      _this.eventEmitter.subscribe('RESET_WORKSPACE_LAYOUT', function(event, options) {
+      _this.eventEmitter.subscribe('RESET_WORKSPACE_LAYOUT', function (event, options) {
         _this.resetLayout(options.layoutDescription);
       });
     },
 
-    bindEvents: function() {
+    bindEvents: function () {
       var _this = this;
 
-      d3.select(window).on('resize', function(event) {
+      d3.select(window).on('resize', function (event) {
         _this.calculateLayout();
       });
     },
 
-    get: function(prop, parent) {
+    get: function (prop, parent) {
       if (parent) {
         return this[parent][prop];
       }
       return this[prop];
     },
 
-    set: function(prop, value, options) {
+    set: function (prop, value, options) {
       var _this = this;
       if (options) {
         this[options.parent][prop] = value;
@@ -125,9 +122,9 @@
       _this.eventEmitter.publish(prop + '.set', value);
     },
 
-    calculateLayout: function(resetting) {
+    calculateLayout: function (resetting) {
       var _this = this,
-          layout;
+        layout;
 
       _this.layout = layout = new Isfahan({
         containerId: _this.element.attr('id'),
@@ -136,18 +133,18 @@
         padding: 3
       });
 
-      var data = layout.filter( function(d) {
+      var data = layout.filter(function (d) {
         return !d.children;
       });
 
       // Data Join.
-      var divs = d3.select("#" + _this.element.attr('id')).selectAll(".layout-slot")
-            .data(data, function(d) { return d.id; });
+      var divs = d3.select('#' + _this.element.attr('id')).selectAll('.layout-slot')
+            .data(data, function (d) { return d.id; });
 
       // Implicitly updates the existing elements.
       // Must come before the enter function.
-      divs.call(cell).each(function(d) {
-        _this.slots.forEach(function(slot) {
+      divs.call(cell).each(function (d) {
+        _this.slots.forEach(function (slot) {
           if (slot.slotID === d.id) {
             slot.layoutAddress = d.address;
           }
@@ -155,12 +152,12 @@
       });
 
       // Enter
-      divs.enter().append("div")
-        .attr("class", "layout-slot")
-        .attr("data-layout-slot-id", function(d) { return d.id; })
+      divs.enter().append('div')
+        .attr('class', 'layout-slot')
+        .attr('data-layout-slot-id', function (d) { return d.id; })
         .call(cell)
-        .each(function(d) {
-          var appendTo = _this.element.children('div').filter('[data-layout-slot-id="'+ d.id+'"]')[0];
+        .each(function (d) {
+          var appendTo = _this.element.children('div').filter('[data-layout-slot-id="' + d.id + '"]')[0];
           _this.slots.push(new $.Slot({
             slotID: d.id,
             layoutAddress: d.address,
@@ -173,15 +170,15 @@
 
       // Exit
       divs.exit()
-        .remove("div")
-        .each(function(d) {
-          var slotMap = _this.slots.reduce(function(map, temp_slot) {
-            if (d.id === temp_slot.slotID) {
-              map[d.id] = temp_slot;
-            }
-            return map;
-          }, {}),
-              slot = slotMap[d.id];
+        .remove('div')
+        .each(function (d) {
+          var slotMap = _this.slots.reduce(function (map, temp_slot) {
+              if (d.id === temp_slot.slotID) {
+                map[d.id] = temp_slot;
+              }
+              return map;
+            }, {}),
+            slot = slotMap[d.id];
 
           if (slot && slot.window && !resetting) {
             _this.eventEmitter.publish('REMOVE_WINDOW', slot.window.id);
@@ -194,16 +191,16 @@
 
       function cell() {
         this
-          .style("left", function(d) { return d.x + "px"; })
-          .style("top", function(d) { return d.y + "px"; })
-          .style("width", function(d) { return Math.max(0, d.dx ) + "px"; })
-          .style("height", function(d) { return Math.max(0, d.dy ) + "px"; });
+          .style('left', function (d) { return d.x + 'px'; })
+          .style('top', function (d) { return d.y + 'px'; })
+          .style('width', function (d) { return Math.max(0, d.dx) + 'px'; })
+          .style('height', function (d) { return Math.max(0, d.dy) + 'px'; });
       }
 
-      var root = jQuery.grep(_this.layout, function(node) { return !node.parent;})[0];
+      var root = jQuery.grep(_this.layout, function (node) { return !node.parent; })[0];
 
-      _this.eventEmitter.publish("layoutChanged", root);
-      _this.eventEmitter.publish('slotsUpdated', {slots: _this.slots});
+      _this.eventEmitter.publish('layoutChanged', root);
+      _this.eventEmitter.publish('slotsUpdated', { slots: _this.slots });
 
       if (_this.slots.length <= 1) {
         _this.eventEmitter.publish('HIDE_REMOVE_SLOT');
@@ -212,16 +209,16 @@
       }
     },
 
-    split: function(targetSlot, direction) {
+    split: function (targetSlot, direction) {
       var _this = this,
-          node = jQuery.grep(_this.layout, function(node) { return node.id === targetSlot.slotID; })[0];
+        node = jQuery.grep(_this.layout, function (node) { return node.id === targetSlot.slotID; })[0];
       nodeIndex = node.parent ? node.parent.children.indexOf(node) : 0,
       nodeIsNotRoot = node.parent;
 
       function addSibling(node, indexDifference) {
         if (nodeIsNotRoot) {
           var siblingIndex = nodeIndex + indexDifference,
-              newSibling = _this.newNode(node.type, node);
+            newSibling = _this.newNode(node.type, node);
 
           node.parent.children.splice(siblingIndex, 0, newSibling);
           _this.layout.push(newSibling);
@@ -306,47 +303,46 @@
       // it back through the layout code will
       // recalculate everything else needed for
       // the redraw.
-      var root = jQuery.grep(_this.layout, function(node) { return !node.parent;})[0];
+      var root = jQuery.grep(_this.layout, function (node) { return !node.parent; })[0];
       _this.layoutDescription = root;
       _this.calculateLayout();
-
     },
 
-    splitRight: function(targetSlot) {
+    splitRight: function (targetSlot) {
       var _this = this;
       _this.split(targetSlot, 'r');
     },
 
-    splitLeft: function(targetSlot) {
+    splitLeft: function (targetSlot) {
       var _this = this;
       _this.split(targetSlot, 'l');
     },
 
-    splitUp: function(targetSlot) {
+    splitUp: function (targetSlot) {
       var _this = this;
       _this.split(targetSlot, 'u');
     },
 
-    splitDown: function(targetSlot) {
+    splitDown: function (targetSlot) {
       var _this = this;
       _this.split(targetSlot, 'd');
     },
 
-    removeNode: function(targetSlot) {
+    removeNode: function (targetSlot) {
       // de-mutate the tree structure.
       var _this = this,
-          node = jQuery.grep(_this.layout, function(node) { return node.id === targetSlot.slotID; })[0],
-          nodeIndex = node.parent.children.indexOf(node),
-          parentIndex,
-          remainingNode,
-          root = jQuery.grep(_this.layout, function(node) { return !node.parent;})[0];
+        node = jQuery.grep(_this.layout, function (node) { return node.id === targetSlot.slotID; })[0],
+        nodeIndex = node.parent.children.indexOf(node),
+        parentIndex,
+        remainingNode,
+        root = jQuery.grep(_this.layout, function (node) { return !node.parent; })[0];
 
       if (node.parent.children.length === 2) {
         // de-mutate the tree without destroying
         // the children of the remaining node,
         // which in this case means changing their
         // IDs.
-        node.parent.children.splice(nodeIndex,1);
+        node.parent.children.splice(nodeIndex, 1);
         remainingNode = node.parent.children[0];
 
         remainingNode.parent.id = remainingNode.id;
@@ -359,46 +355,45 @@
         node.parent.children.splice(nodeIndex, 1);
       }
 
-      //delete targetSlot;
+      // delete targetSlot;
       _this.layoutDescription = root;
       _this.calculateLayout();
-      _this.eventEmitter.publish('slotRemoved',targetSlot);
+      _this.eventEmitter.publish('slotRemoved', targetSlot);
     },
 
-    newNode: function(type, parent) {
+    newNode: function (type, parent) {
       if (typeof parent === 'undefined') {
         return {
           type: type,
           id: $.genUUID()
         };
-      } else {
-        return {
-          type: type,
-          id: $.genUUID(),
-          parent: parent
-        };
       }
+      return {
+        type: type,
+        id: $.genUUID(),
+        parent: parent
+      };
     },
 
-    getSlotFromAddress: function(address) {
+    getSlotFromAddress: function (address) {
       var _this = this;
-      return _this.slots.filter(function(slot) {
+      return _this.slots.filter(function (slot) {
         return slot.layoutAddress === address;
       })[0];
     },
 
-    resetLayout: function(layoutDescription) {
+    resetLayout: function (layoutDescription) {
       this.layoutDescription = layoutDescription;
       this.calculateLayout(true);
       this.placeWindows();
     },
 
-    placeWindows: function() {
+    placeWindows: function () {
       // take the windows array and place
       // as many windows into places as can
       // fit.
       var _this = this,
-          deletedWindows;
+        deletedWindows;
 
       if (_this.windows.length > _this.slots.length) {
         // This issues the REMOVE_WINDOW action for
@@ -409,13 +404,13 @@
         // non-destructive. The actual state mutation will
         // be handled in the action callback, since only
         // actions should be allowed to mutate global state.
-        _this.windows.slice(0, _this.windows.length -_this.slots.length)
-          .forEach(function(removedWindow){
+        _this.windows.slice(0, _this.windows.length - _this.slots.length)
+          .forEach(function (removedWindow) {
             _this.eventEmitter.publish('REMOVE_WINDOW', removedWindow.id);
           });
       }
 
-      _this.windows.forEach(function(window) {
+      _this.windows.forEach(function (window) {
         var slot = _this.getAvailableSlot();
         slot.window = window;
 
@@ -430,34 +425,34 @@
       });
     },
 
-    getAvailableSlot: function() {
-      return this.slots.filter(function(slot) {
+    getAvailableSlot: function () {
+      return this.slots.filter(function (slot) {
         return !slot.window;
       })[0];
     },
 
-    clearSlot: function(slotId) {
+    clearSlot: function (slotId) {
       if (this.slots[slotId].windowElement) {
         this.slots[slotId].windowElement.remove();
       }
       this.slots[slotId].window = null;
     },
 
-    addItem: function(slot) {
+    addItem: function (slot) {
       var _this = this;
       this.focusedSlot = slot;
       _this.eventEmitter.publish('TOGGLE_LOAD_WINDOW');
     },
 
-    addWindow: function(windowConfig) {
+    addWindow: function (windowConfig) {
       // Windows can be added from a config,
       // from a saved state, (in both those cases they are in the form of "windowObjects")
       // from the workspace windows list after a grid layout change,
       // from the manifests panel in image mode,
       // or from the manifests panel in thumbnail mode.
       var _this = this,
-          newWindow,
-          targetSlot;
+        newWindow,
+        targetSlot;
 
       // toggles the other top-level panels closed and focuses the
       // workspace. For instance, after selecting an object from the
@@ -481,12 +476,12 @@
       windowConfig.slotAddress = targetSlot.layoutAddress;
       windowConfig.id = windowConfig.id || $.genUUID();
 
-      _this.eventEmitter.publish("windowSlotAdded", {id: windowConfig.id, slotAddress: windowConfig.slotAddress});
+      _this.eventEmitter.publish('windowSlotAdded', { id: windowConfig.id, slotAddress: windowConfig.slotAddress });
 
-      //extend the windowConfig with the default settings
+      // extend the windowConfig with the default settings
       var mergedConfig = jQuery.extend(true, {}, _this.state.getStateProperty('windowSettings'), windowConfig);
 
-      //"rename" some keys in the merged object to align settings parameters with window parameters
+      // "rename" some keys in the merged object to align settings parameters with window parameters
       if (mergedConfig.hasOwnProperty('loadedManifest')) {
         mergedConfig.manifest = _this.state.getStateProperty('manifests')[mergedConfig.loadedManifest];
         delete mergedConfig.loadedManifest;
@@ -518,17 +513,16 @@
 
       targetSlot.window = newWindow;
 
-      _this.eventEmitter.publish("windowAdded", {id: windowConfig.id, slotAddress: windowConfig.slotAddress});
+      _this.eventEmitter.publish('windowAdded', { id: windowConfig.id, slotAddress: windowConfig.slotAddress });
+    },
 
-  },
+    removeWindow: function (windowId) {
+      var _this = this;
 
-  removeWindow: function(windowId) {
-    var _this = this;
-
-    _this.windows = _this.windows.filter(function(window) {
-      return window.id !== windowId;
-    });
-    _this.eventEmitter.publish('windowRemoved', windowId);
-  }
-};
+      _this.windows = _this.windows.filter(function (window) {
+        return window.id !== windowId;
+      });
+      _this.eventEmitter.publish('windowRemoved', windowId);
+    }
+  };
 }(Mirador));

@@ -1,20 +1,20 @@
-(function($) {
-  $.Pin = function(options) {
+(function ($) {
+  $.Pin = function (options) {
     jQuery.extend(this, {
       name: 'Pin',
       logoClass: 'room',
       idPrefix: 'pin_',
-      tooltip: 'pinTooltip',
+      tooltip: 'pinTooltip'
     }, options);
 
     this.init();
   };
 
   $.Pin.prototype = {
-    init: function() {
+    init: function () {
     },
 
-    createShape: function(initialPoint, overlay) {
+    createShape: function (initialPoint, overlay) {
       overlay.mode = 'create';
       var _this = this;
       var size = overlay.fixedShapeSize;
@@ -39,7 +39,7 @@
       return shape;
     },
 
-    updateSelection: function(selected, item, overlay) {
+    updateSelection: function (selected, item, overlay) {
       if (item._name.toString().indexOf(this.idPrefix) !== -1) {
         if (selected) {
           item.strokeColor = overlay.selectedColor;
@@ -47,7 +47,7 @@
           if (!item.data.deleteIcon) {
             item.data.deleteIcon = new overlay.annotationUtils.DeleteActionIcon(overlay.paperScope, {
               name: item.name + this.partOfPrefix + 'delete',
-              fillColor : item.selectedColor
+              fillColor: item.selectedColor
             });
 
             item.data.deleteIcon.addData('pivot', item.segments[0].point);
@@ -57,9 +57,7 @@
 
             item.data.deleteIcon.setPosition(item.data.deleteIcon.getData('pivot').add(new overlay.paperScope.Point(0, 21 / overlay.paperScope.view.zoom)));
             item.data.deleteIcon.setOnMouseDownListener(overlay);
-
           }
-
         } else {
           item.strokeColor = overlay.strokeColor;
 
@@ -67,78 +65,75 @@
             item.data.deleteIcon.remove();
             item.data.deleteIcon = null;
           }
-
         }
       }
     },
 
-    onResize:function(item,overlay){
-      if(item._name.toString().indexOf(this.partOfPrefix)!== -1){
-        if(item._name.toString().indexOf('delete')){
+    onResize: function (item, overlay) {
+      if (item._name.toString().indexOf(this.partOfPrefix) !== -1) {
+        if (item._name.toString().indexOf('delete')) {
           item.data.self.setPosition(item.data.self.getData('pivot').add(new overlay.paperScope.Point(0, 21 / overlay.paperScope.view.zoom)));
-          item.data.self.resize(24 *  1 / overlay.paperScope.view.zoom);
+          item.data.self.resize(24 * 1 / overlay.paperScope.view.zoom);
         }
       }
     },
 
-    onHover:function(activate,shape,hoverWidth,hoverColor){
+    onHover: function (activate, shape, hoverWidth, hoverColor) {
       shape.strokeWidth = hoverWidth;
       // shape needs to have hovered styles
-      if(activate && !shape.data.hovered){
+      if (activate && !shape.data.hovered) {
         shape.data.nonHoverStrokeColor = shape.strokeColor.clone();
         shape.data.hovered = true;
         shape.strokeColor = hoverColor;
       }
       // shape is not longer hovered
-      if(!activate && shape.data.hovered){
+      if (!activate && shape.data.hovered) {
         shape.strokeColor = shape.data.nonHoverStrokeColor.clone();
         delete shape.data.nonHoverStrokeColor;
         delete shape.data.hovered;
       }
     },
 
-    onMouseUp: function(event, overlay) {
+    onMouseUp: function (event, overlay) {
       // Empty block.
     },
 
-    onMouseDrag: function(event, overlay) {
+    onMouseDrag: function (event, overlay) {
       if (overlay.mode === 'translate') {
         if (overlay.path) {
           overlay.path.position.x += event.delta.x;
           overlay.path.position.y += event.delta.y;
-          if(overlay.path.data.deleteIcon){
-            overlay.path.data.deleteIcon.translateByXY(event.delta.x,event.delta.y);
+          if (overlay.path.data.deleteIcon) {
+            overlay.path.data.deleteIcon.translateByXY(event.delta.x, event.delta.y);
           }
         }
       }
     },
 
-    onMouseMove: function(event, overlay) {
+    onMouseMove: function (event, overlay) {
       var hitResult = overlay.paperScope.project.hitTest(event.point, overlay.hitOptions);
-      if(hitResult && hitResult.item._name.toString().indexOf(this.idPrefix)!==-1){
-        if(!overlay.disabled && overlay.hoveredPath && hitResult.item._name.toString().indexOf(overlay.hoveredPath._name.toString()) !==-1){
-          this.setCursor(hitResult,overlay);
+      if (hitResult && hitResult.item._name.toString().indexOf(this.idPrefix) !== -1) {
+        if (!overlay.disabled && overlay.hoveredPath && hitResult.item._name.toString().indexOf(overlay.hoveredPath._name.toString()) !== -1) {
+          this.setCursor(hitResult, overlay);
         }
       }
     },
 
-    setCursor:function(hitResult,overlay){
-      if(hitResult.type === 'stroke' || hitResult.type === 'handle-in' || hitResult.type === 'handle-out' || hitResult.type === 'segment'){
-        jQuery(overlay.viewer.canvas).css('cursor','move');
+    setCursor: function (hitResult, overlay) {
+      if (hitResult.type === 'stroke' || hitResult.type === 'handle-in' || hitResult.type === 'handle-out' || hitResult.type === 'segment') {
+        jQuery(overlay.viewer.canvas).css('cursor', 'move');
         return;
       }
 
       // mouse over attached icon
-      if(hitResult.type === 'pixel'){
+      if (hitResult.type === 'pixel') {
         jQuery(overlay.viewer.canvas).css('cursor', 'pointer');
-        return;
       }
     },
 
     onMouseDown: function (event, overlay) {
       var hitResult = overlay.paperScope.project.hitTest(event.point, overlay.hitOptions);
       if (hitResult && hitResult.item._name.toString().indexOf(this.idPrefix) != -1) {
-
         if (hitResult.item._name.toString().indexOf(this.partOfPrefix) !== -1) {
           hitResult.item.data.self.onMouseDown();
           return;
@@ -166,7 +161,7 @@
       overlay.onDrawFinish();
     },
 
-    onDoubleClick: function(event, overlay) {
+    onDoubleClick: function (event, overlay) {
       // Empty block.
     }
   };

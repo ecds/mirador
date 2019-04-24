@@ -1,7 +1,5 @@
-(function($) {
-
-  $.SaveController = function(config) {
-
+(function ($) {
+  $.SaveController = function (config) {
     jQuery.extend(true, this, {
       currentConfig: null,
       originalConfig: null, // Don't know if we really need this.
@@ -14,7 +12,7 @@
 
     // error check - removes invalid annotation tools
     if (config.availableAnnotationDrawingTools) {
-      config.availableAnnotationDrawingTools = jQuery.grep(config.availableAnnotationDrawingTools, function(element, index) {
+      config.availableAnnotationDrawingTools = jQuery.grep(config.availableAnnotationDrawingTools, function (element, index) {
         return jQuery.inArray(element, $.DEFAULT_SETTINGS.availableAnnotationDrawingTools) >= 0;
       });
     }
@@ -26,13 +24,13 @@
 
     // if a user used dot notation for nested settings, unpack
     // e.g. windowSettings.canvasControls.annotations.annotationState
-    function index(previousValue,currentValue,currentIndex) {
+    function index(previousValue, currentValue, currentIndex) {
       var newObj = {};
       newObj[currentValue] = previousValue;
       return newObj;
     }
-    jQuery.each(config, function(key, value) {
-      if (typeof key === "string" && key.indexOf('.') !== -1) {
+    jQuery.each(config, function (key, value) {
+      if (typeof key === 'string' && key.indexOf('.') !== -1) {
         var array = key.split('.').reverse();
         var object = array.reduce(index, value);
         delete config[key];
@@ -49,7 +47,7 @@
         if (object.hasOwnProperty(property)) {
           if (object[property] instanceof Array) {
             object[property] = JSON.stringify(object[property]);
-          } else if (typeof object[property] === "object") {
+          } else if (typeof object[property] === 'object') {
             iterateStringify(object[property]);
           } else {}
         }
@@ -58,9 +56,9 @@
     function iterateParse(object) {
       for (var property in object) {
         if (object.hasOwnProperty(property)) {
-          if (typeof object[property] === "string" && object[property][0] === '[') {
+          if (typeof object[property] === 'string' && object[property][0] === '[') {
             object[property] = JSON.parse(object[property]);
-          } else if (typeof object[property] === "object") {
+          } else if (typeof object[property] === 'object') {
             iterateParse(object[property]);
           } else {}
         }
@@ -75,7 +73,7 @@
 
   $.SaveController.prototype = {
 
-    init: function(config) {
+    init: function (config) {
       var _this = this;
 
       this.eventEmitter = config.eventEmitter;
@@ -94,7 +92,7 @@
       var sessionID = window.location.hash.substring(1); // will return empty string if none exists, causing the or statement below to evaluate to false, generating a new sesssionID.
 
       if (sessionID) {
-        this.sessionID =  sessionID;
+        this.sessionID = sessionID;
       } else {
         this.sessionID = $.genUUID(); // might want a cleaner thing for the url.
       }
@@ -104,7 +102,7 @@
       } else {
         var paramURL = window.location.search.substring(1);
         if (paramURL) {
-          //get json from JSON storage and set currentConfig to it
+          // get json from JSON storage and set currentConfig to it
           var params = paramURL.split('=');
           var jsonblob = params[1];
           this.currentConfig = this.storageModule.readSync(jsonblob) || config;
@@ -112,15 +110,15 @@
           this.currentConfig = config;
         }
       }
-      //remove empty hashes from config
-      this.currentConfig.windowObjects = jQuery.map(this.currentConfig.windowObjects, function(value, index) {
+      // remove empty hashes from config
+      this.currentConfig.windowObjects = jQuery.map(this.currentConfig.windowObjects, function (value, index) {
         if (Object.keys(value).length === 0) return null;
         return value;
       });
 
-      //add UUIDs to parts of config that need them
+      // add UUIDs to parts of config that need them
       if (this.currentConfig.windowObjects) {
-        jQuery.each(this.currentConfig.windowObjects, function(index, window) {
+        jQuery.each(this.currentConfig.windowObjects, function (index, window) {
           if (!window.id) {
             window.id = $.genUUID();
           }
@@ -131,21 +129,20 @@
       // put history stuff here, for a great cross-browser demo, see: http://browserstate.github.io/history.js/demo/
       // http://stackoverflow.com/questions/17801614/popstate-passing-popped-state-to-event-handler
 
-      //also remove ?json bit so it's a clean URL
-      var cleanURL = window.location.href.replace(window.location.search, "");
+      // also remove ?json bit so it's a clean URL
+      var cleanURL = window.location.href.replace(window.location.search, '');
       if (window.location.hash) {
-       history.replaceState(this.currentConfig, "Mirador Session", cleanURL);
+        history.replaceState(this.currentConfig, 'Mirador Session', cleanURL);
       } else {
-       history.replaceState(this.currentConfig, "Mirador Session", cleanURL+"#"+this.sessionID);
+        history.replaceState(this.currentConfig, 'Mirador Session', cleanURL + '#' + this.sessionID);
       }
 
       this.bindEvents();
-
     },
 
-    getWindowObjectById: function(windowId) {
+    getWindowObjectById: function (windowId) {
       var returnObject = null;
-      jQuery.each(this.currentConfig.windowObjects, function(index, window) {
+      jQuery.each(this.currentConfig.windowObjects, function (index, window) {
         if (window.id === windowId) {
           returnObject = window;
           return false;
@@ -154,33 +151,31 @@
       return returnObject;
     },
 
-    getWindowAnnotationsList: function(windowId) {
+    getWindowAnnotationsList: function (windowId) {
       if (this.windowsAnnotationsLists) {
         return this.windowsAnnotationsLists[windowId];
-      } else {
-        return null;
       }
+      return null;
     },
 
-    getSlots: function() {
+    getSlots: function () {
       return this.slots;
     },
 
-    getWindowElement: function(windowId) {
+    getWindowElement: function (windowId) {
       if (this.windowsElements) {
         return this.windowsElements[windowId];
-      } else {
-        return null;
       }
+      return null;
     },
 
-    getStateProperty: function(prop) {
+    getStateProperty: function (prop) {
       return this.get(prop, 'currentConfig');
     },
 
-    getManifestIndex: function(manifestUri) {
+    getManifestIndex: function (manifestUri) {
       var manifestIndex = -1;
-      jQuery.each(this.currentConfig.data, function(index, dataObj) {
+      jQuery.each(this.currentConfig.data, function (index, dataObj) {
         if (dataObj.manifestUri === manifestUri) {
           manifestIndex = index;
           return false;
@@ -189,14 +184,14 @@
       return manifestIndex;
     },
 
-    get: function(prop, parent) {
+    get: function (prop, parent) {
       if (parent) {
         return this[parent][prop];
       }
       return this[prop];
     },
 
-    set: function(prop, value, options) {
+    set: function (prop, value, options) {
       var _this = this;
       // when a property of the config is updated,
       // save it to localStore.
@@ -208,23 +203,23 @@
       if (this.currentConfig.saveSession) {
         this.save();
       }
-      _this.eventEmitter.publish("saveControllerConfigUpdated");
+      _this.eventEmitter.publish('saveControllerConfigUpdated');
     },
 
-    bindEvents: function() {
+    bindEvents: function () {
       var _this = this;
       // listen to existing events and use the
       // available data to update the appropriate
       // field in the stored config.
 
-      _this.eventEmitter.subscribe('manifestsPanelVisible.set', function(event, manifestPanelVisible) {
-        _this.set("manifestPanelVisible", manifestPanelVisible, {parent: "currentConfig"} );
+      _this.eventEmitter.subscribe('manifestsPanelVisible.set', function (event, manifestPanelVisible) {
+        _this.set('manifestPanelVisible', manifestPanelVisible, { parent: 'currentConfig' });
       });
 
-      _this.eventEmitter.subscribe('windowUpdated', function(event, options) {
+      _this.eventEmitter.subscribe('windowUpdated', function (event, options) {
         var windowObjects = _this.currentConfig.windowObjects;
         if (windowObjects && windowObjects.length > 0) {
-          jQuery.each(windowObjects, function(index, window){
+          jQuery.each(windowObjects, function (index, window) {
             if (window.id === options.id) {
               jQuery.extend(windowObjects[index], options);
             }
@@ -232,13 +227,13 @@
         } else {
           windowObjects = [options];
         }
-        _this.set("windowObjects", windowObjects, {parent: "currentConfig"} );
+        _this.set('windowObjects', windowObjects, { parent: 'currentConfig' });
       });
 
-      _this.eventEmitter.subscribe("imageBoundsUpdated", function(event, options) {
+      _this.eventEmitter.subscribe('imageBoundsUpdated', function (event, options) {
         var windowObjects = _this.currentConfig.windowObjects;
         if (windowObjects && windowObjects.length > 0) {
-          jQuery.each(windowObjects, function(index, window){
+          jQuery.each(windowObjects, function (index, window) {
             if (window.id === options.id) {
               if (!windowObjects[index].windowOptions) {
                 windowObjects[index].windowOptions = {};
@@ -247,10 +242,10 @@
             }
           });
         }
-        _this.set("windowObjects", windowObjects, {parent: "currentConfig"} );
+        _this.set('windowObjects', windowObjects, { parent: 'currentConfig' });
       });
 
-      _this.eventEmitter.subscribe('ANNOTATIONS_LIST_UPDATED', function(event, options) {
+      _this.eventEmitter.subscribe('ANNOTATIONS_LIST_UPDATED', function (event, options) {
         if (!_this.windowsAnnotationsLists) {
           _this.windowsAnnotationsLists = {};
         }
@@ -258,17 +253,17 @@
         _this.eventEmitter.publish('annotationListLoaded.' + options.windowId);
       });
 
-      _this.eventEmitter.subscribe('WINDOW_ELEMENT_UPDATED', function(event, options) {
+      _this.eventEmitter.subscribe('WINDOW_ELEMENT_UPDATED', function (event, options) {
         if (!_this.windowsElements) {
           _this.windowsElements = {};
         }
         _this.windowsElements[options.windowId] = options.element;
       });
 
-      _this.eventEmitter.subscribe('windowSlotAddressUpdated', function(event, options) {
+      _this.eventEmitter.subscribe('windowSlotAddressUpdated', function (event, options) {
         var windowObjects = _this.currentConfig.windowObjects;
         if (windowObjects && windowObjects.length > 0) {
-          jQuery.each(windowObjects, function(index, window){
+          jQuery.each(windowObjects, function (index, window) {
             if (window.id === options.id) {
               jQuery.extend(windowObjects[index], options);
             }
@@ -276,75 +271,75 @@
         } else {
           windowObjects = [options];
         }
-        _this.set("windowObjects", windowObjects, {parent: "currentConfig"} );
+        _this.set('windowObjects', windowObjects, { parent: 'currentConfig' });
       });
 
-      _this.eventEmitter.subscribe('manifestQueued', function(event, manifestObject, repository) {
+      _this.eventEmitter.subscribe('manifestQueued', function (event, manifestObject, repository) {
         var data = _this.currentConfig.data,
-        objectInConfig = false,
-        url = manifestObject.uri;
+          objectInConfig = false,
+          url = manifestObject.uri;
 
-        jQuery.each(data, function(index, manifestObject){
+        jQuery.each(data, function (index, manifestObject) {
           if (manifestObject.manifestUri === url) {
             objectInConfig = true;
           }
         });
         if (!objectInConfig) {
-          data.push({"manifestUri":url, "location":repository});
-          _this.set("data", data, {parent: "currentConfig"});
+          data.push({ manifestUri: url, location: repository });
+          _this.set('data', data, { parent: 'currentConfig' });
         }
         var manifests = _this.currentConfig.manifests;
         manifests[url] = manifestObject;
-        _this.set('manifests', manifests, {parent: 'currentConfig'});
+        _this.set('manifests', manifests, { parent: 'currentConfig' });
       });
 
-      _this.eventEmitter.subscribe("slotsUpdated", function(event, options) {
+      _this.eventEmitter.subscribe('slotsUpdated', function (event, options) {
         _this.slots = options.slots;
       });
 
-      _this.eventEmitter.subscribe("layoutChanged", function(event, layoutDescription) {
+      _this.eventEmitter.subscribe('layoutChanged', function (event, layoutDescription) {
         // string parents to prevent invalid circular representation.
-        var serialisedLayout = JSON.stringify(layoutDescription, function(key, value) {
+        var serialisedLayout = JSON.stringify(layoutDescription, function (key, value) {
           if (key === 'parent') return undefined;
           return value;
         });
-        _this.set('layout', serialisedLayout, {parent: "currentConfig"} );
+        _this.set('layout', serialisedLayout, { parent: 'currentConfig' });
       });
 
-      _this.eventEmitter.subscribe("windowSlotAdded", function(event, options) {
+      _this.eventEmitter.subscribe('windowSlotAdded', function (event, options) {
         var windowObjects = _this.currentConfig.windowObjects,
-        inArray = jQuery.grep(windowObjects, function(windowObj) {
-          return windowObj.id === options.id;
-        });
+          inArray = jQuery.grep(windowObjects, function (windowObj) {
+            return windowObj.id === options.id;
+          });
         if (inArray.length === 0) {
           windowObjects.push({
-            'id' : options.id,
-            'slotAddress': options.slotAddress
+            id: options.id,
+            slotAddress: options.slotAddress
           });
-          _this.set("windowObjects", windowObjects, {parent: "currentConfig"} );
+          _this.set('windowObjects', windowObjects, { parent: 'currentConfig' });
         }
       });
 
-        _this.eventEmitter.subscribe("windowsRemoved", function(event) {
-          _this.set("windowObjects", [], {parent: "currentConfig"} );
-        });
+      _this.eventEmitter.subscribe('windowsRemoved', function (event) {
+        _this.set('windowObjects', [], { parent: 'currentConfig' });
+      });
 
-      _this.eventEmitter.subscribe("windowRemoved", function(event, windowID) {
-        var windowObjects = jQuery.grep(_this.currentConfig.windowObjects, function(window, index) {
+      _this.eventEmitter.subscribe('windowRemoved', function (event, windowID) {
+        var windowObjects = jQuery.grep(_this.currentConfig.windowObjects, function (window, index) {
           return window.id !== windowID;
         });
-        _this.set("windowObjects", windowObjects, {parent: "currentConfig"} );
+        _this.set('windowObjects', windowObjects, { parent: 'currentConfig' });
       });
 
 
-      _this.eventEmitter.subscribe('DELETE_FROM_CONFIG', function(event, options) {
-        var windowObjects = jQuery.grep(_this.currentConfig.windowObjects, function(window, index) {
+      _this.eventEmitter.subscribe('DELETE_FROM_CONFIG', function (event, options) {
+        var windowObjects = jQuery.grep(_this.currentConfig.windowObjects, function (window, index) {
           return window.loadedManifest !== options.loadedManifest || window.id;
         });
-        _this.set("windowObjects", windowObjects, {parent: "currentConfig"} );
+        _this.set('windowObjects', windowObjects, { parent: 'currentConfig' });
       });
 
-      _this.eventEmitter.subscribe('etc...', function(junk) {
+      _this.eventEmitter.subscribe('etc...', function (junk) {
         // handle adding the property in the appropriate place
         // in this.currentConfig by passing to the _this.set(),
         // which "saves" to localstore as a side effect.
@@ -370,28 +365,25 @@
       // you may need to bind another event here that responds to the
       // user navigating history, for the purpose of popping the
       // history entry back off.
-
     },
 
-    cleanup: function(obj) {
-
+    cleanup: function (obj) {
       /**
        * Setup an array-based implementation of a Set
        * to track the objects we have
        * already cloned - this will generically clean circular refs.
-       **/
+       * */
       var clonedSet = [];
 
       function cloner(obj) {
-
-        if(obj === null || typeof(obj) != 'object') {
+        if (obj === null || typeof (obj) !== 'object') {
           return obj;
         }
 
         if (clonedSet.indexOf(obj) === -1) {
           clonedSet.push(obj);
           var temp = Array.isArray(obj) ? [] : {};
-          for(var key in obj) {
+          for (var key in obj) {
             if (obj.hasOwnProperty(key)) {
               temp[key] = cloner(obj[key]);
             }
@@ -405,7 +397,7 @@
       return cloner(obj);
     },
 
-    save: function() {
+    save: function () {
       var _this = this;
 
       // the hash must be stringified because
@@ -416,5 +408,4 @@
     }
 
   };
-
 }(Mirador));

@@ -1,6 +1,5 @@
-(function($){
-
-  $.Manifest = function(manifestUri, location, manifestContent) {
+(function ($) {
+  $.Manifest = function (manifestUri, location, manifestContent) {
     if (manifestContent) {
       jQuery.extend(true, this, {
         jsonLd: null,
@@ -31,7 +30,7 @@
         jsonLd: null,
         location: location,
         uri: manifestUri,
-        request: null,
+        request: null
       });
 
       this.initFromInfoJson(manifestUri);
@@ -48,7 +47,7 @@
   };
 
   $.Manifest.prototype = {
-    init: function(manifestUri) {
+    init: function (manifestUri) {
       var _this = this;
       this.request = jQuery.ajax({
         url: manifestUri,
@@ -56,44 +55,44 @@
         async: true
       });
 
-      this.request.done(function(jsonLd) {
+      this.request.done(function (jsonLd) {
         _this.jsonLd = jsonLd;
       });
     },
-    buildCanvasMap: function() {
+    buildCanvasMap: function () {
       var _this = this;
       this.canvasMap = {};
 
       if (this.getCanvases()) {
-        this.getCanvases().forEach(function(canvas) {
+        this.getCanvases().forEach(function (canvas) {
           _this.canvasMap[canvas['@id']] = canvas;
         });
       }
     },
-    initFromInfoJson: function(infoJsonUrl) {
+    initFromInfoJson: function (infoJsonUrl) {
       var _this = this;
       this.request = jQuery.ajax({
         url: infoJsonUrl,
         dataType: 'json',
         async: true
       });
-      this.request.done(function(jsonLd) {
+      this.request.done(function (jsonLd) {
         _this.jsonLd = _this.generateInfoWrapper(jsonLd);
       });
     },
     initFromManifestContent: function (manifestContent) {
       var _this = this;
       this.request = jQuery.Deferred();
-      this.request.done(function(jsonLd) {
+      this.request.done(function (jsonLd) {
         _this.jsonLd = jsonLd;
       });
       _this.request.resolve(manifestContent); // resolve immediately
     },
-    getThumbnailForCanvas : function(canvas, width) {
-      var version = "1.1",
-      compliance = -1,
-      service,
-      thumbnailUrl;
+    getThumbnailForCanvas: function (canvas, width) {
+      var version = '1.1',
+        compliance = -1,
+        service,
+        thumbnailUrl;
 
       // Ensure width is an integer...
       width = parseInt(width, 10);
@@ -101,30 +100,30 @@
       // Respecting the Model...
       if (canvas.hasOwnProperty('thumbnail')) {
         // use the thumbnail image, prefer via a service
-        if (typeof(canvas.thumbnail) == 'string') {
+        if (typeof (canvas.thumbnail) === 'string') {
           thumbnailUrl = canvas.thumbnail;
         } else if (canvas.thumbnail.hasOwnProperty('service')) {
-            service = canvas.thumbnail.service;
-            if(service.hasOwnProperty('profile')) {
-               compliance = $.Iiif.getComplianceLevelFromProfile(service.profile);
-            }
-            if(compliance === 0){
+          service = canvas.thumbnail.service;
+          if (service.hasOwnProperty('profile')) {
+            compliance = $.Iiif.getComplianceLevelFromProfile(service.profile);
+          }
+          if (compliance === 0) {
                 // don't change existing behaviour unless compliance is explicitly 0
-                thumbnailUrl = canvas.thumbnail['@id'];
-            } else {
+            thumbnailUrl = canvas.thumbnail['@id'];
+          } else {
                 // Get the IIIF Image API via the @context
-                if (service.hasOwnProperty('@context')) {
-                    version = $.Iiif.getVersionFromContext(service['@context']);
-                }
-                thumbnailUrl = $.Iiif.makeUriWithWidth(service['@id'], width, version);
+            if (service.hasOwnProperty('@context')) {
+              version = $.Iiif.getVersionFromContext(service['@context']);
             }
+            thumbnailUrl = $.Iiif.makeUriWithWidth(service['@id'], width, version);
+          }
         } else {
           thumbnailUrl = canvas.thumbnail['@id'];
         }
       } else {
         // No thumbnail, use main image
         var resource = canvas.images[0].resource;
-        service = resource['default'] ? resource['default'].service : resource.service;
+        service = resource.default ? resource.default.service : resource.service;
         if (service.hasOwnProperty('@context')) {
           version = $.Iiif.getVersionFromContext(service['@context']);
         }
@@ -132,7 +131,7 @@
       }
       return thumbnailUrl;
     },
-    getVersion: function() {
+    getVersion: function () {
       var versionMap = {
         'http://www.shared-canvas.org/ns/context.json': '1', // is this valid?
         'http://iiif.io/api/presentation/1/context.json': '1',
@@ -141,16 +140,16 @@
       };
       return versionMap[this.jsonLd['@context']];
     },
-    getCanvases : function() {
+    getCanvases: function () {
       var _this = this;
       return _this.jsonLd.sequences && _this.jsonLd.sequences[0].canvases;
     },
-    getAnnotationsListUrls: function(canvasId) {
+    getAnnotationsListUrls: function (canvasId) {
       var _this = this;
-      var canvas = jQuery.grep(_this.getCanvases(), function(canvas, index) {
-        return canvas['@id'] === canvasId;
-      })[0],
-      annotationsListUrls = [];
+      var canvas = jQuery.grep(_this.getCanvases(), function (canvas, index) {
+          return canvas['@id'] === canvasId;
+        })[0],
+        annotationsListUrls = [];
 
       if (canvas && canvas.otherContent) {
         for (var i = 0; i < canvas.otherContent.length; i++) {
@@ -159,11 +158,11 @@
       }
       return annotationsListUrls;
     },
-    getStructures: function() {
+    getStructures: function () {
       var _this = this;
       return _this.jsonLd.structures;
     },
-    generateInfoWrapper: function(infoJson) {
+    generateInfoWrapper: function (infoJson) {
       // Takes in info.json and creates the
       // dummy manifest wrapper around it
       // that will allow it to behave like a
@@ -172,10 +171,10 @@
       // of the image will be used as the
       // label, and so on, of the manifest.
       var dummyManifest = {
-        '@context': "http://www.shared-canvas.org/ns/context.json",
+        '@context': 'http://www.shared-canvas.org/ns/context.json',
         '@id': infoJson['@id'],
         '@type': 'sc:Manifest',
-        label: infoJson['@id'].split('/')[infoJson['@id'].split('/').length -1],
+        label: infoJson['@id'].split('/')[infoJson['@id'].split('/').length - 1],
         sequences: [
           {
             '@id': infoJson['@id'] + '/sequence/1',
@@ -190,17 +189,17 @@
                   {
                     '@id': infoJson['@id'] + '/sequence/1/canvas/1/image/1',
                     '@type': 'sc:image',
-                    'motivation': 'sc:painting',
+                    motivation: 'sc:painting',
                     resource: {
                       '@id': infoJson,
-                      '@type': "dctypes:Image",
-                      format: "image/jpeg",
+                      '@type': 'dctypes:Image',
+                      format: 'image/jpeg',
                       height: infoJson.height,
                       width: infoJson.width,
                       service: {
                         '@id': infoJson['@id'],
                         '@context': infoJson['@context'],
-                        'profile': infoJson.profile
+                        profile: infoJson.profile
                       }
                     }
                   }
@@ -213,29 +212,26 @@
 
       return dummyManifest;
     },
-    getSearchWithinService: function(){
+    getSearchWithinService: function () {
       var _this = this;
       var serviceProperty = _this.jsonLd.service;
       var service = [];
-      if (serviceProperty === undefined){
+      if (serviceProperty === undefined) {
         service = null;
-      }
-      else if (serviceProperty.constructor === Array){
-        for (var i = 0; i < serviceProperty.length; i++){
-          //TODO: should we be filtering search by context
-          if (serviceProperty[i]["@context"] === "http://iiif.io/api/search/0/context.json" ||
-            serviceProperty[i]["@context"] === "http://iiif.io/api/search/1/context.json") {
-            //returns the first service object with the correct context
+      } else if (serviceProperty.constructor === Array) {
+        for (var i = 0; i < serviceProperty.length; i++) {
+          // TODO: should we be filtering search by context
+          if (serviceProperty[i]['@context'] === 'http://iiif.io/api/search/0/context.json' ||
+            serviceProperty[i]['@context'] === 'http://iiif.io/api/search/1/context.json') {
+            // returns the first service object with the correct context
             service.push(serviceProperty[i]);
           }
         }
-      }
-      else if (_this.jsonLd.service["@context"] === "http://iiif.io/api/search/0/context.json" ||
-        serviceProperty["@context"] === "http://iiif.io/api/search/1/context.json"){
+      } else if (_this.jsonLd.service['@context'] === 'http://iiif.io/api/search/0/context.json' ||
+        serviceProperty['@context'] === 'http://iiif.io/api/search/1/context.json') {
         service.push(_this.jsonLd.service);
-      }
-      else {
-        //no service object with the right context is found
+      } else {
+        // no service object with the right context is found
         service = null;
       }
       return service;
@@ -246,18 +242,16 @@
      * @param  {[type]} canvasId ID of desired canvas
      * @return {[type]}          string
      */
-    getCanvasLabel: function(canvasId) {
-      console.assert(canvasId && canvasId !== '', "No canvasId was specified.");
+    getCanvasLabel: function (canvasId) {
+      console.assert(canvasId && canvasId !== '', 'No canvasId was specified.');
       if (this.canvasMap && canvasId.indexOf('#') >= 0) {
         var canvas = this.canvasMap[canvasId.split('#')[0]];
         return canvas ? canvas.label : undefined;
       }
     },
-    getViewingDirection : function() {
+    getViewingDirection: function () {
       var _this = this;
       return _this.jsonLd.viewingDirection || _this.jsonLd.sequences[0].viewingDirection;
-
     }
   };
-
 }(Mirador));

@@ -1,6 +1,5 @@
-(function($) {
-
-  $.MiradorDualStrategy = function(options) {
+(function ($) {
+  $.MiradorDualStrategy = function (options) {
     jQuery.extend(this, {
 
     }, options);
@@ -8,12 +7,12 @@
   };
 
   $.MiradorDualStrategy.prototype = {
-    init: function() {
+    init: function () {
 
     },
 
     // Check whether an annotation is supported under this formatting strategy
-    isThisType: function(annotation) {
+    isThisType: function (annotation) {
       if (annotation.on && jQuery.isArray(annotation.on) && annotation.on.length > 0 && typeof annotation.on[0] === 'object' &&
           annotation.on[0].selector && typeof annotation.on[0].selector === 'object' &&
           annotation.on[0].selector['@type'] === 'oa:Choice' &&
@@ -28,32 +27,32 @@
     },
 
     // Build the selector into a bare annotation, given a Window and an OsdSvgOverlay
-    buildAnnotation: function(options) {
+    buildAnnotation: function (options) {
       var oaAnno = options.annotation,
-          win = options.window,
-          overlay = options.overlay;
+        win = options.window,
+        overlay = options.overlay;
       oaAnno.on = [];
-      jQuery.each(overlay.draftPaths, function(index, path) {
+      jQuery.each(overlay.draftPaths, function (index, path) {
         // getSVGString expects an array, so insert each path into a new array
         var svg = overlay.getSVGString([path]),
-        bounds = path.bounds;
+          bounds = path.bounds;
         oaAnno.on.push({
-          "@type": "oa:SpecificResource",
-          "full": win.canvasID,
-          "selector": {
-            "@type": "oa:Choice",
-            "default": {
-              "@type": "oa:FragmentSelector",
-              "value": "xywh=" + Math.round(bounds.x) + "," + Math.round(bounds.y) + "," + Math.round(bounds.width) + "," + Math.round(bounds.height)
+          '@type': 'oa:SpecificResource',
+          full: win.canvasID,
+          selector: {
+            '@type': 'oa:Choice',
+            default: {
+              '@type': 'oa:FragmentSelector',
+              value: 'xywh=' + Math.round(bounds.x) + ',' + Math.round(bounds.y) + ',' + Math.round(bounds.width) + ',' + Math.round(bounds.height)
             },
-            "item": {
-              "@type": "oa:SvgSelector",
-              "value": svg
+            item: {
+              '@type': 'oa:SvgSelector',
+              value: svg
             }
           },
-          "within": {
-            "@id": win.loadedManifest,
-            "@type": "sc:Manifest"
+          within: {
+            '@id': win.loadedManifest,
+            '@type': 'sc:Manifest'
           }
         });
       });
@@ -61,15 +60,14 @@
     },
 
     // Parse the annotation into the OsdRegionDrawTool instance (only if its format is supported by this strategy)
-    parseRegion: function(annotation, osdRegionDrawTool) {
+    parseRegion: function (annotation, osdRegionDrawTool) {
       if (this.isThisType(annotation)) {
         var regionArray = [];
-        jQuery.each(annotation.on, function(index, target) {
+        jQuery.each(annotation.on, function (index, target) {
           regionArray = regionArray.concat(osdRegionDrawTool.svgOverlay.parseSVG(target.selector.item.value, annotation));
         });
         return regionArray;
       }
-    },
+    }
   };
-
 }(Mirador));

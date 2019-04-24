@@ -17,20 +17,18 @@
  * deleteAnnotation(annotationID, returnSuccess, returnError) (delete is a reserved word)
  *
  */
-(function ($){
-
-$.SimpleASEndpoint = function (options) {
-
-  jQuery.extend(this, {
-        token: null,
+(function ($) {
+  $.SimpleASEndpoint = function (options) {
+    jQuery.extend(this, {
+      token: null,
         // prefix:    'annotation', /**/
-        uri: null,
-        url: options.url,
-        dfd: null,
+      uri: null,
+      url: options.url,
+      dfd: null,
         // OA list for Mirador use
-        annotationsList: [],
+      annotationsList: [],
         // internal list for module use to map id to URI
-        idMapper: {}
+      idMapper: {}
     }, options);
 
     this.init();
@@ -45,10 +43,10 @@ $.SimpleASEndpoint = function (options) {
           name: this.username
         },
         permissions: {
-          'read':   [],
-          'update': [this.userid],
-          'delete': [this.userid],
-          'admin': [this.userid]
+          read: [],
+          update: [this.userid],
+          delete: [this.userid],
+          admin: [this.userid]
         }
       };
     },
@@ -74,9 +72,9 @@ $.SimpleASEndpoint = function (options) {
         },
 
         contentType: 'application/json; charset=utf-8',
-        success: function(data) {
+        success: function (data) {
           _this.annotationsList = data; // gmr
-          jQuery.each(_this.annotationsList, function(index, value) {
+          jQuery.each(_this.annotationsList, function (index, value) {
             // Swap out URI of anno to shorter ID
             value.fullId = value['@id'];
             value['@id'] = $.genUUID();
@@ -91,7 +89,7 @@ $.SimpleASEndpoint = function (options) {
             _this.dfd.resolve(true);
           }
         },
-        error: function(xhr, statusText, err) {
+        error: function (xhr, statusText, err) {
           if (typeof errorCallback === 'function') {
             errorCallback();
           } else {
@@ -121,15 +119,15 @@ $.SimpleASEndpoint = function (options) {
           // 'x-annotator-auth-token': this.token
         },
         data: {
-          uri: annotationID,
+          uri: annotationID
         },
         contentType: 'application/json; charset=utf-8',
-        success: function(data) {
+        success: function (data) {
           if (typeof returnSuccess === 'function') {
             returnSuccess();
           }
         },
-        error: function(xhr, statusText, err) {
+        error: function (xhr, statusText, err) {
           if (typeof returnError === 'function') {
             returnError();
           } else {
@@ -159,13 +157,13 @@ $.SimpleASEndpoint = function (options) {
         },
         data: JSON.stringify(annotation),
         contentType: 'application/json; charset=utf-8',
-        success: function(data) {
+        success: function (data) {
           _this.fixOn(data);
           if (typeof returnSuccess === 'function') {
             returnSuccess(data);
           }
         },
-        error: function(xhr, statusText, err) {
+        error: function (xhr, statusText, err) {
           if (typeof returnError === 'function') {
             returnError();
           } else {
@@ -192,7 +190,7 @@ $.SimpleASEndpoint = function (options) {
         },
         data: JSON.stringify(annotation),
         contentType: 'application/json; charset=utf-8',
-        success: function(data) {
+        success: function (data) {
           data.fullId = data['@id'];
           data['@id'] = $.genUUID();
           data.endpoint = _this;
@@ -202,7 +200,7 @@ $.SimpleASEndpoint = function (options) {
             returnSuccess(data);
           }
         },
-        error: function(xhr, statusText, err) {
+        error: function (xhr, statusText, err) {
           if (typeof returnError === 'function') {
             returnError();
           } else {

@@ -1,29 +1,29 @@
-(function($) {
+(function ($) {
 
-  $.ImageView = function(options) {
+  $.ImageView = function (options) {
 
     jQuery.extend(this, {
-      currentImg:       null,
-      windowId:         null,
-      currentImgIndex:  0,
-      canvasID:         null,
-      canvases:         null,
-      imagesList:       [],
-      imagesListRtl:    [],
-      element:          null,
-      elemOsd:          null,
-      manifest:         null,
-      osd:              null,
+      currentImg: null,
+      windowId: null,
+      currentImgIndex: 0,
+      canvasID: null,
+      canvases: null,
+      imagesList: [],
+      imagesListRtl: [],
+      element: null,
+      elemOsd: null,
+      manifest: null,
+      osd: null,
       osdOptions: {
-        osdBounds:        null,
-        zoomLevel:        null
+        osdBounds: null,
+        zoomLevel: null
       },
       osdCls: 'mirador-osd',
-      elemAnno:         null,
-      annoCls:          'annotation-canvas',
+      elemAnno: null,
+      annoCls: 'annotation-canvas',
       annotationsLayer: null,
       forceShowControls: false,
-      eventEmitter:     null,
+      eventEmitter: null,
       vDirectionStatus: ''
     }, options);
 
@@ -32,13 +32,14 @@
 
   $.ImageView.prototype = {
 
-    init: function() {
+    init: function () {
       var _this = this;
       this.horizontallyFlipped = false;
       this.originalDragHandler = null;
-      if(this.vDirectionStatus == 'rtl'){
-          this.imagesList =  this.imagesListRtl.concat();
-       }
+      this.ocrAnnotations = null;
+      if (this.vDirectionStatus == 'rtl') {
+        this.imagesList = this.imagesListRtl.concat();
+      }
       // check (for thumbnail view) if the canvasID is set.
       // If not, make it page/item 1.
       if (this.canvasID !== null) {
@@ -47,8 +48,8 @@
 
       if (!this.osdOptions) {
         this.osdOptions = {
-          osdBounds:        null,
-          zoomLevel:        null
+          osdBounds: null,
+          zoomLevel: null
         };
       }
       this.currentImg = this.imagesList[this.currentImgIndex];
@@ -58,12 +59,15 @@
         .appendTo(this.element);
 
 
-      _this.eventEmitter.publish('UPDATE_FOCUS_IMAGES.' + this.windowId, {array: [this.canvasID]});
+      _this.eventEmitter.publish('UPDATE_FOCUS_IMAGES.' + this.windowId, {
+        array: [this.canvasID]
+      });
 
       var allTools = $.getTools(this.state.getStateProperty('drawingToolsSettings'));
+      console.log(allTools);
       this.availableAnnotationTools = [];
-      for ( var i = 0; i < this.state.getStateProperty('availableAnnotationDrawingTools').length; i++) {
-        for ( var j = 0; j < allTools.length; j++) {
+      for (var i = 0; i < this.state.getStateProperty('availableAnnotationDrawingTools').length; i++) {
+        for (var j = 0; j < allTools.length; j++) {
           if (this.state.getStateProperty('availableAnnotationDrawingTools')[i] == allTools[j].name) {
             var values = {};
             values.logoClass = allTools[j].logoClass;
@@ -81,7 +85,7 @@
         windowId: this.windowId,
         canvasControls: this.canvasControls,
         annoEndpointAvailable: this.annoEndpointAvailable,
-        showNextPrev : this.imagesList.length !== 1,
+        showNextPrev: this.imagesList.length !== 1,
         availableAnnotationStylePickers: this.state.getStateProperty('availableAnnotationStylePickers'),
         availableAnnotationTools: this.availableAnnotationTools,
         state: this.state,
@@ -100,15 +104,15 @@
     },
 
     template: $.Handlebars.compile([
-       '<div class="image-view">',
-       '</div>'
+      '<div class="image-view">',
+      '</div>'
 
     ].join('')),
 
-    listenForActions: function() {
+    listenForActions: function () {
       var _this = this;
 
-      _this.eventEmitter.subscribe('bottomPanelSet.' + _this.windowId, function(event, visible) {
+      _this.eventEmitter.subscribe('bottomPanelSet.' + _this.windowId, function (event, visible) {
         var dodgers = _this.element.find('.mirador-osd-toggle-bottom-panel, .mirador-pan-zoom-controls');
         var arrows = _this.element.find('.mirador-osd-next, .mirador-osd-previous');
         if (visible === true) {
@@ -120,7 +124,7 @@
         }
       });
 
-      _this.eventEmitter.subscribe('fitBounds.' + _this.windowId, function(event, bounds) {
+      _this.eventEmitter.subscribe('fitBounds.' + _this.windowId, function (event, bounds) {
         var rect = new OpenSeadragon.Rect(bounds.x, bounds.y, bounds.width, bounds.height);
         _this.osd.viewport.fitBoundsWithConstraints(rect, false);
       });
@@ -139,61 +143,65 @@
       // _this.eventEmitter.subscribe('canvas-position-updated');
 
       //Related to Annotations HUD
-      _this.eventEmitter.subscribe('HUD_REMOVE_CLASS.' + _this.windowId, function(event, elementSelector, className) {
+      _this.eventEmitter.subscribe('HUD_REMOVE_CLASS.' + _this.windowId, function (event, elementSelector, className) {
         _this.element.find(elementSelector).removeClass(className);
       });
 
-      _this.eventEmitter.subscribe('HUD_ADD_CLASS.' + _this.windowId, function(event, elementSelector, className) {
+      _this.eventEmitter.subscribe('HUD_ADD_CLASS.' + _this.windowId, function (event, elementSelector, className) {
         _this.element.find(elementSelector).addClass(className);
       });
 
-      _this.eventEmitter.subscribe('HUD_FADE_IN.' + _this.windowId, function(event, elementSelector, duration) {
+      _this.eventEmitter.subscribe('HUD_FADE_IN.' + _this.windowId, function (event, elementSelector, duration) {
         _this.element.find(elementSelector).fadeIn(duration);
       });
 
-      _this.eventEmitter.subscribe('HUD_FADE_OUT.' + _this.windowId, function(event, elementSelector, duration, complete) {
+      _this.eventEmitter.subscribe('HUD_FADE_OUT.' + _this.windowId, function (event, elementSelector, duration, complete) {
         _this.element.find(elementSelector).fadeOut(duration, complete);
       });
 
-      _this.eventEmitter.subscribe('DEFAULT_CURSOR.' + _this.windowId, function(event) {
+      _this.eventEmitter.subscribe('DEFAULT_CURSOR.' + _this.windowId, function (event) {
         jQuery(_this.osd.canvas).css("cursor", "default");
       });
-      _this.eventEmitter.subscribe('CROSSHAIR_CURSOR.' + _this.windowId, function(event) {
-        jQuery(_this.osd.canvas).css("cursor", "crosshair");
+      _this.eventEmitter.subscribe('CROSSHAIR_CURSOR.' + _this.windowId, function (event) {
+        if (jQuery(_this.osd.canvas).css('cursor') !== 'text') {
+          jQuery(_this.osd.canvas).css("cursor", "crosshair");
+        }
       });
-      _this.eventEmitter.subscribe('POINTER_CURSOR.' + _this.windowId, function(event) {
+      _this.eventEmitter.subscribe('POINTER_CURSOR.' + _this.windowId, function (event) {
         jQuery(_this.osd.canvas).css("cursor", "pointer");
       });
       //Related to Annotations HUD
     },
 
-    bindEvents: function() {
+    bindEvents: function () {
       var _this = this;
 
-      this.element.find('.mirador-osd-next').on('click', function() {
+      this.element.find('.mirador-osd-next').on('click', function () {
         _this.next();
       });
 
-      this.element.find('.mirador-osd-previous').on('click', function() {
+      this.element.find('.mirador-osd-previous').on('click', function () {
         _this.previous();
       });
 
-      this.element.find('.mirador-osd-annotations-layer').on('click', function() {
+      this.element.find('.mirador-osd-annotations-layer').on('click', function () {
         if (_this.hud.annoState.current === 'none') {
           _this.hud.annoState.startup(this);
         }
         if (_this.hud.annoState.current === 'off') {
           _this.hud.annoState.displayOn(this);
           _this.annotationState = 'on';
+          _this.ocrAnnotations.annotationState = 'on';
         } else {
           //make sure to force the controls back to auto fade
           _this.forceShowControls = false;
           _this.hud.annoState.displayOff(this);
           _this.annotationState = 'off';
+          // _this.ocrAnnotations.removeTextOverlay();
         }
       });
 
-      this.element.find('.mirador-manipulation-toggle').on('click', function() {
+      this.element.find('.mirador-manipulation-toggle').on('click', function () {
         if (_this.hud.manipulationState.current === 'none') {
           _this.hud.manipulationState.startup(this);
         }
@@ -204,16 +212,16 @@
         }
       });
 
-      this.element.find('.mirador-osd-go-home').on('click', function() {
+      this.element.find('.mirador-osd-go-home').on('click', function () {
         _this.osd.viewport.goHome();
       });
 
-      this.element.find('.mirador-osd-up').on('click', function() {
+      this.element.find('.mirador-osd-up').on('click', function () {
         var panBy = _this.getPanByValue();
         _this.osd.viewport.panBy(new OpenSeadragon.Point(0, -panBy.y));
         _this.osd.viewport.applyConstraints();
       });
-      this.element.find('.mirador-osd-right').on('click', function() {
+      this.element.find('.mirador-osd-right').on('click', function () {
         var panBy = _this.getPanByValue();
         if (_this.horizontallyFlipped) {
           _this.osd.viewport.panBy(new OpenSeadragon.Point(-panBy.x, 0));
@@ -222,12 +230,12 @@
         }
         _this.osd.viewport.applyConstraints();
       });
-      this.element.find('.mirador-osd-down').on('click', function() {
+      this.element.find('.mirador-osd-down').on('click', function () {
         var panBy = _this.getPanByValue();
         _this.osd.viewport.panBy(new OpenSeadragon.Point(0, panBy.y));
         _this.osd.viewport.applyConstraints();
       });
-      this.element.find('.mirador-osd-left').on('click', function() {
+      this.element.find('.mirador-osd-left').on('click', function () {
         var panBy = _this.getPanByValue();
         if (_this.horizontallyFlipped) {
           _this.osd.viewport.panBy(new OpenSeadragon.Point(panBy.x, 0));
@@ -237,18 +245,18 @@
         _this.osd.viewport.applyConstraints();
       });
 
-      this.element.find('.mirador-osd-zoom-in').on('click', function() {
+      this.element.find('.mirador-osd-zoom-in').on('click', function () {
         var osd = _this.osd;
-        if ( osd.viewport ) {
+        if (osd.viewport) {
           osd.viewport.zoomBy(
             osd.zoomPerClick / 1.0
           );
           osd.viewport.applyConstraints();
         }
       });
-      this.element.find('.mirador-osd-zoom-out').on('click', function() {
+      this.element.find('.mirador-osd-zoom-out').on('click', function () {
         var osd = _this.osd;
-        if ( osd.viewport ) {
+        if (osd.viewport) {
           osd.viewport.zoomBy(
             1.0 / osd.zoomPerClick
           );
@@ -256,12 +264,12 @@
         }
       });
 
-      this.element.find('.mirador-osd-toggle-bottom-panel').on('click', function() {
+      this.element.find('.mirador-osd-toggle-bottom-panel').on('click', function () {
         _this.eventEmitter.publish('TOGGLE_BOTTOM_PANEL_VISIBILITY.' + _this.windowId);
       });
 
       // Annotation specific controls
-      this.element.find('.mirador-osd-edit-mode').on('click', function() {
+      this.element.find('.mirador-osd-edit-mode').on('click', function () {
         var shape = jQuery(this).find('.material-icons').html();
         if (_this.hud.annoState.current === 'pointer') {
           _this.hud.annoState.chooseShape(shape);
@@ -271,9 +279,11 @@
         //when a user is in Create mode, don't let the controls auto fade as it could be distracting to the user
         _this.forceShowControls = true;
         _this.element.find(".hud-control").stop(true, true).removeClass('hidden', _this.state.getStateProperty('fadeDuration'));
+      console.log('annostate', _this.hud.annoState);
+
       });
 
-      this.element.find('.mirador-osd-pointer-mode').on('click', function() {
+      this.element.find('.mirador-osd-pointer-mode').on('click', function () {
         // go back to pointer mode
         if (_this.hud.annoState.current === 'shape') {
           _this.hud.annoState.choosePointer();
@@ -282,7 +292,7 @@
         }
       });
 
-      this.element.find('.mirador-osd-refresh-mode').on('click', function() {
+      this.element.find('.mirador-osd-refresh-mode').on('click', function () {
         //update annotation list from endpoint
         _this.eventEmitter.publish('updateAnnotationList.' + _this.windowId);
       });
@@ -291,22 +301,24 @@
       //Image manipulation controls
       //set the original values for all of the CSS filter options
       var filterValues = {
-        "brightness" : "brightness(100%)",
-        "contrast" : "contrast(100%)",
-        "saturate" : "saturate(100%)",
-        "grayscale" : "grayscale(0%)",
-        "invert" : "invert(0%)"
+        "brightness": "brightness(100%)",
+        "contrast": "contrast(100%)",
+        "saturate": "saturate(100%)",
+        "grayscale": "grayscale(0%)",
+        "invert": "invert(0%)"
       };
 
       function setFilterCSS() {
-        var filterCSS = jQuery.map(filterValues, function(value, key) { return value; }).join(" "),
-            osdCanvas = jQuery(_this.osd.drawer.canvas);
+        var filterCSS = jQuery.map(filterValues, function (value, key) {
+            return value;
+          }).join(" "),
+          osdCanvas = jQuery(_this.osd.drawer.canvas);
         osdCanvas.css({
-          'filter'         : filterCSS,
-          '-webkit-filter' : filterCSS,
-          '-moz-filter'    : filterCSS,
-          '-o-filter'      : filterCSS,
-          '-ms-filter'     : filterCSS
+          'filter': filterCSS,
+          '-webkit-filter': filterCSS,
+          '-moz-filter': filterCSS,
+          '-o-filter': filterCSS,
+          '-ms-filter': filterCSS
         });
       }
 
@@ -318,17 +330,17 @@
 
         //reset brightness
         filterValues.brightness = "brightness(100%)";
-        _this.element.find('.mirador-osd-brightness-slider').slider('option','value',100);
+        _this.element.find('.mirador-osd-brightness-slider').slider('option', 'value', 100);
         _this.element.find('.mirador-osd-brightness-slider').find('.percent').text(100 + '%');
 
         //reset contrast
         filterValues.contrast = "contrast(100%)";
-        _this.element.find('.mirador-osd-contrast-slider').slider('option','value',100);
+        _this.element.find('.mirador-osd-contrast-slider').slider('option', 'value', 100);
         _this.element.find('.mirador-osd-contrast-slider').find('.percent').text(100 + '%');
 
         //reset saturation
         filterValues.saturate = "saturate(100%)";
-        _this.element.find('.mirador-osd-saturation-slider').slider('option','value',100);
+        _this.element.find('.mirador-osd-saturation-slider').slider('option', 'value', 100);
         _this.element.find('.mirador-osd-saturation-slider').find('.percent').text(100 + '%');
 
         //reset grayscale
@@ -348,14 +360,14 @@
         setFilterCSS();
       }
 
-      this.element.find('.mirador-osd-rotate-right').on('click', function() {
+      this.element.find('.mirador-osd-rotate-right').on('click', function () {
         if (_this.osd) {
           var currentRotation = _this.osd.viewport.getRotation();
           _this.osd.viewport.setRotation(currentRotation + 90);
         }
       });
 
-      this.element.find('.mirador-osd-rotate-left').on('click', function() {
+      this.element.find('.mirador-osd-rotate-left').on('click', function () {
         if (_this.osd) {
           var currentRotation = _this.osd.viewport.getRotation();
           _this.osd.viewport.setRotation(currentRotation - 90);
@@ -368,26 +380,26 @@
         min: 0,
         max: 200,
         value: 100,
-        create: function(event, ui) {
+        create: function (event, ui) {
           var v = jQuery(this).slider('value'),
-              span = jQuery('<span class="percent">').text(v + '%');
+            span = jQuery('<span class="percent">').text(v + '%');
 
           jQuery(this).find('.ui-slider-handle').append(span);
         },
-        slide: function(event, ui) {
-          filterValues.brightness = "brightness("+ui.value+"%)";
+        slide: function (event, ui) {
+          filterValues.brightness = "brightness(" + ui.value + "%)";
           setFilterCSS();
           jQuery(this).find('.percent').text(ui.value + '%');
         }
       }).hide();
 
       this.element.find('.mirador-osd-brightness').on('mouseenter',
-                                                      function() {
-                                                        _this.element.find('.mirador-osd-brightness-slider').stop(true, true).show();
-                                                      }).on('mouseleave',
-                                                            function() {
-                                                              _this.element.find('.mirador-osd-brightness-slider').stop(true, true).hide();
-                                                            });
+        function () {
+          _this.element.find('.mirador-osd-brightness-slider').stop(true, true).show();
+        }).on('mouseleave',
+        function () {
+          _this.element.find('.mirador-osd-brightness-slider').stop(true, true).hide();
+        });
 
       this.element.find('.mirador-osd-contrast-slider').slider({
         orientation: "vertical",
@@ -395,26 +407,26 @@
         min: 0,
         max: 200,
         value: 100,
-        create: function(event, ui) {
+        create: function (event, ui) {
           var v = jQuery(this).slider('value'),
-              span = jQuery('<span class="percent">').text(v + '%');
+            span = jQuery('<span class="percent">').text(v + '%');
 
           jQuery(this).find('.ui-slider-handle').append(span);
         },
-        slide: function(event, ui) {
-          filterValues.contrast = "contrast("+ui.value+"%)";
+        slide: function (event, ui) {
+          filterValues.contrast = "contrast(" + ui.value + "%)";
           setFilterCSS();
           jQuery(this).find('.percent').text(ui.value + '%');
         }
       }).hide();
 
       this.element.find('.mirador-osd-contrast').on('mouseenter',
-                                                    function() {
-                                                      _this.element.find('.mirador-osd-contrast-slider').stop(true, true).show();
-                                                    }).on('mouseleave',
-                                                          function() {
-                                                            _this.element.find('.mirador-osd-contrast-slider').stop(true, true).hide();
-                                                          });
+        function () {
+          _this.element.find('.mirador-osd-contrast-slider').stop(true, true).show();
+        }).on('mouseleave',
+        function () {
+          _this.element.find('.mirador-osd-contrast-slider').stop(true, true).hide();
+        });
 
       this.element.find('.mirador-osd-saturation-slider').slider({
         orientation: "vertical",
@@ -422,28 +434,28 @@
         min: 0,
         max: 200,
         value: 100,
-        create: function(event, ui) {
+        create: function (event, ui) {
           var v = jQuery(this).slider('value'),
-              span = jQuery('<span class="percent">').text(v + '%');
+            span = jQuery('<span class="percent">').text(v + '%');
 
           jQuery(this).find('.ui-slider-handle').append(span);
         },
-        slide: function(event, ui) {
-          filterValues.saturate = "saturate("+ui.value+"%)";
+        slide: function (event, ui) {
+          filterValues.saturate = "saturate(" + ui.value + "%)";
           setFilterCSS();
           jQuery(this).find('.percent').text(ui.value + '%');
         }
       }).hide();
 
       this.element.find('.mirador-osd-saturation').on('mouseenter',
-                                                      function() {
-                                                        _this.element.find('.mirador-osd-saturation-slider').stop(true, true).show();
-                                                      }).on('mouseleave',
-                                                            function() {
-                                                              _this.element.find('.mirador-osd-saturation-slider').stop(true, true).hide();
-                                                            });
+        function () {
+          _this.element.find('.mirador-osd-saturation-slider').stop(true, true).show();
+        }).on('mouseleave',
+        function () {
+          _this.element.find('.mirador-osd-saturation-slider').stop(true, true).hide();
+        });
 
-      this.element.find('.mirador-osd-grayscale').on('click', function() {
+      this.element.find('.mirador-osd-grayscale').on('click', function () {
         if (jQuery(this).hasClass('selected')) {
           filterValues.grayscale = "grayscale(0%)";
           jQuery(this).removeClass('selected');
@@ -454,7 +466,7 @@
         setFilterCSS();
       });
 
-      this.element.find('.mirador-osd-invert').on('click', function() {
+      this.element.find('.mirador-osd-invert').on('click', function () {
         if (jQuery(this).hasClass('selected')) {
           filterValues.invert = "invert(0%)";
           jQuery(this).removeClass('selected');
@@ -465,7 +477,7 @@
         setFilterCSS();
       });
 
-      this.element.find('.mirador-osd-mirror').on('click', function() {
+      this.element.find('.mirador-osd-mirror').on('click', function () {
         if (!_this.originalDragHandler) {
           _this.originalDragHandler = _this.osd.viewport && _this.osd.viewport.viewer.innerTracker.dragHandler;
         }
@@ -483,29 +495,29 @@
           _this.eventEmitter.publish('enableManipulation', 'mirror');
           if (_this.osd.viewport) {
             var viewer = _this.osd.viewport.viewer;
-            viewer.innerTracker.dragHandler = OpenSeadragon.delegate(viewer, function(event) {
+            viewer.innerTracker.dragHandler = OpenSeadragon.delegate(viewer, function (event) {
               event.delta.x = -event.delta.x;
               _this.originalDragHandler(event);
             });
           }
           _this.horizontallyFlipped = true;
         }
-    });
+      });
 
-      this.element.find('.mirador-osd-reset').on('click', function() {
+      this.element.find('.mirador-osd-reset').on('click', function () {
         resetImageManipulationControls();
       });
 
-      this.eventEmitter.subscribe('resetImageManipulationControls.'+this.windowId, function() {
+      this.eventEmitter.subscribe('resetImageManipulationControls.' + this.windowId, function () {
         resetImageManipulationControls();
       });
       //Image manipulation controls
     },
 
-    currentCanvasIDUpdated: function(event, canvasId) {
+    currentCanvasIDUpdated: function (event, canvasId) {
       var _this = this,
-          firstCanvasId = _this.imagesList[0]['@id'],
-          lastCanvasId = _this.imagesList[_this.imagesList.length-1]['@id'];
+        firstCanvasId = _this.imagesList[0]['@id'],
+        lastCanvasId = _this.imagesList[_this.imagesList.length - 1]['@id'];
 
       // If it is the first canvas, hide the "go to previous" button, otherwise show it.
       if (canvasId === firstCanvasId) {
@@ -521,12 +533,19 @@
       // If it is the last canvas, hide the "go to previous" button, otherwise show it.
     },
 
-    loadImage: function(event, imageResource) {
+    loadImage: function (event, imageResource) {
       var _this = this;
 
       // We've already loaded this tilesource
-      if(imageResource.status === 'drawn') {
+      if (imageResource.status === 'drawn') {
         return;
+      }
+
+      if (_this.ocrAnnotations) {
+        // _this.ocrAnnotations.forEach(function (word) {
+        //   _this.osd.removeOverlay(word);
+        // });
+        // _this.ocrAnnotations.removeTextOverlay();
       }
 
       imageResource.setStatus('requested');
@@ -541,23 +560,38 @@
         clip: imageResource.clipRegion,
         index: imageResource.zIndex,
 
-        success: function(event) {
+        success: function (event) {
           var tiledImage = event.item;
 
           imageResource.osdTiledImage = tiledImage;
           imageResource.setStatus('loaded');
           _this.syncAllImageResourceProperties(imageResource);
 
-          var tileDrawnHandler = function(event) {
+          var tileDrawnHandler = function (event) {
             if (event.tiledImage === tiledImage) {
               imageResource.setStatus('drawn');
               _this.osd.removeHandler('tile-drawn', tileDrawnHandler);
             }
           };
           _this.osd.addHandler('tile-drawn', tileDrawnHandler);
+
+         
+          _this.selecting = false;
+          var textOverlay = new Mirador.TextOverlay({
+            osd: _this.osd,
+            canvasID: _this.canvasID,
+            eventEmitter: _this.eventEmitter,
+            state: _this.state,
+            annotationState: _this.annotationState,
+            windowId: _this.windowId
+          });
+
+          textOverlay.addTextOverlay();
+
+          _this.ocrAnnotations = textOverlay;
         },
 
-        error: function(event) {
+        error: function (event) {
           // Add any auth information here.
           //
           // var errorInfo = {
@@ -569,7 +603,7 @@
         }
       });
     },
-    showImage: function(event, imageResource) {
+    showImage: function (event, imageResource) {
       // Check whether or not this item has been drawn.
       // This implies that the request has been issued already
       // and the opacity can be updated.
@@ -577,26 +611,25 @@
         this.updateImageOpacity(null, imageResource);
       }
     },
-    hideImage: function(event, imageResource) {
+    hideImage: function (event, imageResource) {
       if (imageResource.getStatus() === 'drawn') {
         imageResource.osdTiledImage.setOpacity(0);
       }
     },
-    removeImage: function() {
-    },
-    updateImageOpacity: function(event, imageResource) {
-      if(imageResource.osdTiledImage) {
+    removeImage: function () {},
+    updateImageOpacity: function (event, imageResource) {
+      if (imageResource.osdTiledImage) {
         imageResource.osdTiledImage.setOpacity(imageResource.opacity * imageResource.parent.getOpacity());
       }
     },
-    syncAllImageResourceProperties: function(imageResource) {
-      if(imageResource.osdTiledImage) {
+    syncAllImageResourceProperties: function (imageResource) {
+      if (imageResource.osdTiledImage) {
         var bounds = imageResource.getGlobalBounds();
         // If ever the clipRegion parameter becomes
         // writable, add it here.
         imageResource.osdTiledImage.setPosition({
-          x:bounds.x,
-          y:bounds.y
+          x: bounds.x,
+          y: bounds.y
         }, true);
         imageResource.osdTiledImage.setWidth(bounds.width, true);
         imageResource.osdTiledImage.setOpacity(
@@ -607,17 +640,17 @@
       }
     },
 
-    getPanByValue: function() {
+    getPanByValue: function () {
       var bounds = this.osd.viewport.getBounds(true);
       //for now, let's keep 50% of the image on the screen
       var panBy = {
-        "x" : bounds.width * 0.5,
-        "y" : bounds.height * 0.5
+        "x": bounds.width * 0.5,
+        "y": bounds.height * 0.5
       };
       return panBy;
     },
 
-    setBounds: function() {
+    setBounds: function () {
       var _this = this;
 
       this.osdOptions.osdBounds = this.osd.viewport.getBounds(true);
@@ -643,7 +676,7 @@
       });
     },
 
-    toggle: function(stateValue) {
+    toggle: function (stateValue) {
       if (stateValue) {
         this.show();
       } else {
@@ -651,13 +684,20 @@
       }
     },
 
-    hide: function() {
-      jQuery(this.element).hide({effect: "fade", duration: 300, easing: "easeOutCubic"});
+    hide: function () {
+      jQuery(this.element).hide({
+        effect: "fade",
+        duration: 300,
+        easing: "easeOutCubic"
+      });
     },
 
-    show: function() {
+    show: function () {
       jQuery(this.element).show({
-        effect: "fade", duration: 300, easing: "easeInCubic", complete: function () {
+        effect: "fade",
+        duration: 300,
+        easing: "easeInCubic",
+        complete: function () {
           // Under firefox $.show() used under display:none iframe does not change the display.
           // This is workaround for https://github.com/IIIF/mirador/issues/929
           jQuery(this).css('display', 'block');
@@ -665,16 +705,16 @@
       });
     },
 
-    adjustWidth: function(className, hasClass) {
+    adjustWidth: function (className, hasClass) {
       var _this = this;
       if (hasClass) {
-        _this.eventEmitter.publish('REMOVE_CLASS.'+this.windowId, className);
+        _this.eventEmitter.publish('REMOVE_CLASS.' + this.windowId, className);
       } else {
-        _this.eventEmitter.publish('ADD_CLASS.'+this.windowId, className);
+        _this.eventEmitter.publish('ADD_CLASS.' + this.windowId, className);
       }
     },
 
-    adjustHeight: function(className, hasClass) {
+    adjustHeight: function (className, hasClass) {
       if (hasClass) {
         this.element.removeClass(className);
       } else {
@@ -682,10 +722,10 @@
       }
     },
 
-    initialiseImageCanvas: function() {
+    initialiseImageCanvas: function () {
       var _this = this,
-          osdID = 'mirador-osd-' + $.genUUID(),
-          canvasModel = _this.canvases[_this.canvasID];
+        osdID = 'mirador-osd-' + $.genUUID(),
+        canvasModel = _this.canvases[_this.canvasID];
 
       _this.elemOsd =
         jQuery('<div/>')
@@ -712,11 +752,11 @@
       _this.osd.viewport.fitBounds(rect, true); // center viewport before image is placed.
 
       canvasModel.show();
-      canvasModel.getVisibleImages().forEach(function(imageResource) {
+      canvasModel.getVisibleImages().forEach(function (imageResource) {
         _this.loadImage(null, imageResource);
       });
 
-      _this.osd.addHandler('zoom', $.debounce(function(){
+      _this.osd.addHandler('zoom', $.debounce(function () {
         var point = {
           'x': -10000000,
           'y': -10000000
@@ -724,7 +764,7 @@
         _this.eventEmitter.publish('updateTooltips.' + _this.windowId, [point, point]);
       }, 30));
 
-      _this.osd.addHandler('pan', $.debounce(function(){
+      _this.osd.addHandler('pan', $.debounce(function () {
         var point = {
           'x': -10000000,
           'y': -10000000
@@ -733,7 +773,7 @@
       }, 30));
 
       // Maintain this as an external API.
-      _this.eventEmitter.publish('osdOpen.'+_this.windowId);
+      _this.eventEmitter.publish('osdOpen.' + _this.windowId);
       _this.addAnnotationsLayer(_this.elemAnno);
 
       if (_this.osdOptions.osdBounds) {
@@ -768,17 +808,17 @@
         //original state is off, so don't need to do anything
       }
 
-      _this.osd.addHandler('zoom', $.debounce(function() {
+      _this.osd.addHandler('zoom', $.debounce(function () {
         _this.setBounds();
       }, 500));
 
-      _this.osd.addHandler('pan', $.debounce(function(){
+      _this.osd.addHandler('pan', $.debounce(function () {
         _this.setBounds();
       }, 500));
     },
 
     //TODO reuse annotationsLayer with IIIFManifestLayouts
-    addAnnotationsLayer: function(element) {
+    addAnnotationsLayer: function (element) {
       var _this = this;
       _this.annotationsLayer = new $.AnnotationsLayer({
         state: _this.state,
@@ -790,10 +830,10 @@
       });
     },
 
-    updateImage: function(canvasID) {
+    updateImage: function (canvasID) {
       var _this = this;
       if (this.canvasID !== canvasID) {
-        this.canvases[_this.canvasID].getVisibleImages().forEach(function(imageResource){
+        this.canvases[_this.canvasID].getVisibleImages().forEach(function (imageResource) {
           imageResource.hide();
         });
         this.canvasID = canvasID;
@@ -812,15 +852,17 @@
         newCanvas.show();
 
         this.osdOptions = {
-          osdBounds:        null,
-          zoomLevel:        null
+          osdBounds: null,
+          zoomLevel: null
         };
-        this.eventEmitter.publish('resetImageManipulationControls.'+this.windowId);
+        this.eventEmitter.publish('resetImageManipulationControls.' + this.windowId);
       }
-      _this.eventEmitter.publish('UPDATE_FOCUS_IMAGES.' + this.windowId, {array: [canvasID]});
-      },
+      _this.eventEmitter.publish('UPDATE_FOCUS_IMAGES.' + this.windowId, {
+        array: [canvasID]
+      });
+    },
 
-    next: function() {
+    next: function () {
       var _this = this;
       var next = this.currentImgIndex + 1;
       if (next < this.imagesList.length) {
@@ -828,7 +870,7 @@
       }
     },
 
-    previous: function() {
+    previous: function () {
       var _this = this;
       var prev = this.currentImgIndex - 1;
 

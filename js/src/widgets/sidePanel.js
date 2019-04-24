@@ -1,61 +1,60 @@
-(function($) {
-
-  $.SidePanel= function(options) {
+(function ($) {
+  $.SidePanel = function (options) {
     jQuery.extend(true, this, {
-      element:           null,
-      appendTo:          null,
-      manifest:          null,
-      panelState:        {},
-      tocTabAvailable:   null,
+      element: null,
+      appendTo: null,
+      manifest: null,
+      panelState: {},
+      tocTabAvailable: null,
       annotationsTabAvailable: false,
       layersTabAvailable: false,
       searchTabAvailable: null,
-      hasStructures:     false,
-      state:             null,
-      eventEmitter:      null
+      hasStructures: false,
+      state: null,
+      eventEmitter: null
     }, options);
 
     this.init();
   };
 
   $.SidePanel.prototype = {
-    init: function() {
+    init: function () {
       var _this = this;
 
       this.updateState({
-        tabs : [
+        tabs: [
           {
-            name : 'toc',
-            options : {
+            name: 'toc',
+            options: {
               available: _this.tocTabAvailable,
-              id:'tocTab',
+              id: 'tocTab',
               label: i18next.t('tabTitleIndex')
             }
           },
           {
-           name : 'annotations',
-           options : {
-           available: _this.annotationsTabAvailable,
-           id:'annotationsTab',
-           label:'Anno.'
-           }
+            name: 'annotations',
+            options: {
+              available: _this.annotationsTabAvailable,
+              id: 'annotationsTab',
+              label: 'Anno.'
+            }
           },
           {
-            name : 'search',
-            options : {
+            name: 'search',
+            options: {
               available: _this.searchTabAvailable,
               id: 'searchTab',
               label: i18next.t('tabTitleSearch')
             }
           },
           {
-            name : 'layers',
-            options : {
+            name: 'layers',
+            options: {
               available: _this.layersTabAvailable,
-              id:'layersTab',
+              id: 'layersTab',
               label: i18next.t('tabTitleLayers')
             }
-          },
+          }
         ],
         width: 280,
         open: true
@@ -67,14 +66,14 @@
       this.loadSidePanelComponents();
     },
 
-    loadSidePanelComponents: function() {
+    loadSidePanelComponents: function () {
       var _this = this;
 
       new $.Tabs({
         windowId: this.windowId,
         appendTo: this.appendTo,
-        tabs : this.panelState.tabs,
-        hasStructures : this.hasStructures,
+        tabs: this.panelState.tabs,
+        hasStructures: this.hasStructures,
         eventEmitter: this.eventEmitter
       });
 
@@ -118,12 +117,11 @@
           eventEmitter: _this.eventEmitter
         });
       }
-
     },
 
-    update: function(name, availability) {
+    update: function (name, availability) {
       var updatedState = this.panelState;
-      jQuery.each(updatedState.tabs, function(index, value) {
+      jQuery.each(updatedState.tabs, function (index, value) {
         if (value.name === name) {
           value.options.available = availability;
         }
@@ -131,7 +129,7 @@
       this.updateState(updatedState);
     },
 
-    updateState: function(newState, initial) {
+    updateState: function (newState, initial) {
       var _this = this;
       if (!arguments.length) return this.panelState;
       jQuery.extend(true, this.panelState, newState);
@@ -140,21 +138,21 @@
         _this.eventEmitter.publish('sidePanelStateUpdated.' + this.windowId, this.panelState);
       }
 
-      /*var enableSidePanel = false;
+      /* var enableSidePanel = false;
        jQuery.each(this.panelState.tabs, function(index, value) {
        if (value.options.available) {
        enableSidePanel = true;
        }
        });
 
-       this.toggle(enableSidePanel);*/
+       this.toggle(enableSidePanel); */
 
       return this.panelState;
     },
 
-    panelToggled: function() {
+    panelToggled: function () {
       var currentState = this.updateState(),
-          open = !currentState.open;
+        open = !currentState.open;
 
       currentState.open = open;
       this.updateState(currentState);
@@ -168,20 +166,20 @@
     //     };
     // },
 
-    listenForActions: function() {
+    listenForActions: function () {
       var _this = this;
-      _this.eventEmitter.subscribe('sidePanelStateUpdated.' + this.windowId, function(_, data) {
+      _this.eventEmitter.subscribe('sidePanelStateUpdated.' + this.windowId, function (_, data) {
         _this.render(data);
       });
 
-      _this.eventEmitter.subscribe('sidePanelResized', function() {
+      _this.eventEmitter.subscribe('sidePanelResized', function () {
       });
 
-      _this.eventEmitter.subscribe('sidePanelToggled.' + this.windowId, function() {
+      _this.eventEmitter.subscribe('sidePanelToggled.' + this.windowId, function () {
         _this.panelToggled();
       });
 
-      _this.eventEmitter.subscribe('annotationListLoaded.' + _this.windowId, function(event) {
+      _this.eventEmitter.subscribe('annotationListLoaded.' + _this.windowId, function (event) {
         var windowObject = _this.state.getWindowObjectById(_this.windowId);
         if (windowObject.annotationsAvailable[windowObject.viewType]) {
           if (_this.state.getWindowAnnotationsList(_this.windowId).length > 0) {
@@ -190,18 +188,16 @@
         }
       });
 
-      _this.eventEmitter.subscribe('currentCanvasIDUpdated.' + _this.windowId, function(event, newCanvasId) {
+      _this.eventEmitter.subscribe('currentCanvasIDUpdated.' + _this.windowId, function (event, newCanvasId) {
         _this.canvasID = newCanvasId;
       });
-
     },
 
-    render: function(renderingData) {
+    render: function (renderingData) {
       var _this = this;
       if (!this.element) {
         this.element = this.appendTo;
         jQuery(_this.template(renderingData)).appendTo(_this.appendTo);
-        return;
       }
     },
 
@@ -216,14 +212,13 @@
       var _this = this;
       if (!enableSidePanel) {
         jQuery(this.appendTo).hide();
-        _this.eventEmitter.publish('ADD_CLASS.'+this.windowId, 'focus-max-width');
-        _this.eventEmitter.publish('HIDE_ICON_TOC.'+this.windowId);
+        _this.eventEmitter.publish('ADD_CLASS.' + this.windowId, 'focus-max-width');
+        _this.eventEmitter.publish('HIDE_ICON_TOC.' + this.windowId);
       } else {
-        jQuery(this.appendTo).show({effect: "fade", duration: 300, easing: "easeInCubic"});
-        _this.eventEmitter.publish('REMOVE_CLASS.'+this.windowId, 'focus-max-width');
-        _this.eventEmitter.publish('SHOW_ICON_TOC.'+this.windowId);
+        jQuery(this.appendTo).show({ effect: 'fade', duration: 300, easing: 'easeInCubic' });
+        _this.eventEmitter.publish('REMOVE_CLASS.' + this.windowId, 'focus-max-width');
+        _this.eventEmitter.publish('SHOW_ICON_TOC.' + this.windowId);
       }
     }
   };
-
 }(Mirador));

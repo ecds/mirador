@@ -2,8 +2,8 @@ module.exports = function(grunt) {
 
   // ----------
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks("gruntify-eslint");
+  // grunt.loadNpmTasks('grunt-contrib-jshint');
+  // grunt.loadNpmTasks("gruntify-eslint");
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
@@ -13,6 +13,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-githooks');
+  grunt.loadNpmTasks('grunt-shell');
 
   // ----------
   var distribution = 'build/mirador/mirador.js',
@@ -181,6 +182,12 @@ module.exports = function(grunt) {
       }
     },
 
+    shell: {
+      rsync: {
+        command: 'rsync -avz build/mirador/ /Users/jay/data/readux2.0/readux/apps/static/mirador/'
+      }
+    },
+
     connect: {
       server: {
         options: {
@@ -212,26 +219,26 @@ module.exports = function(grunt) {
       }
     },
 
-    eslint: {
-      options: {
-        silent: true
-      },
-      src: sources
-    },
+    // eslint: {
+    //   options: {
+    //     silent: true
+    //   },
+    //   src: sources
+    // },
 
-    jshint: {
-      options: {
-        browser: true,
-        eqeqeq: false,
-        loopfunc: false,
-        indent: false,
-        jshintrc: '.jshintrc',
-        globals: {
-          Mirador: true
-        }
-      },
-      beforeconcat: sources
-    },
+    // jshint: {
+    //   options: {
+    //     browser: true,
+    //     eqeqeq: false,
+    //     loopfunc: false,
+    //     indent: false,
+    //     jshintrc: '.jshintrc',
+    //     globals: {
+    //       Mirador: true
+    //     }
+    //   },
+    //   beforeconcat: sources
+    // },
 
     'git-describe': {
       build: {
@@ -266,17 +273,17 @@ module.exports = function(grunt) {
   });
   // ----------
   // Lint task
-  grunt.registerTask('lint', ['jshint', 'eslint']);
+  // grunt.registerTask(['jshint', 'eslint']);
 
   // ----------
   // Build task.
   // Cleans out the build folder and builds the code and images into it, checking lint.
-  grunt.registerTask('build', [ 'clean:build', 'git-describe', 'lint', 'less', 'concat', 'uglify', 'cssmin', 'copy']);
+  grunt.registerTask('build', [ 'clean:build', 'git-describe', 'less', 'concat', 'uglify', 'cssmin', 'copy']);
 
   // ----------
   // Dev Build task.
   // Build, but skip the time-consuming and obscurantist minification and uglification.
-  grunt.registerTask('dev_build', [ 'clean:build', 'git-describe', 'lint', 'less', 'concat', 'copy']);
+  grunt.registerTask('dev_build', [ 'clean:build', 'git-describe', 'less', 'concat', 'copy', 'shell']);
 
   // ----------
   // Default task.
@@ -291,6 +298,5 @@ module.exports = function(grunt) {
   // ----------
   // Runs this on travis.
   grunt.registerTask('ci', [
-                     'lint'
-  ]);
+                      ]);
 };

@@ -132,7 +132,8 @@
       //for use by SidePanel, which needs to know if the current view can have the annotations tab
       _this.eventEmitter.publish(('windowUpdated'), {
         id: _this.id,
-        annotationsAvailable: this.annotationsAvailable
+        annotationsAvailable: this.annotationsAvailable,
+        onWhat: 'window.init'
       });
 
       //check config
@@ -670,7 +671,8 @@
       }
       _this.eventEmitter.publish(('windowUpdated'), {
         id: _this.id,
-        sidePanelVisible: visible
+        sidePanelVisible: visible,
+        onWhat: 'sidePanelVis'
       });
     },
 
@@ -680,7 +682,8 @@
       _this.eventEmitter.publish(('bottomPanelSet.' + _this.id), visible);
       _this.eventEmitter.publish(('windowUpdated'), {
         id: _this.id,
-        bottomPanelVisible: visible
+        bottomPanelVisible: visible,
+        onWhat: 'bottomPanelVis'
       });
     },
 
@@ -780,7 +783,8 @@
           bottomPanelAvailable: this.bottomPanelAvailable,
           annoEndpointAvailable: this.annoEndpointAvailable,
           canvasControls: this.canvasControls,
-          annotationState : this.canvasControls.annotations.annotationState
+          annotationState : this.canvasControls.annotations.annotationState,
+          endpoint: this.endpoint
         });
       } else {
         this.focusModules.ImageView.updateImage(canvasID);
@@ -904,6 +908,7 @@
             var annotations = list.resources;
             jQuery.each(annotations, function(index, value) {
               //if there is no ID for this annotation, set a random one
+              // console.log(annotations);
               if (typeof value['@id'] === 'undefined') {
                 value['@id'] = $.genUUID();
               }

@@ -1,21 +1,21 @@
-(function($) {
-  $.getTools = function(options) {
+(function ($) {
+  $.getTools = function (options) {
     if (this.svgOverlayTools) {
       return this.svgOverlayTools;
     }
     options.partOfPrefix = '_partOf';
-    this.svgOverlayTools = [new $.Rectangle(options), new $.Freehand(options), new $.Polygon(options), new $.Ellipse(options), new $.Pin(options)];
+    this.svgOverlayTools = [new $.Rectangle(options), new $.Freehand(options), new $.Polygon(options), new $.Ellipse(options), new $.Pin(options), new $.TextOverlay(options)];
     return this.svgOverlayTools;
   };
 
-  OpenSeadragon.Viewer.prototype.svgOverlay = function(osdViewerId, windowId, state, eventEmitter) {
+  OpenSeadragon.Viewer.prototype.svgOverlay = function (osdViewerId, windowId, state, eventEmitter) {
     return new $.Overlay(this, osdViewerId, windowId, state, eventEmitter);
   };
 
   // Wat? TODO:...
   var FILL_COLOR_ALPHA_WORKAROUND = 0.00001;
 
-  $.Overlay = function(viewer, osdViewerId, windowId, state, eventEmitter) {
+  $.Overlay = function (viewer, osdViewerId, windowId, state, eventEmitter) {
     var drawingToolsSettings = state.getStateProperty('drawingToolsSettings');
     this.drawingToolsSettings = drawingToolsSettings;
     var availableAnnotationDrawingTools = state.getStateProperty('availableAnnotationDrawingTools');
@@ -40,8 +40,8 @@
       strokeWidth: 1,
       fixedShapeSize: drawingToolsSettings.fixedShapeSize,
       selectedColor: drawingToolsSettings.selectedColor || '#004c66',
-      shapeHandleSize:drawingToolsSettings.shapeHandleSize,
-      partOfPrefix:'_partOf',
+      shapeHandleSize: drawingToolsSettings.shapeHandleSize,
+      partOfPrefix: '_partOf',
       hitOptions: {
         handles: true,
         stroke: true,
@@ -61,7 +61,7 @@
     this.viewer = viewer;
     this.canvas = document.createElement('canvas');
     // workaround to remove focus from editor
-    jQuery(this.canvas).attr('tabindex', '0').mousedown(function(){ jQuery(this).focus();});
+    jQuery(this.canvas).attr('tabindex', '0').mousedown(function () { jQuery(this).focus(); });
     this.canvas.id = 'draw_canvas_' + this.windowId;
     // Drawing of overlay border during development.
     // this.canvas.style.border = '1px solid yellow';
@@ -81,7 +81,7 @@
   };
 
   $.Overlay.prototype = {
-    init: function() {
+    init: function () {
       // Initialization of Paper.js overlay.
       var _this = this;
       this.lastAngle = 0;
@@ -91,7 +91,7 @@
       this.paperScope.project.options.handleSize = _this.state.getStateProperty('shapeHandleSize');
       jQuery(_this.canvas).attr('keepalive', 'true');
       this.annotationUtils = new $.AnnotationUtils();
-      this.paperScope.view.onFrame = function(event) {
+      this.paperScope.view.onFrame = function (event) {
         if (_this.paperScope.snapPoint) {
           _this.paperScope.snapPoint.remove();
           _this.paperScope.snapPoint = null;
@@ -124,7 +124,7 @@
     /**
      * Adds a Tool that handles mouse events for the paperjs scope.
      */
-    setMouseTool: function() {
+    setMouseTool: function () {
       this.removeMouseTool();
       this.paperScope.activate();
 
@@ -135,13 +135,13 @@
       this.mouseTool.onMouseMove = this.onMouseMove;
       this.mouseTool.onMouseDown = this.onMouseDown;
       this.mouseTool.onDoubleClick = this.onDoubleClick;
-      this.mouseTool.onKeyDown = function(event){};
+      this.mouseTool.onKeyDown = function (event) {};
     },
 
     /**
      * Removes the mouse Tool from the paperjs scope.
      */
-    removeMouseTool: function() {
+    removeMouseTool: function () {
       if (this.mouseTool) {
         this.mouseTool.remove();
       }
@@ -154,17 +154,17 @@
         closeButton: false,
         className: 'mirador-dialog',
         buttons: {
-          'no': {
+          no: {
             label: i18next.t('no'),
             className: 'btn-default',
-            callback: function() {
-              return;
+            callback: function () {
+
             }
           },
-          'yes': {
+          yes: {
             label: i18next.t('yes'),
             className: 'btn-primary',
-            callback: function() {
+            callback: function () {
               _this.deleteShape(shape);
             }
           }
@@ -172,13 +172,13 @@
       });
     },
 
-    listenForActions: function() {
+    listenForActions: function () {
       var _this = this;
 
-      this._thisResize = function(){
+      this._thisResize = function () {
         _this.resize();
       };
-      this._thisRotate = function(event) {
+      this._thisRotate = function (event) {
         _this.rotate(event);
         _this.resize();
       };
@@ -186,22 +186,22 @@
       this.viewer.addHandler('open', this._thisResize);
       this.viewer.addHandler('animation-finish', this._thisResize);
       this.viewer.addHandler('update-viewport', this._thisResize);
-      this.viewer.addHandler('resize',this._thisResize);
+      this.viewer.addHandler('resize', this._thisResize);
       this.viewer.addHandler('rotate', this._thisRotate);
-      this.viewer.addHandler('constrain',this._thisResize);
+      this.viewer.addHandler('constrain', this._thisResize);
 
-      this._thisDestroy = function(){
+      this._thisDestroy = function () {
         _this.destroy();
       };
 
-      this.viewer.addHandler('close',this._thisDestroy);
+      this.viewer.addHandler('close', this._thisDestroy);
 
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe('DESTROY_EVENTS.'+this.windowId, function(event) {
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('DESTROY_EVENTS.' + this.windowId, function (event) {
         _this.destroy();
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function(event, tool) {
-        //qtip code should NOT be here
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function (event, tool) {
+        // qtip code should NOT be here
         if (_this.disabled) {
         //   jQuery('.qtip' + _this.windowId).qtip('hide');
           return;
@@ -212,16 +212,17 @@
         for (var i = 0; i < _this.tools.length; i++) {
           if (_this.tools[i].logoClass === tool) {
             _this.currentTool = _this.tools[i];
+            console.log('tool', _this.currentTool);
           }
         }
       }));
 
-      var _thisHandleDeleteShapeEvent = function(event,shape){
-        _this.handleDeleteShapeEvent(event,shape);
+      var _thisHandleDeleteShapeEvent = function (event, shape) {
+        _this.handleDeleteShapeEvent(event, shape);
       };
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('deleteShape.' + _this.windowId, _thisHandleDeleteShapeEvent));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('changeBorderColor.' + _this.windowId, function(event, color) {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('changeBorderColor.' + _this.windowId, function (event, color) {
         _this.strokeColor = color;
         if (_this.hoveredPath) {
           _this.hoveredPath.strokeColor = color;
@@ -229,9 +230,9 @@
         }
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('changeFillColor.' + _this.windowId, function(event, color, alpha) {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('changeFillColor.' + _this.windowId, function (event, color, alpha) {
         _this.fillColor = color;
-        if(alpha === 0){
+        if (alpha === 0) {
           alpha = FILL_COLOR_ALPHA_WORKAROUND;
         }
         _this.fillColorAlpha = alpha;
@@ -266,44 +267,44 @@
         }
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.'+_this.windowId,function(event,oaAnno){
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
         var onAnnotationSaved = jQuery.Deferred();
         if (!_this.draftPaths.length) {
-            new $.DialogBuilder(_this.slotWindowElement).dialog({
-              message: i18next.t('editModalSaveAnnotationWithNoShapesMsg'),
-              closeButton: false,
-              className: 'mirador-dialog',
-              buttons: {
-                success: {
-                  label: i18next.t('editModalBtnSaveWithoutShapes'),
-                  className: 'btn-success',
-                  callback: function () {
-                    oaAnno.on = {
-                      "@type": "oa:SpecificResource",
-                      "full": _this.state.getWindowObjectById(_this.windowId).canvasID
-                    };
-                    //save to endpoint
-                    _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
-                    onAnnotationSaved.resolve();
-                  }
-                },
-                danger: {
-                  label: i18next.t('editModalBtnDeleteAnnotation'),
-                  className: 'btn-danger',
-                  callback: function () {
-                    _this.eventEmitter.publish('annotationDeleted.' + _this.windowId, [oaAnno['@id']]);
-                    onAnnotationSaved.resolve();
-                  }
-                },
-                main: {
-                  label: i18next.t('cancel'),
-                  className: 'btn-default',
-                  callback: function () {
-                    onAnnotationSaved.reject();
-                  }
+          new $.DialogBuilder(_this.slotWindowElement).dialog({
+            message: i18next.t('editModalSaveAnnotationWithNoShapesMsg'),
+            closeButton: false,
+            className: 'mirador-dialog',
+            buttons: {
+              success: {
+                label: i18next.t('editModalBtnSaveWithoutShapes'),
+                className: 'btn-success',
+                callback: function () {
+                  oaAnno.on = {
+                    '@type': 'oa:SpecificResource',
+                    full: _this.state.getWindowObjectById(_this.windowId).canvasID
+                  };
+                    // save to endpoint
+                  _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
+                  onAnnotationSaved.resolve();
+                }
+              },
+              danger: {
+                label: i18next.t('editModalBtnDeleteAnnotation'),
+                className: 'btn-danger',
+                callback: function () {
+                  _this.eventEmitter.publish('annotationDeleted.' + _this.windowId, [oaAnno['@id']]);
+                  onAnnotationSaved.resolve();
+                }
+              },
+              main: {
+                label: i18next.t('cancel'),
+                className: 'btn-default',
+                callback: function () {
+                  onAnnotationSaved.reject();
                 }
               }
-            });
+            }
+          });
         } else {
           var writeStrategy = new $.MiradorDualStrategy();
           writeStrategy.buildAnnotation({
@@ -311,50 +312,45 @@
             window: _this.state.getWindowObjectById(_this.windowId),
             overlay: _this
           });
-          //save to endpoint
+          // save to endpoint
           _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
           onAnnotationSaved.resolve();
         }
 
-        jQuery.when(onAnnotationSaved.promise()).then(function(){
-          _this.eventEmitter.publish('annotationEditSaveSuccessful.'+_this.windowId);
+        jQuery.when(onAnnotationSaved.promise()).then(function () {
+          _this.eventEmitter.publish('annotationEditSaveSuccessful.' + _this.windowId);
           _this.eventEmitter.publish('SET_ANNOTATION_EDITING.' + _this.windowId, {
-            "annotationId" : oaAnno['@id'],
-            "isEditable" : false,
-            "tooltip" : _this
+            annotationId: oaAnno['@id'],
+            isEditable: false,
+            tooltip: _this
           });
           // return to pointer mode
           _this.inEditOrCreateMode = false;
           _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
-
-        },function(){
+        }, function () {
           // confirmation rejected don't do anything
         });
-
-
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditCancel.'+_this.windowId,function(event,id){
-
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditCancel.' + _this.windowId, function (event, id) {
         _this.eventEmitter.publish('SET_ANNOTATION_EDITING.' + _this.windowId, {
-          "annotationId" : id,
-          "isEditable" : false,
-          "tooltip" : _this.annoTooltip // whats the point of this? maybe when we add confirm for cancel?
+          annotationId: id,
+          isEditable: false,
+          tooltip: _this.annoTooltip // whats the point of this? maybe when we add confirm for cancel?
         });
         _this.inEditOrCreateMode = false;
         // return to pointer mode
-        _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' +_this.windowId);
-
+        _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('clearDraftPaths.'+_this.windowId,function(){
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('clearDraftPaths.' + _this.windowId, function () {
         _this.clearDraftData();
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.'+_this.windowId,function(event,oaAnno){
-        //should remove the styles added for newly created annotation
-        for(var i=0;i<_this.draftPaths.length;i++){
-          if(_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated){
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.' + _this.windowId, function (event, oaAnno) {
+        // should remove the styles added for newly created annotation
+        for (var i = 0; i < _this.draftPaths.length; i++) {
+          if (_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated) {
             _this.draftPaths[i].strokeWidth = _this.draftPaths[i].data.strokeWidth; // TODO: removed newlyCreatedStrokeFactor stuff here
             delete _this.draftPaths[i].data.newlyCreated;
             delete _this.draftPaths[i].data.newlyCreatedStrokeFactor;
@@ -367,14 +363,14 @@
           window: _this.state.getWindowObjectById(_this.windowId),
           overlay: _this
         });
-        //save to endpoint
-        _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno, function() {
+        // save to endpoint
+        _this.eventEmitter.publish('annotationCreated.' + _this.windowId, [oaAnno, function () {
           // stuff that needs to be called after the annotation has been created on the backend
           // return to pointer mode
           _this.inEditOrCreateMode = false;
           _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
 
-          //reenable viewer tooltips
+          // reenable viewer tooltips
           _this.eventEmitter.publish('enableTooltips.' + _this.windowId);
 
           _this.clearDraftData();
@@ -383,8 +379,8 @@
         }]);
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreatedCanceled.'+_this.windowId,function(event,cancelCallback,immediate){
-        var cancel = function(){
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreatedCanceled.' + _this.windowId, function (event, cancelCallback, immediate) {
+        var cancel = function () {
           _this.inEditOrCreateMode = false;
           _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
 
@@ -398,17 +394,17 @@
             closeButton: false,
             className: 'mirador-dialog',
             buttons: {
-              'no': {
+              no: {
                 label: i18next.t('no'),
                 className: 'btn-default',
-                callback: function() {
-                  return;
+                callback: function () {
+
                 }
               },
-              'yes': {
+              yes: {
                 label: i18next.t('yes'),
                 className: 'btn-primary',
-                callback: function() {
+                callback: function () {
                   cancel();
                   if (cancelCallback) {
                     cancelCallback();
@@ -422,7 +418,7 @@
         }
       }));
 
-      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationDeleted.' + _this.windowId, function(event, id, callback) {
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationDeleted.' + _this.windowId, function (event, id, callback) {
         _this.inEditOrCreateMode = false;
         _this.eventEmitter.publish('annotationDeleted.' + _this.windowId, [id]);
         _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
@@ -431,43 +427,42 @@
         }
       }));
 
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe('SET_OVERLAY_TOOLTIP.' + this.windowId, function(event, options) {
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('SET_OVERLAY_TOOLTIP.' + this.windowId, function (event, options) {
         _this.annoTooltip = options.tooltip;
         _this.annoEditorVisible = options.visible;
         _this.draftPaths = options.paths;
       }));
 
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe('CANCEL_ACTIVE_ANNOTATIONS.' + this.windowId, function(event) {
-        //for now, don't worry about getting user confirmation, just cancel everything
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('CANCEL_ACTIVE_ANNOTATIONS.' + this.windowId, function (event) {
+        // for now, don't worry about getting user confirmation, just cancel everything
         _this.clearDraftData();
         _this.annoTooltip = null;
         _this.annoEditorVisible = false;
       }));
 
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe("ANNOTATIONS_LIST_UPDATED",function(event,options){
-        if(options.windowId) {
-          _this.eventEmitter.publish("refreshOverlay." + _this.windowId);
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('ANNOTATIONS_LIST_UPDATED', function (event, options) {
+        if (options.windowId) {
+          _this.eventEmitter.publish('refreshOverlay.' + _this.windowId);
         }
       }));
 
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe("enableManipulation",function(event, tool){
-        if(tool === 'mirror') {
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('enableManipulation', function (event, tool) {
+        if (tool === 'mirror') {
           _this.horizontallyFlipped = true;
         }
       }));
 
-      this.eventsSubscriptions.push(this.eventEmitter.subscribe("disableManipulation",function(event, tool){
-        if(tool === 'mirror') {
+      this.eventsSubscriptions.push(this.eventEmitter.subscribe('disableManipulation', function (event, tool) {
+        if (tool === 'mirror') {
           _this.horizontallyFlipped = false;
         }
       }));
     },
 
-    deleteShape:function(shape){
-
-      for(var i=0;i<this.draftPaths.length;i++){
-        if(this.draftPaths[i]._name.toString() === shape._name.toString()){
-          this.draftPaths.splice(i,1);
+    deleteShape: function (shape) {
+      for (var i = 0; i < this.draftPaths.length; i++) {
+        if (this.draftPaths[i]._name.toString() === shape._name.toString()) {
+          this.draftPaths.splice(i, 1);
           break;
         }
       }
@@ -475,7 +470,7 @@
       shape.remove();
     },
 
-    getMousePositionInImage: function(mousePosition) {
+    getMousePositionInImage: function (mousePosition) {
       var _this = this;
       var originWindow = this.state.getWindowObjectById(this.windowId);
       var currentCanvasModel = originWindow.canvases[originWindow.canvasID];
@@ -498,18 +493,18 @@
       return mousePosition;
     },
 
-    adjustDeltaForShape: function(lastPoint, currentPoint, delta, bounds) {
+    adjustDeltaForShape: function (lastPoint, currentPoint, delta, bounds) {
       var originWindow = this.state.getWindowObjectById(this.windowId);
       var currentCanvasModel = originWindow.canvases[originWindow.canvasID];
 
-      //first check along x axis
+      // first check along x axis
       if (lastPoint.x < currentPoint.x) {
-        //moving to the right, delta should be based on the right most edge
+        // moving to the right, delta should be based on the right most edge
         if (bounds.x + bounds.width > currentCanvasModel.getBounds().width) {
           delta.x = currentCanvasModel.getBounds().width - (bounds.x + bounds.width);
         }
       } else {
-        //moving to the left, prevent it from going past the left edge.  if it does, use the shapes x value as the delta
+        // moving to the left, prevent it from going past the left edge.  if it does, use the shapes x value as the delta
         if (bounds.x < 0) {
           delta.x = Math.abs(bounds.x);
         }
@@ -518,14 +513,14 @@
         delta.x = -delta.x;
       }
 
-      //check along y axis
+      // check along y axis
       if (lastPoint.y < currentPoint.y) {
         // moving to the bottom
         if (bounds.y + bounds.height > currentCanvasModel.getBounds().height) {
           delta.y = currentCanvasModel.getBounds().height - (bounds.y + bounds.height);
         }
       } else {
-        //moving to the top
+        // moving to the top
         if (bounds.y < 0) {
           delta.y = Math.abs(bounds.y);
         }
@@ -534,10 +529,10 @@
       return delta;
     },
 
-    onMouseUp: function(event) {
+    onMouseUp: function (event) {
       if (!this.overlay.disabled) {
         event.stopPropagation();
-        //jQuery(this.overlay.viewer.canvas).css('cursor','default');
+        // jQuery(this.overlay.viewer.canvas).css('cursor','default');
         // if (this.overlay.mode === 'deform' || this.overlay.mode === 'edit') {
         //   this.overlay.segment = null;
         //   this.overlay.()) = null;
@@ -546,43 +541,42 @@
         //   this.overlay.mode = '';
         // }
         if (this.overlay.currentTool) {
-          //we may not currently have a tool if the user is in edit mode and didn't click on an editable shape
+          // we may not currently have a tool if the user is in edit mode and didn't click on an editable shape
           this.overlay.currentTool.onMouseUp(event, this.overlay);
         }
       }
     },
 
-    onMouseDrag: function(event) {
+    onMouseDrag: function (event) {
       if (!this.overlay.disabled) {
         event.stopPropagation();
         if (this.overlay.currentTool) {
+          if (this.overlay.currentTool.name === 'TextOverlay') return;
           if (this.overlay.currentTool.name === 'Freehand' && this.overlay.mode === 'create') {
-            //freehand create needs to use mouse position because bounds are not accurate until shape is finished
+            // freehand create needs to use mouse position because bounds are not accurate until shape is finished
             event.point = this.overlay.getMousePositionInImage(event.point);
             event.delta = event.point - event.lastPoint;
-          } else {
-            if(this.overlay.path){
-              var bounds = this.overlay.path.bounds;
+          } else if (this.overlay.path) {
+            var bounds = this.overlay.path.bounds;
               // we already have a shape, and we are moving it, need to account for that, rather than mouse position
-              event.delta = this.overlay.adjustDeltaForShape(event.lastPoint, event.point, event.delta, bounds);
-            }
+            event.delta = this.overlay.adjustDeltaForShape(event.lastPoint, event.point, event.delta, bounds);
           }
-          //we may not currently have a tool if the user is in edit mode and didn't click on an editable shape
+          // we may not currently have a tool if the user is in edit mode and didn't click on an editable shape
           this.overlay.currentTool.onMouseDrag(event, this.overlay);
         }
       } else {
         var absolutePoint = {
-          'x': event.event.clientX,
-          'y': event.event.clientY
+          x: event.event.clientX,
+          y: event.event.clientY
         };
         this.overlay.eventEmitter.publish('updateTooltips.' + this.overlay.windowId, [event.point, absolutePoint]);
       }
       this.overlay.paperScope.view.draw();
     },
 
-    onMouseMove: function(event) {
+    onMouseMove: function (event) {
       if (!this.overlay.disabled) {
-        //We are in drawing mode
+        // We are in drawing mode
         if (this.overlay.paperScope.project.hitTest(event.point, this.overlay.hitOptions)) {
           this.overlay.eventEmitter.publish('POINTER_CURSOR.' + this.overlay.windowId);
         } else if (this.overlay.currentTool && !this.overlay.path) {
@@ -596,15 +590,15 @@
         }
       } else {
         var absolutePoint = {
-          'x': event.event.clientX,
-          'y': event.event.clientY
+          x: event.event.clientX,
+          y: event.event.clientY
         };
         this.overlay.eventEmitter.publish('updateTooltips.' + this.overlay.windowId, [event.point, absolutePoint]);
       }
       this.overlay.paperScope.view.draw();
     },
 
-    onMouseDown: function(event) {
+    onMouseDown: function (event) {
       if (this.overlay.disabled) {
         return;
       }
@@ -618,13 +612,12 @@
         this.overlay.latestMouseDownTime = time;
         var hitResult = this.overlay.paperScope.project.hitTest(event.point, this.overlay.hitOptions);
 
-        if (this.overlay.mode !== 'create' && this.overlay.mode !=='') {
+        if (this.overlay.mode !== 'create' && this.overlay.mode !== '') {
           this.overlay.mode = '';
           this.overlay.currentTool = null;
         }
 
         if (hitResult && this.overlay.mode !== 'create') {
-
           var overlayEditable = false;
           if (typeof hitResult.item.data.editable !== 'undefined') {
             overlayEditable = hitResult.item.data.editable; // TODO should remove this editable variable when persisting the svg (will reduce length of string/memory)
@@ -637,7 +630,6 @@
           if (!overlayEditable) {
             return;
           }
-
         }
 
         if (hitResult && (!this.overlay.currentTool || (hitResult.item._name.toString().indexOf(this.overlay.currentTool.idPrefix) === -1 && this.overlay.mode === ''))) {
@@ -650,7 +642,6 @@
           longPrefix = longPrefix[0] + '_' + longPrefix[1] + '_';
 
           for (var j = 0; j < this.overlay.tools.length; j++) {
-
             if (this.overlay.tools[j].idPrefix === prefix || this.overlay.tools[j].idPrefix === longPrefix) {
               this.overlay.eventEmitter.publish('toggleDrawingTool.' + this.overlay.windowId, this.overlay.tools[j].logoClass);
               break;
@@ -659,7 +650,7 @@
         }
 
         if (this.overlay.currentTool) {
-          this.overlay.eventEmitter.publish('HUD_REMOVE_CLASS.'+this.overlay.windowId, ['.hud-dropdown', 'hud-disabled']);
+          this.overlay.eventEmitter.publish('HUD_REMOVE_CLASS.' + this.overlay.windowId, ['.hud-dropdown', 'hud-disabled']);
           event.point = this.overlay.getMousePositionInImage(event.point);
           this.overlay.currentTool.onMouseDown(event, this.overlay);
         }
@@ -668,15 +659,14 @@
       this.overlay.paperScope.view.draw();
     },
 
-    onDoubleClick: function(event) {
-
+    onDoubleClick: function (event) {
       event.stopPropagation();
       if (this.overlay.currentTool) {
         this.overlay.currentTool.onDoubleClick(event, this.overlay);
       }
     },
 
-    fitFixedSizeShapes: function(shape) {
+    fitFixedSizeShapes: function (shape) {
       shape.data.fixedSize = true;
 
       if (shape.name.toString().indexOf('pin_') != -1) {
@@ -686,11 +676,10 @@
       }
     },
 
-    updateSelection: function(selected, item) {
-
-      if(item && item._name){
+    updateSelection: function (selected, item) {
+      if (item && item._name) {
         var shapeTool = this.getTool(item);
-        if(shapeTool){
+      if (shapeTool) {
           item.selectedColor = this.selectedColor;
           shapeTool.updateSelection(selected, item, this);
         }
@@ -699,12 +688,12 @@
 
     rotate: function (event) {
       if (this.paperScope && this.paperScope.view) {
-        this.paperScope.view._matrix.rotate(event.degrees-this.lastAngle, this.paperScope.view.center);
+        this.paperScope.view._matrix.rotate(event.degrees - this.lastAngle, this.paperScope.view.center);
         this.lastAngle = event.degrees;
       }
     },
 
-    resize: function() {
+    resize: function () {
       var _this = this;
       var viewportBounds = this.viewer.viewport.getBounds(true);
       // var originWindow = this.state.getWindowObjectById(this.windowId);
@@ -736,8 +725,8 @@
           if (allItems[j].data.fixedSize) {
             this.fitFixedSizeShapes(allItems[j]);
           }
-          if(this.getTool(allItems[j]).onResize){
-            this.getTool(allItems[j]).onResize(allItems[j],this);
+          if (this.getTool(allItems[j]).onResize) {
+            this.getTool(allItems[j]).onResize(allItems[j], this);
           }
           allItems[j].strokeWidth = allItems[j].data.strokeWidth / this.paperScope.view.zoom;
           if (allItems[j].style) {
@@ -747,8 +736,8 @@
       }
     },
 
-    hover: function() {
-      if(!this.currentTool){
+    hover: function () {
+      if (!this.currentTool) {
         return;
       }
 
@@ -758,31 +747,26 @@
       }
 
       if (this.hoveredPath) {
-
         if (this.hoveredPath._name.toString().indexOf(this.currentTool.idPrefix) === -1) {
           this.updateSelection(false, this.hoveredPath);
           this.hoveredPath = null;
         }
-        if (this.path && this.path._name.toString().indexOf(this.currentTool.idPrefix) !== -1 ) {
-
-          //should make exception for the dynamically attached paths to shapes
-          if(this.currentTool.partOfPrefix && this.path._name.toString().indexOf(this.currentTool.partOfPrefix) !== -1){
+        if (this.path && this.path._name.toString().indexOf(this.currentTool.idPrefix) !== -1) {
+          // should make exception for the dynamically attached paths to shapes
+          if (this.currentTool.partOfPrefix && this.path._name.toString().indexOf(this.currentTool.partOfPrefix) !== -1) {
             return;
           }
 
           if (this.hoveredPath) {
-            if(this.hoveredPath._name.toString() === this.path._name.toString() ){
+            if (this.hoveredPath._name.toString() === this.path._name.toString()) {
               return;
-            }else{
-              this.updateSelection(false, this.hoveredPath);
             }
-
+            this.updateSelection(false, this.hoveredPath);
           }
           this.hoveredPath = this.path;
           this.updateSelection(true, this.hoveredPath);
         }
         return;
-
       }
 
       if (this.path && this.path._name.toString().indexOf(this.currentTool.idPrefix) != -1) {
@@ -791,7 +775,8 @@
       }
     },
 
-    removeFocus: function() {
+    removeFocus: function () {
+      console.log('this.hoveredPath', this.hoveredPath);
       if (this.hoveredPath) {
         this.updateSelection(false, this.hoveredPath);
         this.hoveredPath = null;
@@ -802,33 +787,36 @@
       }
     },
 
-    restoreEditedShapes: function() {
+    restoreEditedShapes: function () {
       this.editedPaths = [];
       this.removeFocus();
     },
 
-    restoreDraftShapes: function() {
+    restoreDraftShapes: function () {
       this.clearDraftData();
       this.removeFocus();
     },
 
     // get the tool which controls given shape
-    getTool:function(shape){
-      for(var i=0;i<this.tools.length;i++){
-        if(shape.name.toString().indexOf(this.tools[i].idPrefix) !== -1){
-          return this.tools[i];
+    getTool: function (shape) {
+      for (var i = 0; i < this.tools.length; i++) {
+        if (shape.name) {
+          if (shape.name.toString().indexOf(this.tools[i].idPrefix) !== -1) {
+            return this.tools[i];
+          }
+        } else {
+          return this.tools[0];
         }
       }
     },
 
     // replaces paper.js objects with the required properties only.
     // 'shapes' coordinates are image coordiantes
-    replaceShape: function(shape, annotation) {
-
-      //backward compatibility when changing shapes points
+    replaceShape: function (shape, annotation) {
+      // backward compatibility when changing shapes points
       var shapeTool = this.getTool(shape);
-      if(shapeTool && shapeTool.SEGMENT_POINTS_COUNT && shapeTool.SEGMENT_POINTS_COUNT !== shape.segments.length){
-        shapeTool.adaptSegments(shape,this);
+      if (shapeTool && shapeTool.SEGMENT_POINTS_COUNT && shapeTool.SEGMENT_POINTS_COUNT !== shape.segments.length) {
+        shapeTool.adaptSegments(shape, this);
       }
 
       var cloned = new this.paperScope.Path({
@@ -844,7 +832,7 @@
         cloned.fillColor = shape.fillColor;
 
         // workaround for paper js fill hit test
-        if(shape.fillColor.alpha === 0){
+        if (shape.fillColor.alpha === 0) {
           shape.fillColor.alpha = FILL_COLOR_ALPHA_WORKAROUND;
         }
         if (shape.fillColor.alpha) {
@@ -864,12 +852,12 @@
 
     // creating shapes used for backward compatibility.
     // shape coordinates are viewport coordinates.
-    createRectangle: function(shape, annotation) {
+    createRectangle: function (shape, annotation) {
       var paperItems = [];
       var rect = new $.Rectangle();
       var initialPoint = {
-        'x': shape.x,
-        'y': shape.y
+        x: shape.x,
+        y: shape.y
       };
       var currentMode = this.mode;
       var currentPath = this.path;
@@ -883,9 +871,9 @@
       this.mode = 'create';
       this.path = rect.createShape(initialPoint, this);
       var eventData = {
-        'delta': {
-          'x': shape.width,
-          'y': shape.height
+        delta: {
+          x: shape.width,
+          y: shape.height
         }
       };
       rect.onMouseDrag(eventData, this);
@@ -901,33 +889,51 @@
       return paperItems;
     },
 
-    parseSVG: function(svg, annotation) {
+    parseSVG: function (svg, annotation) {
       var paperItems = [];
       var svgParser = new DOMParser();
-      var svgDOM = svgParser.parseFromString(svg, "text/xml");
+      var svgDOM = svgParser.parseFromString(svg, 'text/xml');
       if (svgDOM.documentElement.nodeName == 'parsererror') {
         return; // if svg is not valid XML structure - backward compatibility.
       }
       var svgTag = this.paperScope.project.importSVG(svg);
       // removes SVG tag which is the root object of comment SVG segment.
-      var body = svgTag.removeChildren()[0];
-      svgTag.remove();
-      if (body.className == 'Group') {
-        // removes group tag which wraps the set of objects of comment SVG segment.
-        var items = body.removeChildren();
-        for (var itemIdx = 0; itemIdx < items.length; itemIdx++) {
-          paperItems.push(this.replaceShape(items[itemIdx], annotation));
+      if (svgTag !== null) {
+        var body = svgTag.removeChildren()[0];
+        svgTag.remove();
+        if (body.className == 'Group') {
+          // removes group tag which wraps the set of objects of comment SVG segment.
+          var items = body.removeChildren();
+          for (var itemIdx = 0; itemIdx < items.length; itemIdx++) {
+            paperItems.push(this.replaceShape(items[itemIdx], annotation));
+          }
+          body.remove();
+        } else {
+          paperItems.push(this.replaceShape(body, annotation));
         }
-        body.remove();
       } else {
-        paperItems.push(this.replaceShape(body, annotation));
+        var dimensions = annotation.on[0].selector.default.value.split('=')[1].split(',');
+        var point = new this.paperScope.Point(parseInt(dimensions[0]), parseInt(dimensions[1]) + parseInt(dimensions[3]));
+        var textItem = new this.paperScope.PointText(point);
+        // var bounds = new this.paperScope.Rectangle({ point: point, size: [parseInt(dimensions[2], parseInt(dimensions[3]))]})
+        textItem.fillColor = 'red';
+        textItem.strokeColor = 'black';
+        textItem.content = annotation.resource.chars;
+        textItem.fontSize = parseInt(dimensions[3]);
+        textItem.fitBounds(textItem.bounds, true);
+        textItem.data.annotation = annotation;
+        // textItem.style = { width: '100%' };
+        textItem.onMouseUp = function (event) {
+          event.stopPropagation();
+        };
+        paperItems.push(textItem);
       }
       this.paperScope.view.update(true);
       return paperItems;
     },
 
     // Restore latest view before rendering.
-    restoreLastView: function(shapeArray) {
+    restoreLastView: function (shapeArray) {
       for (var i = 0; i < this.editedPaths.length; i++) {
         for (var idx = 0; idx < shapeArray.length; idx++) {
           if (shapeArray[idx].name == this.editedPaths[i].name) {
@@ -958,7 +964,7 @@
       }
     },
 
-    deselectAll: function() {
+    deselectAll: function () {
       if (this.paperScope && this.paperScope.view && this.paperScope.project) {
         this.paperScope.project.deselectAll();
         this.paperScope.view.update(true);
@@ -966,91 +972,90 @@
       }
     },
 
-    hide: function() {
+    hide: function () {
       this.canvas.style.display = 'none';
       this.deselectAll();
     },
 
-    show: function() {
+    show: function () {
       this.canvas.style.display = 'block';
     },
 
-    checkToRemoveFocus: function() {
+    checkToRemoveFocus: function () {
       this.currentTool = '';
-      //if we are switching between editing and drawing, remove an old path
+      // if we are switching between editing and drawing, remove an old path
       if (this.inEditOrCreateMode && this.path) {
         this.removeFocus();
       }
     },
 
-    disable: function() {
+    disable: function () {
       this.disabled = true;
       this.inEditOrCreateMode = false;
       this.eventEmitter.publish('enableTooltips.' + this.windowId);
       this.deselectAll();
     },
 
-    enableEdit: function() {
+    enableEdit: function () {
       this.disabled = false;
       this.inEditOrCreateMode = true;
       this.eventEmitter.publish('disableTooltips.' + this.windowId);
     },
 
-    enable: function() {
+    enable: function () {
       this.disabled = false;
-      //this.inEditOrCreateMode = false;
+      // this.inEditOrCreateMode = false;
       this.eventEmitter.publish('disableTooltips.' + this.windowId);
     },
 
-    refresh: function() {
+    refresh: function () {
       this.paperScope.view.update(true);
     },
 
-    destroyCommentPanel: function() {
+    destroyCommentPanel: function () {
       this.eventEmitter.publish('removeTooltips.' + this.windowId);
       jQuery(this.canvas).parents('.mirador-osd').qtip('destroy', true);
       this.commentPanel = null;
     },
 
-    getName: function(tool) {
+    getName: function (tool) {
       return tool.idPrefix + $.genUUID();
     },
 
-    getSVGString: function(shapes) {
+    getSVGString: function (shapes) {
       var svg = "<svg xmlns='http://www.w3.org/2000/svg'>";
       if (shapes.length > 1) {
-        svg += "<g>";
+        svg += '<g>';
         for (var i = 0; i < shapes.length; i++) {
-          this.updateSelection(false,shapes[i]);
+          this.updateSelection(false, shapes[i]);
           if (shapes[i].data.fixedSize) {
             this.fitFixedSizeShapes(shapes[i]);
           }
           var anno = shapes[i].data.annotation;
           shapes[i].data.annotation = null;
           svg += shapes[i].exportSVG({
-            "asString": true
+            asString: true
           });
           shapes[i].data.annotation = anno;
         }
-        svg += "</g>";
+        svg += '</g>';
       } else {
-        this.updateSelection(false,shapes[0]);
+        this.updateSelection(false, shapes[0]);
         if (shapes[0].data.fixedSize) {
           this.fitFixedSizeShapes(shapes[0]);
         }
         var annoSingle = shapes[0].data.annotation;
         shapes[0].data.annotation = null;
         svg += shapes[0].exportSVG({
-          "asString": true
+          asString: true
         });
         shapes[0].data.annotation = annoSingle;
       }
-      svg += "</svg>";
+      svg += '</svg>';
       return svg;
     },
 
-    onDrawFinish: function() {
-
+    onDrawFinish: function () {
       var shape = this.path;
       if (!shape) {
         return;
@@ -1089,30 +1094,30 @@
         return;
       }
       var _this = this;
-      if (typeof this.annoEditorVisible === 'undefined' || !this.annoEditorVisible)  {
+      if (typeof this.annoEditorVisible === 'undefined' || !this.annoEditorVisible) {
         this.annoTooltip.showEditor({
           annotation: {},
           onSaveClickCheck: function () {
             return _this.draftPaths.length;
           },
-          onAnnotationCreated: function(oaAnno) {
-            _this.eventEmitter.publish('onAnnotationCreated.'+_this.windowId,[oaAnno]);
+          onAnnotationCreated: function (oaAnno) {
+            _this.eventEmitter.publish('onAnnotationCreated.' + _this.windowId, [oaAnno]);
           }
         });
         _this.annoEditorVisible = true;
       }
     },
 
-    onEditFinish: function() {
+    onEditFinish: function () {
       var _this = this;
-      jQuery.each(this.draftPaths, function(index, value) {
+      jQuery.each(this.draftPaths, function (index, value) {
         if (_this.path.name === value.name) {
           _this.draftPaths[index] = _this.path;
         }
       });
     },
 
-    clearDraftData: function() {
+    clearDraftData: function () {
       var _this = this;
       for (var idx = 0; idx < _this.draftPaths.length; idx++) {
         _this.updateSelection(false, this.draftPaths[idx]);
@@ -1131,21 +1136,21 @@
 
     // Should unsubscribe from all events
     // Should have no references in order to be garbage collected
-    destroy:function(){
+    destroy: function () {
       var _this = this;
 
-      this.eventsSubscriptions.forEach(function(event){
-        _this.eventEmitter.unsubscribe(event.name,event.handler);
+      this.eventsSubscriptions.forEach(function (event) {
+        _this.eventEmitter.unsubscribe(event.name, event.handler);
       });
 
-      this.viewer.removeHandler('animation',this._thisResize);
-      this.viewer.removeHandler('open',this._thisResize);
-      this.viewer.removeHandler('animation-finish',this._thisResize);
-      this.viewer.removeHandler('update-viewport',this._thisResize);
-      this.viewer.removeHandler('resize',this._thisResize);
-      this.viewer.removeHandler('rotate',this._thisResize);
-      this.viewer.removeHandler('constrain',this._thisResize);
-      this.viewer.removeHandler('close',this._thisDestroy);
+      this.viewer.removeHandler('animation', this._thisResize);
+      this.viewer.removeHandler('open', this._thisResize);
+      this.viewer.removeHandler('animation-finish', this._thisResize);
+      this.viewer.removeHandler('update-viewport', this._thisResize);
+      this.viewer.removeHandler('resize', this._thisResize);
+      this.viewer.removeHandler('rotate', this._thisResize);
+      this.viewer.removeHandler('constrain', this._thisResize);
+      this.viewer.removeHandler('close', this._thisDestroy);
     }
   };
 }(Mirador));
