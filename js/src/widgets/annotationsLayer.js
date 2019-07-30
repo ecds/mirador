@@ -100,6 +100,7 @@
 
     createRenderer: function () {
       var _this = this;
+      console.log('ANNO LAYER !!!!!', _this.annotationsList)
       this.drawTool = new $.OsdRegionDrawTool({
         osdViewer: _this.viewer,
         parent: _this,
@@ -110,10 +111,25 @@
         eventEmitter: _this.eventEmitter
       });
       this.layerState.startup();
+
+      var textOverlay = new Mirador.TextOverlay({
+        osd: _this.viewer,
+        canvasID: location.pathname,
+        eventEmitter: _this.eventEmitter,
+        state: _this.state,
+        windowId: _this.windowId
+      });
+
+      textOverlay.addTextOverlay();
+
+      _this.textOverlayLayer = textOverlay;
     },
 
     updateRenderer: function () {
+      console.log('UPDATE RENDER', this.annotationsList);
       this.drawTool.list = this.annotationsList;
+      this.textOverlayLayer.annotationsList = this.annotationsList;
+      this.textOverlayLayer.loadAnnotations();
       // this.modeSwitch();
     },
 

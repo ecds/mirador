@@ -29,33 +29,52 @@
     // Build the selector into a bare annotation, given a Window and an OsdSvgOverlay
     buildAnnotation: function (options) {
       var oaAnno = options.annotation,
-        win = options.window,
-        overlay = options.overlay;
+      win = options.window,
+      overlay = options.overlay;
       oaAnno.on = [];
-      jQuery.each(overlay.draftPaths, function (index, path) {
-        // getSVGString expects an array, so insert each path into a new array
-        var svg = overlay.getSVGString([path]),
-          bounds = path.bounds;
+      console.log('BUILD!!!!', oaAnno.item, oaAnno.on instanceof Array)
+      if (oaAnno.item) {
         oaAnno.on.push({
           '@type': 'oa:SpecificResource',
           full: win.canvasID,
           selector: {
-            '@type': 'oa:Choice',
-            default: {
-              '@type': 'oa:FragmentSelector',
-              value: 'xywh=' + Math.round(bounds.x) + ',' + Math.round(bounds.y) + ',' + Math.round(bounds.width) + ',' + Math.round(bounds.height)
-            },
-            item: {
-              '@type': 'oa:SvgSelector',
-              value: svg
-            }
+            '@type': 'oa:FragmentSelector',
           },
           within: {
             '@id': win.loadedManifest,
             '@type': 'sc:Manifest'
           }
         });
-      });
+        oaAnno.item.value = 'xywh=2971,453,28,39'
+        oaAnno.on[0].selector.item = oaAnno.item;
+        delete oaAnno.item;
+      } else if (oaAnno.on instanceof Array) {
+        
+        jQuery.each(overlay.draftPaths, function (index, path) {
+          // getSVGString expects an array, so insert each path into a new array
+          var svg = overlay.getSVGString([path]),
+          bounds = path.bounds;
+          oaAnno.on.push({
+            '@type': 'oa:SpecificResource',
+            full: win.canvasID,
+            selector: {
+              '@type': 'oa:Choice',
+              default: {
+                '@type': 'oa:FragmentSelector',
+                value: 'xywh=' + Math.round(bounds.x) + ',' + Math.round(bounds.y) + ',' + Math.round(bounds.width) + ',' + Math.round(bounds.height)
+              },
+              item: {
+                '@type': 'oa:SvgSelector',
+                value: svg
+              }
+            },
+            within: {
+              '@id': win.loadedManifest,
+              '@type': 'sc:Manifest'
+            }
+          });
+        });
+      }
       return oaAnno;
     },
 

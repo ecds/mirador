@@ -349,13 +349,13 @@
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.' + _this.windowId, function (event, oaAnno) {
         // should remove the styles added for newly created annotation
-        for (var i = 0; i < _this.draftPaths.length; i++) {
-          if (_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated) {
-            _this.draftPaths[i].strokeWidth = _this.draftPaths[i].data.strokeWidth; // TODO: removed newlyCreatedStrokeFactor stuff here
-            delete _this.draftPaths[i].data.newlyCreated;
-            delete _this.draftPaths[i].data.newlyCreatedStrokeFactor;
-          }
-        }
+        // for (var i = 0; i < _this.draftPaths.length; i++) {
+        //   if (_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated) {
+        //     _this.draftPaths[i].strokeWidth = _this.draftPaths[i].data.strokeWidth; // TODO: removed newlyCreatedStrokeFactor stuff here
+        //     delete _this.draftPaths[i].data.newlyCreated;
+        //     delete _this.draftPaths[i].data.newlyCreatedStrokeFactor;
+        //   }
+        // }
 
         var writeStrategy = new $.MiradorDualStrategy();
         writeStrategy.buildAnnotation({

@@ -75,7 +75,7 @@
 
       //use options.uri
       jQuery.ajax({
-        url: '/iiif/v2/' + volume + '/list/' + page,
+        url: `/annotations/mirador/${volume}/${page}/list`,
         type: 'GET',
         dataType: 'json',
         headers: { },
@@ -86,13 +86,14 @@
           if (typeof successCallback === "function") {
             // successCallback(data);
           } else {
-            jQuery.each(data.resources, function(index, value) {
-              if (value["@type"] !== 'cnt:ContentAsText') {                
+            jQuery.each(data, function(index, value) {
+              if (value.resource["@type"] !== 'cnt:ContentAsText') {  
                 value.endpoint = _this;
                 _this.annotationsList.push(value);
               }
             });
             _this.dfd.resolve(true);
+            console.log('list form endpoint', _this.annotationsList);
             return _this.annotationsList;
           }
         },
@@ -161,12 +162,15 @@
     //takes OA Annotation, gets Endpoint Annotation, and saves
     //if successful, MUST return the OA rendering of the annotation
     create: function(oaAnnotation, successCallback, errorCallback) {
-      console.log(('oaAnnotation:', oaAnnotation));
+      
       var _this = this;
       var canvas = oaAnnotation.on[0].full.split('/').reverse()[0];
+      if (!oaAnnotation['@id']) {
+        oaAnnotation['@id'] = _this.uuidv4();
+      }
       
       jQuery.ajax({
-        url: '/iiif/canvas/' + oaAnnotation +'/annotation/new',
+        url: '/annotations',
         type: 'POST',
         dataType: 'json',
         headers: {
@@ -206,8 +210,14 @@
     },
 
     userAuthorize: function(action, annotation) {
-      console.log('AUTH!!!');
       return true;
+    },
+    
+    uuidv4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
     }
   };
 

@@ -13,7 +13,8 @@
 
     // Check whether an annotation is supported under this formatting strategy
     isThisType: function (annotation) {
-      if (annotation.on && typeof annotation.on === 'object' &&
+      if ((annotation.on.selector.item && annotation.on.selector.item['@type']  !== 'RangeSelector') ||
+          annotation.on && typeof annotation.on === 'object' &&
           annotation.on.selector && typeof annotation.on.selector === 'object' &&
           annotation.on.selector.value && typeof annotation.on.selector.value === 'string' &&
           annotation.on.selector['@type'] === 'oa:FragmentSelector') {

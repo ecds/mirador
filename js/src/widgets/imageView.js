@@ -191,7 +191,7 @@
         if (_this.hud.annoState.current === 'off') {
           _this.hud.annoState.displayOn(this);
           _this.annotationState = 'on';
-          _this.ocrAnnotations.annotationState = 'on';
+          // _this.ocrAnnotations.annotationState = 'on';
         } else {
           //make sure to force the controls back to auto fade
           _this.forceShowControls = false;
@@ -577,18 +577,18 @@
 
          
           _this.selecting = false;
-          var textOverlay = new Mirador.TextOverlay({
-            osd: _this.osd,
-            canvasID: _this.canvasID,
-            eventEmitter: _this.eventEmitter,
-            state: _this.state,
-            annotationState: _this.annotationState,
-            windowId: _this.windowId
-          });
+          // var textOverlay = new Mirador.TextOverlay({
+          //   osd: _this.osd,
+          //   canvasID: _this.canvasID,
+          //   eventEmitter: _this.eventEmitter,
+          //   state: _this.state,
+          //   annotationState: _this.annotationState,
+          //   windowId: _this.windowId
+          // });
 
-          textOverlay.addTextOverlay();
+          // textOverlay.addTextOverlay();
 
-          _this.ocrAnnotations = textOverlay;
+          // _this.ocrAnnotations = textOverlay;
         },
 
         error: function (event) {

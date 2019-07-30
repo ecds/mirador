@@ -63,7 +63,8 @@ module.exports = function(grunt) {
     'js/src/annotations/*.js',
     'js/src/workspaces/*.js',
     'js/src/widgets/*.js',
-    'js/src/utils/*.js'
+    'js/src/utils/*.js',
+    'node_modules/openseadragon/build/openseadragon/openseadragon.js'
   ];
 
   // ----------
@@ -209,6 +210,7 @@ module.exports = function(grunt) {
           'Gruntfile.js',
           'js/src/*.js',
           'js/src/*/*.js',
+          'js/lib/*.js',
           'locales/*/*.json',
           'images/*',
           'css/*.css',

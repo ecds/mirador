@@ -734,7 +734,7 @@
   */
 
 
-function OpenSeadragon( options ){
+ function OpenSeadragon( options ){
     return new OpenSeadragon.Viewer( options );
 }
 
@@ -17250,7 +17250,36 @@ $.Tile.prototype = {
 
             var position = positionAndSize.position;
             var size = this.size = positionAndSize.size;
+            // console.log('size!!!', size);
+            // console.log(element);
+            var fontSize = size.y + (element.width / size.x);
+            // var fontSize = size.y + element.innerText.length;
             var rotate = positionAndSize.rotate;
+            
+            // var letterSpacing = element.style.letterSpacing;
+            // console.log('!!!!!!!!!!! letterSpacing', letterSpacing);
+            // if (letterSpacing == '0px' || !letterSpacing) {
+            
+            // }
+            // var letterSpacing = 0;
+            // if (element.scrollWidth / fontSize > element.innerText.length - 1) {
+            //     letterSpacing = fontSize / (element.innerText.length - 1) * 2;
+            // } else {
+            //     letterSpacing = element.scrollWidth / fontSize - element.innerText.length;
+            // }
+            // if (element.id == 'ec5327e3-85ec-4400-a2d4-1f57592a82f5') {
+            //     console.log("&&&&&&&&&&", fontSize, element.scrollWidth)
+            // }
+
+            // var charWidth = element.offsetWidth / element.innerText.length;
+            // var charCountToFill = element.clientWidth / charWidth;
+            // var letterSpacing = charCountToFill * charWidth / element.innerText.length;
+
+            // var letterSpacing = (element.offsetWidth - element.clientWidth) * (element.innerText.length - 1);
+
+            // var letterSpacing = (element.width/(element.offsetWidth/element.innerText.length));
+            // if (element.offsetWidth )
+            // console.log(element.innerText, 'this.width', this.width, 'element.width', element.width, 'element.offsetWidth', element.offsetWidth, 'fontSize', fontSize)
 
             // call the onDraw callback if it exists to allow one to overwrite
             // the drawing/positioning/sizing of the overlay
@@ -17260,7 +17289,9 @@ $.Tile.prototype = {
                 var style = this.style;
                 style.left = position.x + "px";
                 style.top = position.y + "px";
-                style.fontSize = `${size.y + (element.offsetWidth - size.x)}px`;
+                style.fontSize = `${fontSize}px`;
+                // style.letterSpacing = `${((element.width - element.offsetWidth) / (element.innerText.length * 2)) / 10}vw`;
+                
                 if (this.width !== null) {
                     style.width = size.x + "px";
                 }
@@ -17269,25 +17300,39 @@ $.Tile.prototype = {
                 }
                 var transformOriginProp = $.getCssPropertyWithVendorPrefix(
                     'transformOrigin');
-                var transformProp = $.getCssPropertyWithVendorPrefix(
-                    'transform');
-                if (transformOriginProp && transformProp) {
-                    if (rotate) {
-                        style[transformOriginProp] = this._getTransformOrigin();
-                        style[transformProp] = "rotate(" + rotate + "deg)";
-                    } else {
-                        style[transformOriginProp] = "";
-                        style[transformProp] = "";
+                    var transformProp = $.getCssPropertyWithVendorPrefix(
+                        'transform');
+                        if (transformOriginProp && transformProp) {
+                            if (rotate) {
+                                style[transformOriginProp] = this._getTransformOrigin();
+                                style[transformProp] = "rotate(" + rotate + "deg)";
+                            } else {
+                                style[transformOriginProp] = "";
+                                style[transformProp] = "";
+                            }
+                        }
+                        
+                        if (style.display !== 'none') {
+                            style.display = 'block';
+                        }
                     }
-                }
-
-                if (style.display !== 'none') {
-                    style.display = 'block';
-                }
-            }
-        },
+                    style.letterSpacing = `${this._calcLetterSpacing(element, size)}px`;
+                },
 
         // private
+        _calcLetterSpacing: function(element, size) {
+            var initialWidth = element.scrollWidth;
+            element.style.width = 'auto';
+            var trueWidth = element.scrollWidth;
+            element.style.width = size.x;
+            console.log('&&&&&&&&&&& letterSpacing', initialWidth, trueWidth, element.innerText.length);
+            var letterSpacing = ((initialWidth - trueWidth) / (element.innerText.length));
+            console.log('innerText', element.innerText)
+            element.innerText = element.innerText.replace(/[a-z0-9]/gi, ' ');
+            console.log('innerText', element.innerText)
+            return letterSpacing;
+        },
+
         _getOverlayPositionAndSize: function(viewport) {
             var position = viewport.pixelFromPoint(this.location, true);
             var size = this._getSizeInPixels(viewport);

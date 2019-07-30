@@ -506,9 +506,9 @@
           _this.eventEmitter.publish(('removeOverlay.' + _this.id), annoId);
           _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         },
-                                        function() {
-                                          // console.log("There was an error deleting this annotation");
-                                        });
+        function() {
+          // console.log("There was an error deleting this annotation");
+        });
       });
 
       _this.eventEmitter.subscribe('updateAnnotationList.'+_this.id, function(event) {
@@ -905,15 +905,23 @@
       if (urls.length !== 0) {
         jQuery.each(urls, function(index, url) {
           jQuery.getJSON(url, function(list) {
-            var annotations = list.resources;
-            jQuery.each(annotations, function(index, value) {
-              //if there is no ID for this annotation, set a random one
-              // console.log(annotations);
-              if (typeof value['@id'] === 'undefined') {
-                value['@id'] = $.genUUID();
+            var annotations = list.resources.filter(anno => {
+              if (anno.resource['@type'] != 'cnt:ContentAsText' && anno.annotatedBy.name != 'OCR') {
+                return anno;
               }
-              //indicate this is a manifest annotation - which affects the UI
-              value.endpoint = "manifest";
+            });
+            jQuery.each(annotations, function(index, value) {
+              // Remove OCR text from annotation list.
+              if (value && value.resource['@type'] == 'cnt:ContentAsText' && value.annotatedBy.name == 'OCR') {
+                annotations.splice(index, 1);
+              } else {
+                //if there is no ID for this annotation, set a random one
+                if (value && typeof value['@id'] === 'undefined') {
+                  value['@id'] = $.genUUID();
+                }
+                //indicate this is a manifest annotation - which affects the UI
+                if (value) value.endpoint = "manifest";
+              }
             });
             // publish event only if one url fetch is successful
             _this.annotationsList = _this.annotationsList.concat(annotations);

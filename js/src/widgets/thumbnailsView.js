@@ -122,18 +122,25 @@
           // Under firefox $.show() used under display:none iframe does not change the display.
           // This is workaround for https://github.com/IIIF/mirador/issues/929
           jQuery(this).css('display', 'block');
+          // TODO move this
+          // grabs the url onload to display on the page
+          var canvasID = window.location.href;
+          document.getElementById("mySpan").innerHTML=canvasID;
         });
       });
-
+      
       jQuery(_this.element).scroll(function () {
         _this.loadImages();
       });
-
+      
       // add any other events that would trigger thumbnail display (resize, etc)
-
+      
       _this.element.find('.thumbnail-image').on('click', function () {
         var canvasID = jQuery(this).attr('data-image-id');
         _this.eventEmitter.publish('SET_CURRENT_CANVAS_ID.' + _this.windowId, canvasID);
+        // TODO move this
+        // grabs the changed url when you click a thumbnail and updates the myLink variable to change the page url
+        document.getElementById("mySpan").innerHTML=canvasID;
       });
     },
 

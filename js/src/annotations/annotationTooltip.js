@@ -32,7 +32,6 @@
     showEditor: function (params) {
       var _this = this;
       if (_this.activeEditor) { return; }
-      console.log('show edi', _this);
 
       var editorContainer = _this.editorTemplate({
         id: jQuery.isEmptyObject(params.annotation) ? '' : params.annotation['@id'],
@@ -88,12 +87,14 @@
             });
 
             jQuery(selector + ' a.save').on('click', function (event) {
+              console.log('SAVING!!!!!!!!!!!!')
               event.preventDefault();
               if (!params.onSaveClickCheck()) {
                 return;
               }
               var annotation = _this.activeEditor.createAnnotation();
               if (params.onAnnotationCreated) { params.onAnnotationCreated(annotation); }
+              if (params.onTextAnnotationCreated) { params.onTextAnnotationCreated(annotation); }
 
               api.destroy();
               _this.activeEditor = null;
@@ -329,6 +330,7 @@
     },
 
     setTooltipContent: function (annotations) {
+      console.log('TOOLTIP', annotations);
       var _this = this;
       var api = jQuery(this.targetElement).qtip('api');
       if (api) {

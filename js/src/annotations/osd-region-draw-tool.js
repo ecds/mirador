@@ -20,10 +20,7 @@
       this.svgOverlay = this.osdViewer.svgOverlay(this.osdViewer.id, this.windowId, this.state, this.eventEmitter);
       this.svgOverlay.show();
       this.svgOverlay.disable();
-      console.log('init', this.svgOverlay.currentTool)
-
       this.horizontallyFlipped = false;
-
       this.listenForActions();
     },
 
@@ -96,18 +93,11 @@
       this.svgOverlay.paperScope.activate();
       this.svgOverlay.paperScope.project.clear();
       var _this = this;
-      // new Mirador.TextOverlay({
-        //   osd: _this.osd,
-        //   canvasID: _this.canvasID,
-        //   words: _this.ocrAnnotations,
-        //   eventEmitter: _this.eventEmitter,
-        //   state: _this.state,
-        //   windowId: _this.windowId
-        // });
       _this.annotationsToShapesMap = {};
       var strategies = [
         new $.Mirador21Strategy(),
         new $.LegacyOpenAnnotationStrategy(),
+        new $.MiradorTextStrategy(),
         new $.MiradorLegacyStrategy(),
         new $.MiradorDualStrategy(),
         new $.MiradorOcrStrategy()
@@ -120,18 +110,10 @@
           if (shapeArray.length > 0 && !shapeArray[0].hasOwnProperty('@context')) {
             _this.svgOverlay.restoreLastView(shapeArray);
             _this.annotationsToShapesMap[annotation['@id']] = shapeArray;
-            // console.log('shapeArray', shapeArray);
-          } else if (!shapeArray[0].hasOwnProperty('@context')) {
-            // var word = new Mirador.TextOverlay({
-            //     osd: this.osdViewer,
-            //     canvasID: _this.canvasID,
-            //     words: _this.ocrAnnotations,
-            //     eventEmitter: _this.eventEmitter,
-            //     state: _this.state,
-            //     windowId: _this.windowId
-            //   });
+          } else if (shapeArray['@type'] === 'RangeSelector') {
+            console.log('it is a text annotation')
           } else {
-            // console.log("ERROR couldn't find a strategy for " + annotation['@id']);
+            console.log("ERROR couldn't find a strategy for " + annotation['@id']);
           }
         } catch (e) {
           console.log('ERROR OsdRegionDrawTool#render anno:', annotation, 'error:', e);
@@ -157,9 +139,10 @@
     prepareShapeArray: function (annotation, strategies) {
       if (typeof annotation === 'object' && annotation.on) {
         for (var i = 0; i < strategies.length; i++) {
+          console.log('strategy', strategies[i], annotation);
           if (strategies[i].isThisType(annotation)) {
             shapeArray = strategies[i].parseRegion(annotation, this);
-            // console.log(shapeArray);
+            console.log('shapeArray', shapeArray);
             return shapeArray;
           }
         }
@@ -309,6 +292,7 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('refreshOverlay.' + _this.windowId, function (event) {
+        console.log('ADD SVGs NOW!!!!')
         _this.render();
       }));
 
