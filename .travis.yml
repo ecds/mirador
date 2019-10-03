@@ -5,5 +5,3 @@ node_js:
 - 'v6.10.3'
 before_install:
 - npm install
-script:
-- npm run travis

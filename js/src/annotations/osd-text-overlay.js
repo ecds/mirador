@@ -76,7 +76,40 @@
 
               var word = {
                 element: ocrEl,
-                location: new OpenSeadragon.Rect(loc[0], loc[1], loc[2], loc[3])
+                location: new OpenSeadragon.Rect(loc[0], loc[1], loc[2], loc[3]),
+                onDraw: function(position, size, element) {
+                  var style = this.style;
+                  style.left = position.x + "px";
+                  style.top = position.y + "px";
+                  style.fontSize = `${size.y / 1.6}px`;
+                  style.letterSpacing = `${parseFloat(element.getAttribute('data-letter-spacing')) * size.x}px`;
+                  if (this.width !== null) {
+                      style.width = size.x + "px";
+                  }
+                  if (this.height !== null) {
+                      style.height = size.y + "px";
+                  }
+                  var positionAndSize = this._getOverlayPositionAndSize(_this.osd.viewport);
+
+                  var rotate = positionAndSize.rotate;
+                  var transformOriginProp = OpenSeadragon.getCssPropertyWithVendorPrefix(
+                      'transformOrigin');
+                  var transformProp = OpenSeadragon.getCssPropertyWithVendorPrefix(
+                      'transform');
+                  if (transformOriginProp && transformProp) {
+                      if (rotate) {
+                          style[transformOriginProp] = this._getTransformOrigin();
+                          style[transformProp] = "rotate(" + rotate + "deg)";
+                      } else {
+                          style[transformOriginProp] = "";
+                          style[transformProp] = "";
+                      }
+                  }
+
+                  if (style.display !== 'none') {
+                      style.display = 'block';
+                  }
+                }
               };
 
               _this.words.push(word);
