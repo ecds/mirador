@@ -85,7 +85,6 @@
             _this.drawTool.enterDisplayAnnotations();
           },
           oncreateAnnotation: function (event) {
-            console.log(_this);
             _this.drawTool.enterCreateAnnotation();
           },
           oncreateShape: function (event) {
@@ -100,7 +99,6 @@
 
     createRenderer: function () {
       var _this = this;
-      console.log('ANNO LAYER !!!!!', _this.annotationsList)
       this.drawTool = new $.OsdRegionDrawTool({
         osdViewer: _this.viewer,
         parent: _this,
@@ -126,10 +124,9 @@
     },
 
     updateRenderer: function () {
-      console.log('UPDATE RENDER', this.annotationsList);
       this.drawTool.list = this.annotationsList;
+      this.textOverlayLayer.addTextOverlay();
       this.textOverlayLayer.annotationsList = this.annotationsList;
-      this.textOverlayLayer.loadAnnotations();
       // this.modeSwitch();
     },
 

@@ -122,10 +122,6 @@
           // Under firefox $.show() used under display:none iframe does not change the display.
           // This is workaround for https://github.com/IIIF/mirador/issues/929
           jQuery(this).css('display', 'block');
-          // TODO move this
-          // grabs the url onload to display on the page
-          var canvasID = window.location.href;
-          document.getElementById("mySpan").innerHTML=canvasID;
         });
       });
       

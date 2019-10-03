@@ -185,7 +185,7 @@ module.exports = function(grunt) {
 
     shell: {
       rsync: {
-        command: 'rsync -avz build/mirador/ /Users/jay/data/readux2.0/readux/apps/static/mirador/'
+        command: 'rsync -avz build/mirador/ /Users/jay/data/readux/apps/static/mirador/'
       }
     },
 
@@ -215,7 +215,8 @@ module.exports = function(grunt) {
           'images/*',
           'css/*.css',
           'css/less/**/*.less',
-          'index.html'
+          'index.html',
+          'node_modules/openseadragon/build/openseadragon/openseadragon.js'
         ],
         tasks: 'dev_build'
       }

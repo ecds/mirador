@@ -17317,6 +17317,9 @@ $.Tile.prototype = {
                         }
                     }
                     style.letterSpacing = `${this._calcLetterSpacing(element, size)}px`;
+                    setTimeout(() => {
+                        // style.whiteSpace = 'nowrap';
+                    }, 3000);
                 },
 
         // private
@@ -17324,8 +17327,7 @@ $.Tile.prototype = {
             var initialWidth = element.scrollWidth;
             element.style.width = 'auto';
             var trueWidth = element.scrollWidth;
-            element.style.width = size.x;
-            console.log('&&&&&&&&&&& letterSpacing', initialWidth, trueWidth, element.innerText.length);
+            element.style.width = element.scrollWidth;
             var letterSpacing = ((initialWidth - trueWidth) / (element.innerText.length));
             console.log('innerText', element.innerText)
             element.innerText = element.innerText.replace(/[a-z0-9]/gi, ' ');

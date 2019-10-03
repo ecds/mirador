@@ -22,6 +22,14 @@
           annotation.on[0].selector.item.value && typeof annotation.on[0].selector.item.value === 'string'
         ) {
         return annotation.on[0].selector.default.value.indexOf('xywh=') === 0 && annotation.on[0].selector.item.value.indexOf('<svg') === 0;
+      } else if (typeof annotation.on === 'object' &&
+      annotation.on.selector && typeof annotation.on.selector === 'object' &&
+      annotation.on.selector.item['@type'] === 'oa:Choice' &&
+      annotation.on.selector.item.default && typeof annotation.on.selector.item.default === 'object' &&
+      annotation.on.selector.item.default.value && typeof annotation.on.selector.item.value === 'string' &&
+      annotation.on.selector.item && typeof annotation.on.selector.item === 'object' &&
+      annotation.on.selector.item.value && typeof annotation.on.selector.item.value === 'string') {
+        return annotation.on.selector.item.default.value.indexOf('xywh=') === 0 && annotation.on.selector.item.value.indexOf('<svg') === 0;
       }
       return false;
     },
@@ -32,7 +40,6 @@
       win = options.window,
       overlay = options.overlay;
       oaAnno.on = [];
-      console.log('BUILD!!!!', oaAnno.item, oaAnno.on instanceof Array)
       if (oaAnno.item) {
         oaAnno.on.push({
           '@type': 'oa:SpecificResource',
@@ -82,9 +89,13 @@
     parseRegion: function (annotation, osdRegionDrawTool) {
       if (this.isThisType(annotation)) {
         var regionArray = [];
-        jQuery.each(annotation.on, function (index, target) {
-          regionArray = regionArray.concat(osdRegionDrawTool.svgOverlay.parseSVG(target.selector.item.value, annotation));
-        });
+        if (jQuery.isArray(annotation.on)) {
+          jQuery.each(annotation.on, function (index, target) {
+            regionArray = regionArray.concat(osdRegionDrawTool.svgOverlay.parseSVG(target.selector.item.value, annotation));
+          });
+        } else {
+          regionArray = regionArray.concat(osdRegionDrawTool.svgOverlay.parseSVG(annotation.on.selector.item.value, annotation));
+        }
         return regionArray;
       }
     }

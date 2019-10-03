@@ -110,10 +110,11 @@
       var selectedTags = this.editorContainer.find('.tags-editor').val(),
         resourceText = tinymce.activeEditor.getContent();
 
-      var motivation = [],
-        resource = [];
+      // var motivation = [],
+      //   resource = [];
 
       // remove all tag-related content in annotation
+      if (jQuery.isArray(oaAnno.resource)) {
       oaAnno.motivation = jQuery.grep(oaAnno.motivation, function (value) {
         return value !== 'oa:tagging';
       });
@@ -130,11 +131,14 @@
           });
         });
       }
-      jQuery.each(oaAnno.resource, function (index, value) {
-        if (value['@type'] === 'dctypes:Text') {
-          value.chars = resourceText;
-        }
-      });
+        jQuery.each(oaAnno.resource, function (index, value) {
+          if (value['@type'] === 'dctypes:Text') {
+            value.chars = resourceText;
+          }
+        });
+      } else {
+        oaAnno.resource.chars = resourceText;
+      }
     },
 
     editorTemplate: $.Handlebars.compile([

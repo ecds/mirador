@@ -43,7 +43,7 @@
 
     // default window settings, but can be changed in Mirador configuration on initialization
     windowSettings: {
-      availableViews: ['ThumbnailsView', 'ImageView', 'ScrollView', 'BookView'], // any subset removes others
+      availableViews: ['ThumbnailsView', 'ImageView'], // any subset removes others
       viewType: 'ImageView', // one of [_'ThumbnailsView'_, 'ImageView', 'ScrollView', 'BookView'] - if using availableViews, must be in subset
       bottomPanel: true, // whether or not to make the bottom panel available in this window
       bottomPanelVisible: true, // whether or not to make the bottom panel visible in this window on load. This setting is dependent on bottomPanel being true
@@ -188,6 +188,8 @@
      *  }
      * */
     annotationEndpoint: {},
+
+    username: '',
 
     annotationBodyEditor: {
       module: 'TinyMCEAnnotationBodyEditor',

@@ -114,6 +114,7 @@
         _this.imagesListRtl = [];
         _this.imagesListLtr = [];
       }
+      this.username
       this.annoEndpointAvailable = !jQuery.isEmptyObject(_this.state.getStateProperty('annotationEndpoint'));
       if (!this.canvasControls.annotations.annotationLayer) {
         this.canvasControls.annotations.annotationCreation = false;
@@ -466,6 +467,7 @@
     bindAnnotationEvents: function() {
       var _this = this;
       _this.eventEmitter.subscribe('annotationCreated.'+_this.id, function(event, oaAnno, eventCallback) {
+        // oaAnno.on = [oaAnno.on];
         var annoID;
         //first function is success callback, second is error callback
         _this.endpoint.create(oaAnno, function(data) {
@@ -476,10 +478,10 @@
           //anything that depends on the completion of other bits, call them now
           eventCallback();
         },
-                              function() {
-                                //provide useful feedback to user
-                                console.log("There was an error saving this new annotation");
-                              });
+        function() {
+          //provide useful feedback to user
+          console.log("There was an error saving this new annotation");
+        });
       });
 
       _this.eventEmitter.subscribe('annotationUpdated.'+_this.id, function(event, oaAnno) {
@@ -493,9 +495,9 @@
           });
           _this.eventEmitter.publish('ANNOTATIONS_LIST_UPDATED', {windowId: _this.id, annotationsList: _this.annotationsList});
         },
-                              function() {
-                                console.log("There was an error updating this annotation");
-                              });
+        function() {
+          console.log("There was an error updating this annotation");
+        });
       });
 
       _this.eventEmitter.subscribe('annotationDeleted.'+_this.id, function(event, annoId) {
@@ -833,6 +835,7 @@
           imagesList: this.imagesList,
           imagesListLtr: this.imagesListLtr,
           vDirectionStatus: this.vDirectionStatus,
+          username: this.username,
           thumbInfo: {thumbsHeight: Math.floor(containerHeight * this.scrollImageRatio), listingCssCls: 'scroll-listing-thumbs', thumbnailCls: 'scroll-view'}
         });
       } else {
@@ -905,11 +908,17 @@
       if (urls.length !== 0) {
         jQuery.each(urls, function(index, url) {
           jQuery.getJSON(url, function(list) {
-            var annotations = list.resources.filter(anno => {
-              if (anno.resource['@type'] != 'cnt:ContentAsText' && anno.annotatedBy.name != 'OCR') {
-                return anno;
-              }
-            });
+            let annotations = {};
+            if (list.resources) {
+              annotations = list.resources.filter(anno => {
+                if (anno.resource['@type'] != 'cnt:ContentAsText' && anno.annotatedBy.name != 'OCR' && anno.annotatedBy.name != _this.state.getStateProperty('usernamePretty')) {
+                  console.log("TCL: anno", anno)
+                  return anno;
+                }
+              });
+            } else {
+              annotations = [list.resource];  
+            }
             jQuery.each(annotations, function(index, value) {
               // Remove OCR text from annotation list.
               if (value && value.resource['@type'] == 'cnt:ContentAsText' && value.annotatedBy.name == 'OCR') {
@@ -920,6 +929,7 @@
                   value['@id'] = $.genUUID();
                 }
                 //indicate this is a manifest annotation - which affects the UI
+                // DO SOMETHING HERE!!!!!
                 if (value) value.endpoint = "manifest";
               }
             });
@@ -947,13 +957,13 @@
           options.eventEmitter = _this.eventEmitter;
           _this.endpoint = new $[module](options);
         }
-        _this.endpoint.search({ "uri" : _this.canvasID});
+        _this.endpoint.search({ "uri" : _this.canvasID, username: _this.state.getStateProperty('username')});
 
         dfd.done(function(loaded) {
           _this.annotationsList = _this.annotationsList.concat(_this.endpoint.annotationsList);
           // clear out some bad data
           _this.annotationsList = jQuery.grep(_this.annotationsList, function (value, index) {
-            if (typeof value.on === "undefined") {
+            if (!value || !value.on) {
               return false;
             }
             return true;
@@ -1073,9 +1083,6 @@
       '</ul>',
       '</a>',
       '{{#if MetadataView}}',
-      '<a href="javascript:;" class="mirador-btn mirador-icon-metadata-view mirador-tooltip" role="button" title="{{t "metadataTooltip"}}" aria-label="{{t "metadataTooltip"}}">',
-      '<i class="fa fa-info-circle fa-lg fa-fw"></i>',
-      '</a>',
       '{{/if}}',
       '{{#if showFullScreen}}',
       '<a class="mirador-btn mirador-osd-fullscreen mirador-tooltip" role="button" title="{{t "fullScreenWindowTooltip"}}" aria-label="{{t "fullScreenWindowTooltip"}}">',

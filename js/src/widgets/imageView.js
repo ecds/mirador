@@ -64,7 +64,6 @@
       });
 
       var allTools = $.getTools(this.state.getStateProperty('drawingToolsSettings'));
-      console.log(allTools);
       this.availableAnnotationTools = [];
       for (var i = 0; i < this.state.getStateProperty('availableAnnotationDrawingTools').length; i++) {
         for (var j = 0; j < allTools.length; j++) {
@@ -279,7 +278,6 @@
         //when a user is in Create mode, don't let the controls auto fade as it could be distracting to the user
         _this.forceShowControls = true;
         _this.element.find(".hud-control").stop(true, true).removeClass('hidden', _this.state.getStateProperty('fadeDuration'));
-      console.log('annostate', _this.hud.annoState);
 
       });
 
@@ -539,13 +537,6 @@
       // We've already loaded this tilesource
       if (imageResource.status === 'drawn') {
         return;
-      }
-
-      if (_this.ocrAnnotations) {
-        // _this.ocrAnnotations.forEach(function (word) {
-        //   _this.osd.removeOverlay(word);
-        // });
-        // _this.ocrAnnotations.removeTextOverlay();
       }
 
       imageResource.setStatus('requested');

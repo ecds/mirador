@@ -82,15 +82,13 @@
               _this.words.push(word);
 
               var wordOverlay = _this.osd.addOverlay(word);
-              // console.log('wordOverlay', ocrEl);
               // if (index === 0) {
               // _this.osd.canvas = ocrEl.parentElement;
               _this.annotationCanvas = _this.osd.canvas.lastElementChild;
-              console.log('annoCanv', _this.osd.canvas.lastElementChild);
               ocrEl.parentElement.id = 'ocr-layer';
               // }
 
-              // _this.osd.updateOverlay(word);
+              _this.osd.updateOverlay(word);
               _this.wordOverlays.push(wordOverlay.currentOverlays[wordOverlay.currentOverlays.length - 1]);
 
 
@@ -173,36 +171,43 @@
             return _this.textAnnotation.words.length;
           },
           onTextAnnotationCreated: function (oaAnno) {
-            // _this.uuid = _this.uuidv4();
-            window.getSelection().empty();
             // TODO: Maybe move `constructItem` to the write strategy `buildAnnotation`
-            _this.ocrTextAnnotation = new $.OcrTextAnnotation({textAnnotation: _this.textAnnotation, oaAnno: oaAnno, canvasId: _this.state.getWindowObjectById(_this.windowId), overlay: _this});
-            _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
-          },
-          onEditFinish: function () {
-            var _this = this;
+            _this.ocrTextAnnotation = new $.OcrTextAnnotation(
+              {
+                textAnnotation: _this.textAnnotation,
+                oaAnno: oaAnno,
+                canvasId: _this.state.getWindowObjectById(_this.windowId),
+                overlay: _this,
+                viewer: _this.osd,
+                eventEmitter: _this.eventEmitter,
+                state: _this.state
+              }
+              );
+            // console.log("TCL: enableSelecting -> _this.ocrTextAnnotation", _this.ocrTextAnnotation)
             window.getSelection().empty();
-
+            _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
           },
         });
       });
-      // _this.words.forEach(function (word) {
-      // });
     },
 
-    loadAnnotations: function() {
+    // The delay argument is passed to textAnno. It sets the timeout
+    // for adding the text annotations. It has to wait for the OCR
+    // spans to be added to the DOM. :(
+    loadAnnotations: function(delay=0) {
       var _this = this;
+      
       if (this.annotationsList) {
         this.annotationsList.forEach(function(oaAnno) {
-          if (oaAnno.on.selector.item['@type'] === 'RangeSelector') {
-            console.log('LAODING TEXT ANNO WITH RANGESELECTOR', oaAnno);
+          if (oaAnno && oaAnno.on && oaAnno.on.selector && oaAnno.on.selector.item['@type'] === 'RangeSelector') {
             var textAnno = new $.OcrTextAnnotation();
+            textAnno.viewer = _this.osd;
+            textAnno.eventEmitter = _this.eventEmitter;
             textAnno.oaAnno = oaAnno;
-            textAnno.state = _this.state,
-            textAnno.windowId = _this.windowId,
-            textAnno.osd = _this.osd,
+            textAnno.state = _this.state;
+            textAnno.windowId = _this.windowId;
             // textAnno.parseTextAnno();
-            textAnno.parseOaAnno();
+            textAnno.parseOaAnno(delay);
           }
         });
       }
@@ -231,26 +236,28 @@
       var _this = this;
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('refreshOverlay.' + _this.windowId, function (event) {
-        console.log('ADD TEXT ANNOS NOW!', event, this);
+        if (_this.showTextOverlay) {
+          _this.loadAnnotations(500);
+        }
       }));
-
+      
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('modeChange.' + _this.windowId, function (event, mode) {
         if (mode === 'displayAnnotations' && !_this.showTextOverlay) {
           _this.showTextOverlay = true;
           _this.addTextOverlay();
+          _this.loadAnnotations();
+          document.getElementById(_this.osd.id).classList.add('show-annotations');
         } else if (mode === 'default' && _this.showTextOverlay) {
-          // placeholder
+          document.getElementById(_this.osd.id).classList.remove('show-annotations');
+          _this.showTextOverlay = false;
         }
 
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function (event, tool) {
-        console.log('mouse enabled toggle tool', _this.osd.isMouseNavEnabled(), tool);
 
         if (tool === _this.logoClass) {
           _this.selecting = true;
-
-          // setTimeout(function(){_this.enableSelecting()}, 1000);
           _this.enableSelecting()
         }
       }));
@@ -280,7 +287,7 @@
           // re-enable viewer tooltips
           _this.eventEmitter.publish('enableTooltips.' + _this.windowId);
 
-          _this.clearDraftData();
+          // _this.clearDraftData();
           _this.annoTooltip = null;
           _this.annoEditorVisible = false;
         }]);
@@ -359,9 +366,9 @@
       console.log('wordSpan', wordSpan);
       const word = wordSpan.innerText;
       const link = this.createLink();
-      console.log('link', link);
+      // console.log('link', link);
       link.innerText = word.slice(offset, word.length);
-      console.log('link', link);
+      // console.log('link', link);
       wordSpan.innerHTML = `${word.slice(0, offset)}`;
       wordSpan.append(link);
     },

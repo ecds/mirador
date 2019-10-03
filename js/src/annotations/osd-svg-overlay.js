@@ -212,7 +212,6 @@
         for (var i = 0; i < _this.tools.length; i++) {
           if (_this.tools[i].logoClass === tool) {
             _this.currentTool = _this.tools[i];
-            console.log('tool', _this.currentTool);
           }
         }
       }));
@@ -269,7 +268,10 @@
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
         var onAnnotationSaved = jQuery.Deferred();
-        if (!_this.draftPaths.length) {
+        if (oaAnno.on.selector && oaAnno.on.selector.item['@type'] == 'RangeSelector') {
+          _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
+          onAnnotationSaved.resolve();
+        } else if (!_this.draftPaths.length) {
           new $.DialogBuilder(_this.slotWindowElement).dialog({
             message: i18next.t('editModalSaveAnnotationWithNoShapesMsg'),
             closeButton: false,
@@ -279,10 +281,12 @@
                 label: i18next.t('editModalBtnSaveWithoutShapes'),
                 className: 'btn-success',
                 callback: function () {
-                  oaAnno.on = {
-                    '@type': 'oa:SpecificResource',
-                    full: _this.state.getWindowObjectById(_this.windowId).canvasID
-                  };
+                  if (oaAnno.on.selector.item['@type'] != 'RangeSelector') {
+                    oaAnno.on = {
+                      '@type': 'oa:SpecificResource',
+                      full: _this.state.getWindowObjectById(_this.windowId).canvasID
+                    };
+                  }
                     // save to endpoint
                   _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
                   onAnnotationSaved.resolve();
@@ -316,6 +320,7 @@
           _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
           onAnnotationSaved.resolve();
         }
+      // }
 
         jQuery.when(onAnnotationSaved.promise()).then(function () {
           _this.eventEmitter.publish('annotationEditSaveSuccessful.' + _this.windowId);
@@ -349,13 +354,6 @@
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.' + _this.windowId, function (event, oaAnno) {
         // should remove the styles added for newly created annotation
-        // for (var i = 0; i < _this.draftPaths.length; i++) {
-        //   if (_this.draftPaths[i].data && _this.draftPaths[i].data.newlyCreated) {
-        //     _this.draftPaths[i].strokeWidth = _this.draftPaths[i].data.strokeWidth; // TODO: removed newlyCreatedStrokeFactor stuff here
-        //     delete _this.draftPaths[i].data.newlyCreated;
-        //     delete _this.draftPaths[i].data.newlyCreatedStrokeFactor;
-        //   }
-        // }
 
         var writeStrategy = new $.MiradorDualStrategy();
         writeStrategy.buildAnnotation({
@@ -370,7 +368,7 @@
           _this.inEditOrCreateMode = false;
           _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
 
-          // reenable viewer tooltips
+          // re-enable viewer tooltips
           _this.eventEmitter.publish('enableTooltips.' + _this.windowId);
 
           _this.clearDraftData();
@@ -776,7 +774,6 @@
     },
 
     removeFocus: function () {
-      console.log('this.hoveredPath', this.hoveredPath);
       if (this.hoveredPath) {
         this.updateSelection(false, this.hoveredPath);
         this.hoveredPath = null;
@@ -912,7 +909,12 @@
           paperItems.push(this.replaceShape(body, annotation));
         }
       } else {
-        var dimensions = annotation.on[0].selector.default.value.split('=')[1].split(',');
+        var dimensions = null;
+        if (jQuery.isArray(annotation.on)) {
+          dimensions = annotation.on[0].selector.default.value.split('=')[1].split(',');
+         } else {
+          dimensions = annotation.on.selector.default.value.split('=')[1].split(',');
+        }
         var point = new this.paperScope.Point(parseInt(dimensions[0]), parseInt(dimensions[1]) + parseInt(dimensions[3]));
         var textItem = new this.paperScope.PointText(point);
         // var bounds = new this.paperScope.Rectangle({ point: point, size: [parseInt(dimensions[2], parseInt(dimensions[3]))]})
@@ -1004,7 +1006,7 @@
 
     enable: function () {
       this.disabled = false;
-      // this.inEditOrCreateMode = false;
+      this.inEditOrCreateMode = false;
       this.eventEmitter.publish('disableTooltips.' + this.windowId);
     },
 

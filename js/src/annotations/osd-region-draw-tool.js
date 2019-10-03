@@ -96,27 +96,29 @@
       _this.annotationsToShapesMap = {};
       var strategies = [
         new $.Mirador21Strategy(),
+        new $.MiradorDualStrategy(),
         new $.LegacyOpenAnnotationStrategy(),
         new $.MiradorTextStrategy(),
         new $.MiradorLegacyStrategy(),
-        new $.MiradorDualStrategy(),
         new $.MiradorOcrStrategy()
       ];
 
       for (var i = 0; i < this.list.length; i++) {
         var annotation = this.list[i];
-        try {
-          var shapeArray = this.prepareShapeArray(annotation, strategies);
-          if (shapeArray.length > 0 && !shapeArray[0].hasOwnProperty('@context')) {
-            _this.svgOverlay.restoreLastView(shapeArray);
-            _this.annotationsToShapesMap[annotation['@id']] = shapeArray;
-          } else if (shapeArray['@type'] === 'RangeSelector') {
-            console.log('it is a text annotation')
-          } else {
-            console.log("ERROR couldn't find a strategy for " + annotation['@id']);
+        if (annotation.on && annotation.on instanceof Array && annotation.on[0].selector && annotation.on[0].selector.item && annotation.on[0].selector.item['@type'] != 'RangeSelector') {
+          try {
+            var shapeArray = this.prepareShapeArray(annotation, strategies);
+            if (shapeArray.length > 0 && !shapeArray[0].hasOwnProperty('@context')) {
+              _this.svgOverlay.restoreLastView(shapeArray);
+              _this.annotationsToShapesMap[annotation['@id']] = shapeArray;
+            } else if (shapeArray['@type'] === 'RangeSelector') {
+              // console.log('it is a text annotation')
+            } else {
+              console.log("ERROR couldn't find a strategy for " + annotation['@id']);
+            }
+          } catch (e) {
+            console.log('ERROR OsdRegionDrawTool#render anno:', annotation, 'error:', e);
           }
-        } catch (e) {
-          console.log('ERROR OsdRegionDrawTool#render anno:', annotation, 'error:', e);
         }
       }
 
@@ -139,10 +141,9 @@
     prepareShapeArray: function (annotation, strategies) {
       if (typeof annotation === 'object' && annotation.on) {
         for (var i = 0; i < strategies.length; i++) {
-          console.log('strategy', strategies[i], annotation);
+          // console.log('strategy', strategies[i], annotation);
           if (strategies[i].isThisType(annotation)) {
             shapeArray = strategies[i].parseRegion(annotation, this);
-            console.log('shapeArray', shapeArray);
             return shapeArray;
           }
         }
@@ -259,7 +260,9 @@
         if (_this.annoTooltip) {
           _this.annoTooltip.inEditOrCreateMode = false;
         }
-        _this.svgOverlay.restoreDraftShapes();
+        if (_this.svgOverlay) {
+          _this.svgOverlay.restoreDraftShapes();
+        }
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('SET_ANNOTATION_EDITING.' + _this.windowId, function (event, options) {
@@ -292,7 +295,6 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('refreshOverlay.' + _this.windowId, function (event) {
-        console.log('ADD SVGs NOW!!!!')
         _this.render();
       }));
 
