@@ -78,10 +78,22 @@
                 element: ocrEl,
                 location: new OpenSeadragon.Rect(loc[0], loc[1], loc[2], loc[3]),
                 onDraw: function(position, size, element) {
+                  /* 
+                    Overrides OpenSeadragon.Overlay's `onDraw` function to scale
+                    and rotate the OCR overlay elements.
+                    This is where all the magic happens.
+                  */
                   var style = this.style;
                   style.left = position.x + "px";
                   style.top = position.y + "px";
                   style.fontSize = `${size.y / 1.6}px`;
+                  /*
+                    When the Readux app creates the span elements for the OCR,
+                    it includes a `data-letter-spacing` attribute. This is a
+                    percentage of the initial calculated letter spacing of the
+                    overall width of the element.
+                    
+                  */
                   style.letterSpacing = `${parseFloat(element.getAttribute('data-letter-spacing')) * size.x}px`;
                   if (this.width !== null) {
                       style.width = size.x + "px";

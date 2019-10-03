@@ -87,7 +87,6 @@
             });
 
             jQuery(selector + ' a.save').on('click', function (event) {
-              console.log('SAVING!!!!!!!!!!!!')
               event.preventDefault();
               if (!params.onSaveClickCheck()) {
                 return;

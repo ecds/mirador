@@ -41,10 +41,9 @@
       }));
       
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('updateTooltips.' + _this.windowId, function (event, location, absoluteLocation) {
-      // console.log("TCL: listenForActions -> event", event)
-        if (_this.annoToolTip && !_this.annoToolTip.inEditOrCreateMode) {
+        // if (_this.annoToolTip && !_this.annoToolTip.inEditOrCreateMode) {
           _this.showTooltipsFromMousePosition(event, location, absoluteLocation);
-        }
+        // }
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
@@ -55,26 +54,7 @@
         jQuery.when(onAnnotationSaved.promise()).then(function () {
           _this.inEditOrCreateMode = false;
           _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
-          _this.annoToolTip = new $.AnnotationTooltip({
-            targetElement: jQuery(_this.viewer.element),
-            state: _this.state,
-            eventEmitter: _this.eventEmitter,
-            windowId: _this.windowId,
-            isTextAnno: true,
-            textAnno: oaAnno
-          });
-          // _this.annoToolTip.inEditOrCreateMode = false;
-          // _this.eventEmitter.publish('SET_OVERLAY_TOOLTIP.' + _this.windowId, { tooltip: null, visible: false, paths: [] })
-          // _this.eventEmitter.publish('enableTooltips.' + _this.windowId);
-          // _this.eventEmitter.publish('annotationEditSaveSuccessful.' + _this.windowId);
-          // // _this.eventEmitter.publish('SET_ANNOTATION_EDITING.' + _this.windowId, {
-          // //   annotationId: oaAnno['@id'],
-          // //   isEditable: false,
-          // //   tooltip: _this
-          // // });
-          // // _this.annoToolTip = null;
-          // _this.annoEditorVisible = false;
-          // _this.inEditOrCreateMode = false;
+ 
         }, function () {
           // confirmation rejected don't do anything
         // });
@@ -96,29 +76,15 @@
       // if (this.links.length > 0) {
         // console.log('link', this.links);
       // }
+      // console.log("TCL: showTooltipsFromMousePosition -> this._in_boundingBox(absoluteLocation)", this._in_boundingBox(absoluteLocation))
       if (this._in_boundingBox(absoluteLocation)) {
         this.annoToolTip.showViewer({
           annotations: [this.oaAnno],
           triggerEvent: event,
           isTextAnno: true,
           shouldDisplayTooltip: api => {
-            // track whether the cursor is within the tooltip (with the specified tolerance) and disables show/hide/update functionality.
-            // if (api.elements.tooltip) {
-            //     var cursorWithinTooltip = true;
-            //     var leftSide = api.elements.tooltip.offset().left;
-            //     var rightSide = api.elements.tooltip.offset().left + api.elements.tooltip.width();
-            //     if (absoluteLocation.x < leftSide || rightSide < absoluteLocation.x) {
-            //         cursorWithinTooltip = false;
-            //       }
-            //       var topSide = api.elements.tooltip.offset().top;
-            //       var bottomSide = api.elements.tooltip.offset().top + api.elements.tooltip.height();
-            //       if (absoluteLocation.y < topSide || bottomSide < absoluteLocation.y) {
-            //           cursorWithinTooltip = false;
-            //         }
-            //         return !cursorWithinTooltip;
-            //       }
-                  return this.inEditOrCreateMode;
-                }
+            return this.inEditOrCreateMode;
+          }
               });
       }
       
@@ -135,7 +101,9 @@
       // showing.
       setTimeout(() => {
         this.uuid = this.oaAnno['@id'];
-        console.log("TCL: parseOaAnno -> this.oaAnno.on.selector.value", this.oaAnno.on.selector.value)
+        // if (this.oaAnno.on instanceof Array) {
+        //   this.oaAnno.on = this.oaAnno.on[0];
+        // }
         this._setBoundingBox(this.oaAnno.on.selector.value);
         this.annoToolTip = new $.AnnotationTooltip({
           targetElement: jQuery(this.viewer.element),
@@ -171,18 +139,21 @@
         let words = [];
         
         let previousToStart = start.previousElementSibling;
+        let ocrLayer = jQuery('#ocr-layer');
         
-        // If selection begins with the the first OCR element, there will be no
-        // `previousToStart`.
         if (previousToStart) {
-          range = jQuery(`#${previousToStart.id}`).nextUntil(`#${end.id}`, 'span');
-        } else {
-          range = jQuery(`#${start.id}`).nextUntil(`#${end.id}`, 'span');
-          range.prepend(jQuery(start));
-        }
-        console.log("TCL: parseOaAnno -> range", range)
+            range = jQuery(`#${previousToStart.id}`).nextUntil(`#${end.id}`, 'span');
+          } else {
+            range = jQuery(`#${start.id}`).nextUntil(`#${end.id}`, 'span');
+          }
+        
         range.each(function(word){words.push(range.get(word).id)});
-        // let words = this._copy(jQuery(`#${start.id}`).nextUntil(`#${end.id}`));
+        
+        if (start.id == ocrLayer.children('span').first().attr('id')) {
+          words.push(start.id);
+        } else if (end.id == ocrLayer.children('span').last().attr('id')) {
+          words.push(end.id);
+        }
         let startOffset = this.oaAnno.on.selector.item.startSelector.refinedBy.start;
         let endOffset = this.oaAnno.on.selector.item.endSelector.refinedBy.end;
         this._insertLinks(words, startOffset, endOffset);
@@ -195,13 +166,39 @@
       let startOffset = this.textAnnotation.range.startOffset;
       let endOffset = this.textAnnotation.range.endOffset;
       this._insertLinks(words, startOffset, endOffset);
+      setTimeout(() => {
+        this._setBoundingBox(this.oaAnno.on[0].selector.value);
+        console.log("TCL: parseTextAnno -> this._setBoundingBox", this.boundingBoxes)
+        this.annoToolTip = new $.AnnotationTooltip({
+          targetElement: jQuery(this.viewer.element),
+          state: this.state,
+          eventEmitter: this.eventEmitter,
+          windowId: this.windowId,
+          isTextAnno: true,
+          textAnno: this.oaAnno,
+          inEditOrCreateMode: false
+        });
+        console.log("TCL: parseTextAnno -> this.annoToolTip", this)
+        var windowElement = this.state.getWindowElement(this.windowId);
+  
+        this.annoToolTip.initializeViewerUpgradableToEditor({
+          container: windowElement,
+          viewport: windowElement
+        });
+
+        this.links.forEach(link => {
+          jQuery(link).mousemove( event => {
+          console.log("TCL: parseTextAnno -> event", event)
+            this.showTooltipsFromMousePosition(event, {x: event.pageX, y: event.pageY}, {x: event.pageX, y: event.pageY})
+          })
+        })
+      }, 1000);
     },
 
     _insertLinks(selectedWords, startOffset, endOffset) {
       if (selectedWords.length == 0) return;
       if (selectedWords.length == 1) {
         this._handelPart(selectedWords.pop(), { startOffset, endOffset });
-        // _this.handelEnd(selectedWords.pop(), _this.textAnnotation.range.endOffset);  
       } else {
         this._handelStart(selectedWords.shift(), startOffset);
         this._handelEnd(selectedWords.pop(), endOffset);
@@ -237,7 +234,13 @@
       // console.log('this.textAnnotation', this.textAnnotation);
       let words = this._copy(this.textAnnotation.words);
       let startElementId = words[0]
-      let endElementId = document.getElementById(words.reverse()[0]).nextElementSibling.id
+      let endElementId = null;
+      let lastSelected = document.getElementById(words.reverse()[0]);
+      if (lastSelected.nextElementSibling) {
+        endElementId = lastSelected.nextElementSibling.id;
+      } else {
+        endElementId = lastSelected.id;
+      }
       return {
         "@type": "RangeSelector",
         startSelector: {
@@ -310,11 +313,7 @@
       link.setAttribute('data-id', this.uuid);
       link.setAttribute('title', this.uuid);
       this.links.push(link);
-      link.addEventListener('mouseover', event => {
-      console.log('TOOLTIP', this.annoToolTip);
-    });
-    // link.addEventListener('mouseleave', event => { console.log('mouse left')})
-    return link;
+      return link;
     },
     
     _wrapWord(id) {
