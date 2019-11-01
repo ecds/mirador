@@ -85,8 +85,8 @@
     link.href = options.uri;
     link.title = 'Stable link for canvas';
     link.appendChild(linkText);
-    linkContainer.innerHTML='';
-    linkContainer.appendChild(link);
+    // linkContainer.innerHTML='';
+    // linkContainer.appendChild(link);
     this.volume = options.uri.split('/').reverse()[2];
     this.page = options.uri.split('/').reverse()[0];
 
@@ -207,6 +207,7 @@
         data: JSON.stringify({ "oa_annotation": JSON.stringify(oaAnnotation) }),
         contentType: "application/json; charset=utf-8",
         success: function(data) {
+          oaAnnotation = data;
           oaAnnotation.endpoint = _this;
           if (typeof successCallback === 'function') {
             successCallback(oaAnnotation);

@@ -173,6 +173,7 @@
       api.cache.annotations = [];
       api.cache.hidden = true;
       api.cache.params = params;
+      return params;
     },
 
     removeAllEvents: function (api, viewerParams) {
@@ -229,6 +230,8 @@
         var oaAnno = null;
         if (_this.isTextAnno) {
           oaAnno = _this.textAnno;
+        } else if (_this.oaAnno) {
+          oaAnno = _this.oaAnno;
         } else {
           oaAnno = viewerParams.getAnnoFromRegion(id)[0];
         }
@@ -270,6 +273,8 @@
         var oaAnno = null;
         if (_this.isTextAnno) {
           oaAnno = _this.textAnno;
+        } else if (_this.oaAnno) {
+          oaAnno = _this.oaAnno;
         } else {
           oaAnno = viewerParams.getAnnoFromRegion(id)[0];
         }

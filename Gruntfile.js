@@ -222,6 +222,8 @@ module.exports = function(grunt) {
       }
     },
 
+    // command: 'rsync -avze "ssh" build/mirador/ deploy@otb.ecdsdev.org:/data/readux/staticfiles/mirador/'
+
     // eslint: {
     //   options: {
     //     silent: true

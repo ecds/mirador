@@ -105,6 +105,12 @@
 
       for (var i = 0; i < this.list.length; i++) {
         var annotation = this.list[i];
+        if (annotation.on && annotation.on.constructor == Object) {
+          annotation.on = [annotation.on];
+        }
+        // if (annotation.resource && annotation.resource instanceof Array) {
+        //   annotation.resource = annotation.resource[0];
+        // }
         if (annotation.on && annotation.on instanceof Array && annotation.on[0].selector && annotation.on[0].selector.item && annotation.on[0].selector.item['@type'] != 'RangeSelector') {
           try {
             var shapeArray = this.prepareShapeArray(annotation, strategies);
@@ -112,7 +118,7 @@
               _this.svgOverlay.restoreLastView(shapeArray);
               _this.annotationsToShapesMap[annotation['@id']] = shapeArray;
             } else if (shapeArray['@type'] === 'RangeSelector') {
-              // console.log('it is a text annotation')
+              // it is a text annotation
             } else {
               console.log("ERROR couldn't find a strategy for " + annotation['@id']);
             }
@@ -123,26 +129,25 @@
       }
 
       var windowElement = _this.state.getWindowElement(_this.windowId);
+      // this.annoTooltip.textAnno = annotation;
       this.annoTooltip = new $.AnnotationTooltip({
         targetElement: jQuery(this.osdViewer.element),
         state: _this.state,
         eventEmitter: _this.eventEmitter,
-        windowId: _this.windowId
+        windowId: _this.windowId,
+        oaAnno: annotation
       });
       this.annoTooltip.initializeViewerUpgradableToEditor({
         container: windowElement,
         viewport: windowElement,
         getAnnoFromRegion: _this.getAnnoFromRegion.bind(this)
       });
-      this.svgOverlay.paperScope.view.draw();
-      _this.eventEmitter.publish('annotationsRendered.' + _this.windowId);
     },
 
     prepareShapeArray: function (annotation, strategies) {
       if (typeof annotation === 'object' && annotation.on) {
         for (var i = 0; i < strategies.length; i++) {
-          // console.log('strategy', strategies[i], annotation);
-          if (strategies[i].isThisType(annotation)) {
+          if (strategies[i].isThisType(annotation, strategies[i])) {
             shapeArray = strategies[i].parseRegion(annotation, this);
             return shapeArray;
           }

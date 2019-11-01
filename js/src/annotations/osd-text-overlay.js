@@ -228,7 +228,6 @@
                 state: _this.state
               }
               );
-            // console.log("TCL: enableSelecting -> _this.ocrTextAnnotation", _this.ocrTextAnnotation)
             window.getSelection().empty();
             _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
           },

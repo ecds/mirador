@@ -20,7 +20,6 @@
   $.OcrTextAnnotation.prototype = {
     init: function (options) {
       if (options) {
-        console.log("TCL: options", options)
         this.textAnnotation = options.textAnnotation;
         this.oaAnno = options.oaAnno;
         this.canvasId = options.canvasId;
@@ -37,7 +36,6 @@
     listenForActions() {
       let _this = this;
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.' + _this.windowId, function (event, oaAnno) {
-        console.log("TCL: listenForActions -> oaAnno", oaAnno)
       }));
       
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('updateTooltips.' + _this.windowId, function (event, location, absoluteLocation) {
@@ -47,12 +45,18 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
-        if (oaAnno.on.selector.item['@type'] != 'RangeSelector') return;
+      console.log("TCL: listenForActions -> oaAnno", oaAnno)
+        if (_this.annoToolTip) {
+          _this.annoToolTip.inEditOrCreateMode = false;
+        }
+        if ((oaAnno.on instanceof Array && oaAnno.on[0].selector.item['@type'] != 'RangeSelector') || (oaAnno.on instanceof Object && oaAnno.on.selector && oaAnno.on.selector.item['@type'] != 'RangeSelector')) return;
+        console.log('it is a text anno')
+        // if (oaAnno.on.selector.item['@type'] != 'RangeSelector') return;
+        _this.inEditOrCreateMode = false;
         var onAnnotationSaved = jQuery.Deferred();
         _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
         onAnnotationSaved.resolve();
         jQuery.when(onAnnotationSaved.promise()).then(function () {
-          _this.inEditOrCreateMode = false;
           _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
  
         }, function () {
@@ -61,6 +65,9 @@
           // console.log(oaAnno.on.selector.item['@type'], _this.annoToolTip)
         });
       }));
+
+      // this.eventsSubscriptions.push(this.eventEmitter.subscribe('ANNOTATIONS_LIST_UPDATED', function (event, options) {
+      // }));
 
 
       var _updateSizeLocation = function() { _this.updateSizeLocation()}
@@ -76,7 +83,6 @@
       // if (this.links.length > 0) {
         // console.log('link', this.links);
       // }
-      // console.log("TCL: showTooltipsFromMousePosition -> this._in_boundingBox(absoluteLocation)", this._in_boundingBox(absoluteLocation))
       if (this._in_boundingBox(absoluteLocation)) {
         this.annoToolTip.showViewer({
           annotations: [this.oaAnno],
@@ -101,9 +107,9 @@
       // showing.
       setTimeout(() => {
         this.uuid = this.oaAnno['@id'];
-        // if (this.oaAnno.on instanceof Array) {
-        //   this.oaAnno.on = this.oaAnno.on[0];
-        // }
+        if (this.oaAnno.on instanceof Array) {
+          this.oaAnno.on = this.oaAnno.on[0];
+        }
         this._setBoundingBox(this.oaAnno.on.selector.value);
         this.annoToolTip = new $.AnnotationTooltip({
           targetElement: jQuery(this.viewer.element),
@@ -161,14 +167,15 @@
     },
 
     parseTextAnno() {
-      console.log('parse', this.oaAnno);
       let words = this._copy(this.textAnnotation.words);
       let startOffset = this.textAnnotation.range.startOffset;
       let endOffset = this.textAnnotation.range.endOffset;
       this._insertLinks(words, startOffset, endOffset);
       setTimeout(() => {
-        this._setBoundingBox(this.oaAnno.on[0].selector.value);
-        console.log("TCL: parseTextAnno -> this._setBoundingBox", this.boundingBoxes)
+        if (this.oaAnno.on && this.oaAnno.on instanceof Array) {
+          this.oaAnno.on = this.oaAnno.on[0];
+        }
+        this._setBoundingBox(this.oaAnno.on.selector.item.value);
         this.annoToolTip = new $.AnnotationTooltip({
           targetElement: jQuery(this.viewer.element),
           state: this.state,
@@ -178,7 +185,6 @@
           textAnno: this.oaAnno,
           inEditOrCreateMode: false
         });
-        console.log("TCL: parseTextAnno -> this.annoToolTip", this)
         var windowElement = this.state.getWindowElement(this.windowId);
   
         this.annoToolTip.initializeViewerUpgradableToEditor({
@@ -188,7 +194,6 @@
 
         this.links.forEach(link => {
           jQuery(link).mousemove( event => {
-          console.log("TCL: parseTextAnno -> event", event)
             this.showTooltipsFromMousePosition(event, {x: event.pageX, y: event.pageY}, {x: event.pageX, y: event.pageY})
           })
         })

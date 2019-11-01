@@ -13,6 +13,9 @@
 
     // Check whether an annotation is supported under this formatting strategy
     isThisType: function (annotation) {
+      if (annotation.on && annotation.on instanceof Array) {
+        annotation.on = annotation.on[0];
+      }
       if (annotation.on && typeof annotation.on === 'object' &&
           annotation.on.selector && typeof annotation.on.selector === 'object' &&
           annotation.on.selector.value && typeof annotation.on.selector.value === 'string' &&

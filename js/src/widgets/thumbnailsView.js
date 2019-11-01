@@ -136,7 +136,7 @@
         _this.eventEmitter.publish('SET_CURRENT_CANVAS_ID.' + _this.windowId, canvasID);
         // TODO move this
         // grabs the changed url when you click a thumbnail and updates the myLink variable to change the page url
-        document.getElementById("mySpan").innerHTML=canvasID;
+        // document.getElementById("mySpan").innerHTML=canvasID;
       });
     },
 

@@ -41,6 +41,7 @@
       overlay = options.overlay;
       oaAnno.on = [];
       if (oaAnno.item) {
+        // console.log('has item')
         oaAnno.on.push({
           '@type': 'oa:SpecificResource',
           full: win.canvasID,
@@ -56,7 +57,7 @@
         oaAnno.on[0].selector.item = oaAnno.item;
         delete oaAnno.item;
       } else if (oaAnno.on instanceof Array) {
-        
+        // console.log('on is an array')
         jQuery.each(overlay.draftPaths, function (index, path) {
           // getSVGString expects an array, so insert each path into a new array
           var svg = overlay.getSVGString([path]),
@@ -73,7 +74,8 @@
               item: {
                 '@type': 'oa:SvgSelector',
                 value: svg
-              }
+              },
+              value: 'xywh=' + Math.round(bounds.x) + ',' + Math.round(bounds.y) + ',' + Math.round(bounds.width) + ',' + Math.round(bounds.height)
             },
             within: {
               '@id': win.loadedManifest,

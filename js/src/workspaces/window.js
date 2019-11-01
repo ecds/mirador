@@ -912,7 +912,6 @@
             if (list.resources) {
               annotations = list.resources.filter(anno => {
                 if (anno.resource['@type'] != 'cnt:ContentAsText' && anno.annotatedBy.name != 'OCR' && anno.annotatedBy.name != _this.state.getStateProperty('usernamePretty')) {
-                  console.log("TCL: anno", anno)
                   return anno;
                 }
               });
