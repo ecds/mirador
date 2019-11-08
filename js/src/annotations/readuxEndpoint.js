@@ -81,6 +81,8 @@
     this.annotationsList = [];
     Vue.set(readux.$refs["rx-url-canvas"], "url", options.uri); // readux is the vue instance
     Vue.set(readux.$refs["rx-url-canvas"], "label", "Stable Canvas"); // readux is the vue instance
+    Vue.set(readux.$refs["rx-url-stable-page"], "url", window.location.href); // readux is the vue instance
+    Vue.set(readux.$refs["rx-url-stable-page"], "label", "Stable Page"); // readux is the vue instance
     var linkContainer = document.getElementById("myLink");
     var link = document.createElement('a');
     var linkText = document.createTextNode(options.uri);
