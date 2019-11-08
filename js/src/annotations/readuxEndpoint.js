@@ -79,6 +79,8 @@
   search: function(options, successCallback, errorCallback) {
     // if (this.username == null) return;
     this.annotationsList = [];
+    Vue.set(readux.$refs["rx-url-canvas"], "url", options.uri); // readux is the vue instance
+    Vue.set(readux.$refs["rx-url-canvas"], "label", "Stable Canvas"); // readux is the vue instance
     var linkContainer = document.getElementById("myLink");
     var link = document.createElement('a');
     var linkText = document.createTextNode(options.uri);
