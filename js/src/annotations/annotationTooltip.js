@@ -258,7 +258,6 @@
 
     addEditorEvents: function (api, viewerParams) {
       var _this = this;
-      console.log('annotooltip', this)
       var selector = '#annotation-editor-' + _this.windowId;
 
       jQuery(selector).on('submit', function (event) {
@@ -277,9 +276,7 @@
           oaAnno = _this.oaAnno;
         } else {
           oaAnno = viewerParams.getAnnoFromRegion(id)[0];
-        }
-        console.log('annotip save event', _this, oaAnno, event, viewerParams)
-        
+        }        
         if (_this.isTextAnno) {
           _this.activeEditor.updateAnnotation(_this.textAnno);
           _this.eventEmitter.publish('annotationEditSave.' + _this.windowId, [_this.textAnno]);

@@ -12,6 +12,9 @@ coverage/
 data/ecodices
 data/BnF
 data/Harvard
-build/
+build/mirador/*
+!build/mirador/mirador.js
+!build/mirador/css
+!build/mirador/images
 .idea/
 bower_components/
