@@ -3,5 +3,5 @@ sudo: false
 node_js:
 - '5'
 - 'v6.10.3'
-before_install:
-- npm install
+# before_install:
+# - npm install
