@@ -17,5 +17,6 @@ build/mirador/*
 !build/mirador/css
 !build/mirador/images
 !build/mirador/fonts
+!build/mirador/themes
 .idea/
 bower_components/
