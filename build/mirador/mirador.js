@@ -42572,7 +42572,13 @@ return /******/ (function(modules) { // webpackBootstrap
         _this.eventEmitter.publish('SET_CURRENT_CANVAS_ID.' + _this.windowID, newCanvasID.replace(/%3A/g, ':'), this);
       });
       
+      _this.canvasEvent = new CustomEvent('canvasswitch', {bubbles: true, detail: {}});
+      
       this.eventEmitter.subscribe('windowUpdated', (event, new_state) => {
+
+        _this.canvasEvent.detail.volume = _this.volume;
+        _this.canvasEvent.detail.canvas = _this.page;
+        window.dispatchEvent(_this.canvasEvent);
         
         // If the user navigated to the canvas using the back or forward buttons,
         // we don't want to mess with the state. Doing so would clear any forward states
@@ -42633,9 +42639,9 @@ return /******/ (function(modules) { // webpackBootstrap
       contentType: "application/json; charset=utf-8",
       success: function(data) {
         //check if a function has been passed in, otherwise, treat it as a normal search
-        if (typeof successCallback === "function") {
-          // successCallback(data);
-        } else {
+        // if (typeof successCallback === "function") {
+        //   // successCallback(data);
+        // } else {
           jQuery.each(data, function(index, value) {
             // if (!value) return;
             if (value && value instanceof Array) {
@@ -42652,9 +42658,10 @@ return /******/ (function(modules) { // webpackBootstrap
             }
             // }
           });
+          _this.canvasEvent.detail.annotationsOnPage = _this.annotationsList.length;
           _this.dfd.resolve(true);
           return _this.annotationsList;
-        }
+        // }
       },
       error: function() {
         if (typeof errorCallback === "function") {
@@ -42678,6 +42685,8 @@ return /******/ (function(modules) { // webpackBootstrap
         contentType: "application/json; charset=utf-8",
         success: function(data) {
           _this.eventEmitter.publish('onTextAnnotationDeleted', annotationID);
+          _this.canvasEvent.detail.annotationsOnPage = parseInt(_this.canvasEvent.detail.annotationsOnPage) - 1;
+          window.dispatchEvent(_this.canvasEvent);
           if (typeof successCallback === "function") {
             successCallback();
           }
@@ -42746,6 +42755,8 @@ return /******/ (function(modules) { // webpackBootstrap
         data: JSON.stringify({ "oa_annotation": JSON.stringify(oaAnnotation) }),
         contentType: "application/json; charset=utf-8",
         success: function(data) {
+          _this.canvasEvent.detail.annotationsOnPage = parseInt(_this.canvasEvent.detail.annotationsOnPage) + 1;
+          window.dispatchEvent(_this.canvasEvent);
           oaAnnotation = data;
           oaAnnotation.endpoint = _this;
           if (typeof successCallback === 'function') {
