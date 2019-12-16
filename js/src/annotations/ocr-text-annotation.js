@@ -37,7 +37,6 @@
         // this.background = options.background || 'deeppink'
         // Look for color selected in state
       }
-      // console.log("TCL: this", this)
     },
 
     listenForActions() {
@@ -67,7 +66,6 @@
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('changeBorderColor.' + _this.windowId, function (event, color) {
         _this.highlightColor = _this._hexToRgb(color);
-        // console.log("TCL: listenForActions -> _this.highlightColor", _this.highlightColor, color)
         _this.oaAnno.styledBy = _this._constructStyle();
       }));
 
@@ -96,8 +94,6 @@
     updateSizeLocation(event) {},
 
     parseOaAnno(timeout=500) {
-      // console.log("TCL: parseOaAnno -> timeout", timeout)
-      console.log('parseOaAnno', this, Date.now())
       // I don't like this timeout, but we have to wait for the OCR spans
       // to be added before we can add the text annotations.
       // This is only a problem when navigating between canvases with annotations
@@ -107,7 +103,6 @@
         if (this.oaAnno.on instanceof Array) {
           this.oaAnno.on = this.oaAnno.on[0];
         }
-        console.log("TCL: parseOaAnno -> this.oaAnno.on", this.oaAnno.on)
         this._setBoundingBox(this.oaAnno.on.selector.value);
         this.annoToolTip = new $.AnnotationTooltip({
           targetElement: jQuery(this.viewer.element),
@@ -117,10 +112,8 @@
           isTextAnno: true,
           textAnno: this.oaAnno
         });
-        console.log("TCL: parseOaAnno -> this.annoToolTip", this.annoToolTip)
 
         var windowElement = this.state.getWindowElement(this.windowId);
-        console.log("TCL: parseOaAnno -> windowElement", windowElement)
 
         this.annoToolTip.initializeViewerUpgradableToEditor({
           container: windowElement,
@@ -133,18 +126,18 @@
           this.oaAnno.on.selector.item.startSelector.value,
           document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
           ).singleNodeValue;
-        if (!start) {
-          this.parseOaAnno();
-          return;
-        }
-        console.log("TCL: parseOaAnno -> start", start)
 
         let end = document.evaluate(
           this.oaAnno.on.selector.item.endSelector.value,
           document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
           ).singleNodeValue;
 
-        if (!start && !end) return;
+        // This also makes me nervous.
+        // TODO: Set a max try
+        if (!start && !end) {
+          this.parseOaAnno();
+          return;
+        }
         
         let range = null;
         let words = [];
@@ -173,7 +166,6 @@
     },
 
     parseTextAnno() {
-      // console.log('parseTextAnno', this.textAnnotation)
       let words = this._copy(this.textAnnotation.words);
       let startOffset = this.textAnnotation.range.startOffset;
       let endOffset = this.textAnnotation.range.endOffset;
@@ -209,7 +201,6 @@
     },
 
     _insertLinks(selectedWords, startOffset, endOffset) {
-      // console.log("TCL: _insertLinks -> selectedWords", selectedWords)
       if (selectedWords.length == 0) return;
       if (selectedWords.length == 1) {
         this._handelPart(selectedWords.pop(), { startOffset, endOffset });
@@ -241,7 +232,6 @@
     
     _addStyle() {
       let styleEl = document.getElementById(this.oaAnno['@id']);
-      // console.log("TCL: _addStyle -> this.oaAnno['@id']", this.oaAnno['@id'])
       if (!styleEl) {
         styleEl = document.createElement('style');
         styleEl.id = this.oaAnno['@id'];
