@@ -42225,12 +42225,9 @@ return /******/ (function(modules) { // webpackBootstrap
     // for adding the text annotations. It has to wait for the OCR
     // spans to be added to the DOM. :(
     loadAnnotations: function(delay=1000) {
-    console.log("TCL: delay", delay)
       var _this = this;
       
       if (this.annotationsList) {
-        console.log("TCL: this.annotationsList", this.annotationsList, Date.now())
-        // console.log("TCL: oaAnno.on.selector", this.annotationsList.length)
         this.annotationsList.forEach(function(oaAnno) {
           if (oaAnno.on && oaAnno.on instanceof Array) {
             oaAnno.on = oaAnno.on[0];
@@ -42242,10 +42239,7 @@ return /******/ (function(modules) { // webpackBootstrap
             textAnno.oaAnno = oaAnno;
             textAnno.state = _this.state;
             textAnno.windowId = _this.windowId;
-            // if (oaAnno.oaAnno)
-            // textAnno.parseTextAnno();
             textAnno.parseOaAnno(delay);
-            // console.log("TCL: textAnno", textAnno)
           }
         });
       }
@@ -42276,14 +42270,8 @@ return /******/ (function(modules) { // webpackBootstrap
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('refreshOverlay.' + _this.windowId, function (event) {
         if (_this.showTextOverlay) {
           _this.loadAnnotations(500);
-          console.log('refresh', _this.annotationsList, Date.now())
         }
       }));
-
-      this.eventEmitter.subscribe('windowUpdated', (event, new_state) => {
-        // _this.loadAnnotations(500);
-        // console.log('win update', _this.annotationsList)
-      });
       
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('modeChange.' + _this.windowId, function (event, mode) {
         if (mode === 'displayAnnotations' && !_this.showTextOverlay) {
