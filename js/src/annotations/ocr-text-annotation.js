@@ -12,7 +12,8 @@
       windowId: null,
       viewer: null,
       links: [],
-      boundingBoxes: []
+      boundingBoxes: [],
+      highlightColor: null
     }, options);
     this.init(options);
   };
@@ -22,15 +23,21 @@
       if (options) {
         this.textAnnotation = options.textAnnotation;
         this.oaAnno = options.oaAnno;
+        if (document.getElementById(this.oaAnno['@id'])) return;
         this.canvasId = options.canvasId;
         this.overlay = options.overlay;
         this.uuid = this._uuidv4();
+        this.highlightColor = this._hexToRgb(options.highlightColor);
         this.oaAnno.item = this._constructItem();
+        this.oaAnno.stylesheet = this._constructStyle();
         this.oaAnno['@id'] = this.uuid;
         this.eventEmitter = options.eventEmitter;
         this.parseTextAnno();
         this.listenForActions();
+        // this.background = options.background || 'deeppink'
+        // Look for color selected in state
       }
+      // console.log("TCL: this", this)
     },
 
     listenForActions() {
@@ -39,19 +46,14 @@
       }));
       
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('updateTooltips.' + _this.windowId, function (event, location, absoluteLocation) {
-        // if (_this.annoToolTip && !_this.annoToolTip.inEditOrCreateMode) {
-          _this.showTooltipsFromMousePosition(event, location, absoluteLocation);
-        // }
+        _this.showTooltipsFromMousePosition(event, location, absoluteLocation);
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
-      console.log("TCL: listenForActions -> oaAnno", oaAnno)
         if (_this.annoToolTip) {
           _this.annoToolTip.inEditOrCreateMode = false;
         }
         if ((oaAnno.on instanceof Array && oaAnno.on[0].selector.item['@type'] != 'RangeSelector') || (oaAnno.on instanceof Object && oaAnno.on.selector && oaAnno.on.selector.item['@type'] != 'RangeSelector')) return;
-        console.log('it is a text anno')
-        // if (oaAnno.on.selector.item['@type'] != 'RangeSelector') return;
         _this.inEditOrCreateMode = false;
         var onAnnotationSaved = jQuery.Deferred();
         _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
@@ -60,15 +62,14 @@
           _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
  
         }, function () {
-          // confirmation rejected don't do anything
-        // });
-          // console.log(oaAnno.on.selector.item['@type'], _this.annoToolTip)
         });
       }));
 
-      // this.eventsSubscriptions.push(this.eventEmitter.subscribe('ANNOTATIONS_LIST_UPDATED', function (event, options) {
-      // }));
-
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('changeBorderColor.' + _this.windowId, function (event, color) {
+        _this.highlightColor = _this._hexToRgb(color);
+        // console.log("TCL: listenForActions -> _this.highlightColor", _this.highlightColor, color)
+        _this.oaAnno.styledBy = _this._constructStyle();
+      }));
 
       var _updateSizeLocation = function() { _this.updateSizeLocation()}
 
@@ -80,9 +81,6 @@
 },
 
     showTooltipsFromMousePosition(event, location, absoluteLocation) {
-      // if (this.links.length > 0) {
-        // console.log('link', this.links);
-      // }
       if (this._in_boundingBox(absoluteLocation)) {
         this.annoToolTip.showViewer({
           annotations: [this.oaAnno],
@@ -93,14 +91,13 @@
           }
               });
       }
-      
     },
 
-    updateSizeLocation(event) {
-      // console.log('Update Size and Location', event);
-    },
+    updateSizeLocation(event) {},
 
-    parseOaAnno(timeout=0) {
+    parseOaAnno(timeout=500) {
+      // console.log("TCL: parseOaAnno -> timeout", timeout)
+      console.log('parseOaAnno', this, Date.now())
       // I don't like this timeout, but we have to wait for the OCR spans
       // to be added before we can add the text annotations.
       // This is only a problem when navigating between canvases with annotations
@@ -110,6 +107,7 @@
         if (this.oaAnno.on instanceof Array) {
           this.oaAnno.on = this.oaAnno.on[0];
         }
+        console.log("TCL: parseOaAnno -> this.oaAnno.on", this.oaAnno.on)
         this._setBoundingBox(this.oaAnno.on.selector.value);
         this.annoToolTip = new $.AnnotationTooltip({
           targetElement: jQuery(this.viewer.element),
@@ -119,8 +117,10 @@
           isTextAnno: true,
           textAnno: this.oaAnno
         });
+        console.log("TCL: parseOaAnno -> this.annoToolTip", this.annoToolTip)
 
         var windowElement = this.state.getWindowElement(this.windowId);
+        console.log("TCL: parseOaAnno -> windowElement", windowElement)
 
         this.annoToolTip.initializeViewerUpgradableToEditor({
           container: windowElement,
@@ -133,6 +133,11 @@
           this.oaAnno.on.selector.item.startSelector.value,
           document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
           ).singleNodeValue;
+        if (!start) {
+          this.parseOaAnno();
+          return;
+        }
+        console.log("TCL: parseOaAnno -> start", start)
 
         let end = document.evaluate(
           this.oaAnno.on.selector.item.endSelector.value,
@@ -163,15 +168,18 @@
         let startOffset = this.oaAnno.on.selector.item.startSelector.refinedBy.start;
         let endOffset = this.oaAnno.on.selector.item.endSelector.refinedBy.end;
         this._insertLinks(words, startOffset, endOffset);
-      }, timeout);
+        this._addStyle();
+      }, 500);
     },
 
     parseTextAnno() {
+      // console.log('parseTextAnno', this.textAnnotation)
       let words = this._copy(this.textAnnotation.words);
       let startOffset = this.textAnnotation.range.startOffset;
       let endOffset = this.textAnnotation.range.endOffset;
-      this._insertLinks(words, startOffset, endOffset);
-      setTimeout(() => {
+      // setTimeout(() => {
+        this._insertLinks(words, startOffset, endOffset);
+        this._addStyle();
         if (this.oaAnno.on && this.oaAnno.on instanceof Array) {
           this.oaAnno.on = this.oaAnno.on[0];
         }
@@ -197,10 +205,11 @@
             this.showTooltipsFromMousePosition(event, {x: event.pageX, y: event.pageY}, {x: event.pageX, y: event.pageY})
           })
         })
-      }, 1000);
+      // }, 1000);in
     },
 
     _insertLinks(selectedWords, startOffset, endOffset) {
+      // console.log("TCL: _insertLinks -> selectedWords", selectedWords)
       if (selectedWords.length == 0) return;
       if (selectedWords.length == 1) {
         this._handelPart(selectedWords.pop(), { startOffset, endOffset });
@@ -213,14 +222,13 @@
           this._wrapWord(wordElement);
         });
         if (startOffset != 0 || endOffset != document.getElementById(selectedWords[0]).innerText.length) {
-          // console.log('PART!!!!')
           // this.handelPart(this.textAnnotation.range);
         }
       } else {
-        // console.log('WHOLE!!!!')
         // this.wrapWord(this.textAnnotation.range.startContainer.parentElement.id);
       }
 
+      
       if (!this.oaAnno.on) {
         var writeStrategy = new $.MiradorDualStrategy();
         writeStrategy.buildAnnotation({
@@ -230,13 +238,27 @@
         });
       }
     },
+    
+    _addStyle() {
+      let styleEl = document.getElementById(this.oaAnno['@id']);
+      // console.log("TCL: _addStyle -> this.oaAnno['@id']", this.oaAnno['@id'])
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = this.oaAnno['@id'];
+      }
+      if (this.oaAnno.stylesheet) {
+        styleEl.innerText = this.oaAnno.stylesheet.value;
+      } else {
+        styleEl.innerText = `.anno-${this.oaAnno['@id']} { background: rgba(0, 191, 255, 0.5); }`;
+      }
+      document.head.appendChild(styleEl);
+    },
 
     _deconstructItem() {
       //
     },
 
     _constructItem() {
-      // console.log('this.textAnnotation', this.textAnnotation);
       let words = this._copy(this.textAnnotation.words);
       let startElementId = words[0]
       let endElementId = null;
@@ -267,15 +289,22 @@
       }
     },
 
+    _constructStyle() {
+      if (this.highlightColor == null) {
+        this.highlightColor = 'rgba(0, 191, 255, 0.5)';
+      }
+      return {
+        "type": "CssStylesheet",
+        "value": `.anno-${this.uuid} { background: ${this.highlightColor}; }`
+      }
+    },
+
     _handelStart(wordElement, offset) {
       if (!wordElement) return;
       const wordSpan = document.getElementById(wordElement);
-      // console.log('wordSpan', wordSpan);
       const word = wordSpan.innerText;
       const link = this._createLink();
-      // console.log('link', link);
       link.innerText = word.slice(offset, word.length);
-      // console.log('link', link);
       wordSpan.innerHTML = `${word.slice(0, offset)}`;
       wordSpan.append(link);
     },
@@ -297,11 +326,9 @@
       const start = word.slice(0, range.startOffset);
       const end = word.slice(range.endOffset, word.length);
       link.innerText = word.slice(range.startOffset, range.endOffset);
-      // console.log('LINK', link);
       wordSpan.innerHTML = start;
       wordSpan.append(link);
       wordSpan.append(end);
-      // console.log('wordSpan', wordSpan);
     },
     
     _uuidv4() {
@@ -313,22 +340,22 @@
     
     _createLink() {
       const link = document.createElement('a');
-      // this.linkId = this._uuidv4();
       link.setAttribute('href', '#');
       link.setAttribute('data-id', this.uuid);
       link.setAttribute('title', this.uuid);
+      // if (!link.style.background.startsWith('rgba')) {
+      //   link.style.background = this._hexToRgb(this.highlightColor);
+      // }
+      link.className = `anno-${this.uuid}`;
       this.links.push(link);
       return link;
     },
     
     _wrapWord(id) {
       const wordSpan = document.getElementById(id);
-      // console.log(wordSpan);
       const word = wordSpan.innerText;
-      // console.log(word);
       const link = this._createLink();
       link.innerText = word;
-      // console.log(link);
       wordSpan.innerHTML = '';
       wordSpan.append(link);
     },
@@ -350,31 +377,28 @@
         })
       }
       this.boundingBoxes = boxes;
-      // let [x, y, w, h] = value.split('=')[1].split(',').map(function(x) { return parseInt(x, 10) })
-      // console.log(x,y,w,h)
-      // this.boundingBox = {
-      //   a: x,
-      //   b: x + w,
-      //   c: y,
-      //   d: y + h
-      // }
     },
 
     _in_boundingBox(point) {
       this._setBoundingBox();
       if (this.boundingBoxes.length == 0) return;
-      // if (this.uuid) {
-      //   let links = querySelectorAll
-      // }
       let {x, y} = point;
       hits = [];
-      // let { a, b, c, d } = this.boundingBox;
-      // return (a <= x ) && ( x <= b) && (c <= y) && (y <= d);
       this.boundingBoxes.forEach(box => {
         hits.push(box.x <= x && x <= box.x + box.width &&
-               box.y <= y && y <= box.y + box.height)
+        box.y <= y && y <= box.y + box.height)
       });
       return hits.includes(true);
+    },
+
+    _hexToRgb(hex) {
+      let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      let rgb = result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 255, g: 20, b: 147 }
+      return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`
     }
   }
 }(Mirador));

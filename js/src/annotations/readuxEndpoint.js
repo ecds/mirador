@@ -196,7 +196,13 @@
     create: function(oaAnnotation, successCallback, errorCallback) {
       
       var _this = this;
-      var canvas = oaAnnotation.on[0].full.split('/').reverse()[0];
+      console.log("TCL: oaAnnotation.on", oaAnnotation.on)
+      var canvas = null;
+      if (jQuery.isArray(oaAnnotation.on)) {
+        canvas = oaAnnotation.on[0].full.split('/').reverse()[0];
+      } else {
+        canvas = oaAnnotation.on.full.split('/').reverse()[0];
+      }
       if (!oaAnnotation['@id']) {
         oaAnnotation['@id'] = _this.uuidv4();
       }

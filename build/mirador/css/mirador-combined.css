@@ -1960,6 +1960,9 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
   border-color: deepskyblue;
   color: #333;
 }
+.hide-annotations span a {
+  background-color: unset !important;
+}
 .mirador-container {
   /* Full screen
   -------------------------------------------------------------------------- */

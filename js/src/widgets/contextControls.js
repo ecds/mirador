@@ -180,10 +180,12 @@
         containerClassName: 'fillColorPickerPop' + _this.windowId,
         preferredFormat: 'rgb',
         hide: function (color) {
+          alert("TCL: color control", color)
           _this.eventEmitter.publish('changeFillColor.' + _this.windowId, [color.toHexString(), color.getAlpha()]);
           jQuery(this).spectrum('set', color);
         },
         move: function (color) {
+          alert("TCL: color.getAlpha()", color.getAlpha())
           _this.eventEmitter.publish('changeFillColor.' + _this.windowId, [color.toHexString(), color.getAlpha()]);
         },
         show: function (color) {

@@ -721,6 +721,7 @@
       _this.elemOsd =
         jQuery('<div/>')
         .addClass(_this.osdCls)
+        .addClass('hide-annotations')
         .attr('id', osdID)
         .appendTo(_this.element);
 

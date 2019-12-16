@@ -20,7 +20,8 @@
       displayAnnotations: false,
       annotationCanvas: null,
       ocrOverlayContainer: null,
-      annotationsList: null
+      annotationsList: null,
+      highlightColor: '#00bfff'
     }, options);
     this.init();
   };
@@ -58,19 +59,13 @@
             // TODO: add a class for the OCR spans. That way we can do a check for the class once
             // and skip the ajax call and the loop.
             // TODO: or, don't store the span in the database and create them on the fly here.
-            // console.log(index, value)
             if (value.resource["@type"] === 'cnt:ContentAsText' && !document.getElementById(value['@id'])) {
-              // console.log(typeof value.on.selector.value);
               jQuery(value.resource.chars).appendTo(_this.ocrContainer);
               var loc = value.on.selector.value.split('=')[1].split(',').map(function (i) {
                 return parseInt(i);
               });
-              // console.log(loc);
-              // console.log(value['@id']);
               var ocrEl = document.getElementById(value['@id']);
-              // _this.words.push(ocrEl);
               ocrEl.style.width = 'auto';
-              // ocrEl.style.letterSpacing = (ocrEl.offsetWidth) / (ocrEl.innerText.length + 1) + 'px';
 
               ocrEl.width = loc[2];
 
@@ -127,18 +122,15 @@
               _this.words.push(word);
 
               var wordOverlay = _this.osd.addOverlay(word);
-              // if (index === 0) {
-              // _this.osd.canvas = ocrEl.parentElement;
               _this.annotationCanvas = _this.osd.canvas.lastElementChild;
               ocrEl.parentElement.id = 'ocr-layer';
-              // }
 
               _this.osd.updateOverlay(word);
               _this.wordOverlays.push(wordOverlay.currentOverlays[wordOverlay.currentOverlays.length - 1]);
 
 
             } else {
-              // console.log('list before loading', _this.annotationsList);
+              // 
             }
           });
         },
@@ -163,9 +155,6 @@
     enableSelecting() {
       var _this = this;
       // Just a reminder. Will probably never need this.
-      // document.addEventListener('selectionchange', event => {
-      //   console.log('Selection changed.'); 
-      // });
       this.annotationCanvas.style.display = 'none';
       
       jQuery(_this.osd.canvas).css("cursor", "text");
@@ -180,7 +169,6 @@
 
       this.osd.canvas.addEventListener('mouseup', event => {
         _this.annotationCanvas.style.display = 'block';
-        // console.log('COUNT', window.getSelection().rangeCount)
         if (!window.getSelection().rangeCount) return;
         let range = window.getSelection().getRangeAt(0);
         _this.textAnnotation = {
@@ -190,7 +178,6 @@
         range.cloneContents().querySelectorAll('span').forEach(word => {
           if (word.id) {
             _this.textAnnotation.words.push(word.id)
-            // console.log('ocr', event.id, event.innerText, event)
           }
         });
 
@@ -225,9 +212,10 @@
                 overlay: _this,
                 viewer: _this.osd,
                 eventEmitter: _this.eventEmitter,
-                state: _this.state
+                state: _this.state,
+                highlightColor: _this.highlightColor
               }
-              );
+            );
             window.getSelection().empty();
             _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
           },
@@ -238,11 +226,17 @@
     // The delay argument is passed to textAnno. It sets the timeout
     // for adding the text annotations. It has to wait for the OCR
     // spans to be added to the DOM. :(
-    loadAnnotations: function(delay=0) {
+    loadAnnotations: function(delay=1000) {
+    console.log("TCL: delay", delay)
       var _this = this;
       
       if (this.annotationsList) {
+        console.log("TCL: this.annotationsList", this.annotationsList, Date.now())
+        // console.log("TCL: oaAnno.on.selector", this.annotationsList.length)
         this.annotationsList.forEach(function(oaAnno) {
+          if (oaAnno.on && oaAnno.on instanceof Array) {
+            oaAnno.on = oaAnno.on[0];
+          }
           if (oaAnno && oaAnno.on && oaAnno.on.selector && oaAnno.on.selector.item['@type'] === 'RangeSelector') {
             var textAnno = new $.OcrTextAnnotation();
             textAnno.viewer = _this.osd;
@@ -250,8 +244,10 @@
             textAnno.oaAnno = oaAnno;
             textAnno.state = _this.state;
             textAnno.windowId = _this.windowId;
+            // if (oaAnno.oaAnno)
             // textAnno.parseTextAnno();
             textAnno.parseOaAnno(delay);
+            // console.log("TCL: textAnno", textAnno)
           }
         });
       }
@@ -282,17 +278,23 @@
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('refreshOverlay.' + _this.windowId, function (event) {
         if (_this.showTextOverlay) {
           _this.loadAnnotations(500);
+          console.log('refresh', _this.annotationsList, Date.now())
         }
       }));
+
+      this.eventEmitter.subscribe('windowUpdated', (event, new_state) => {
+        // _this.loadAnnotations(500);
+        // console.log('win update', _this.annotationsList)
+      });
       
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('modeChange.' + _this.windowId, function (event, mode) {
         if (mode === 'displayAnnotations' && !_this.showTextOverlay) {
           _this.showTextOverlay = true;
           _this.addTextOverlay();
           _this.loadAnnotations();
-          document.getElementById(_this.osd.id).classList.add('show-annotations');
+          document.getElementById(_this.osd.id).classList.remove('hide-annotations');
         } else if (mode === 'default' && _this.showTextOverlay) {
-          document.getElementById(_this.osd.id).classList.remove('show-annotations');
+          document.getElementById(_this.osd.id).classList.add('hide-annotations');
           _this.showTextOverlay = false;
         }
 
@@ -306,15 +308,12 @@
         }
       }));
 
-      // this.eventsSubscriptions.push(_this.eventEmitter.subscribe('windowUpdated.' + _this.windowId, function (event, tool) {
-      //   if (_this.annotationState === 'on') {
-      //     // _this.addTextOverlay();
-      //   }
-      // }));
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('changeBorderColor.' + _this.windowId, function (event, color) {
+        _this.highlightColor = color;
+      }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('SET_CURRENT_CANVAS_ID.' + _this.windowId, function (event, canvasID) {
         _this.canvasID = canvasID;
-        // console.log('change canvas');
         _this.removeTextOverlay();
         _this.updateCanvasId();
       }));
@@ -338,18 +337,11 @@
 
 
       }));
-
-      // this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onTextAnnotationCreated.' + _this.windowId, function (event, oaAnno) {
-      //   console.log('event', event);
-      //   console.log('oaAnno', oaAnno);
-      // }));
     },
 
     updateSelection: function () {},
 
-    onHover: function () {
-      console.log('hi');
-    },
+    onHover: function () {},
 
     onMouseUp: function () {},
 
@@ -377,72 +369,62 @@
       });
     },
 
-    constructItem() {
-      // console.log('this.textAnnotation', this.textAnnotation);
-      let words = this._copy(this.textAnnotation.words);
-      let startElementId = words[0]
-      let endElementId = document.getElementById(words.reverse()[0]).nextElementSibling.id
-      return {
-        "@type": "RangeSelector",
-        startSelector: {
-            "@type": "XPathSelector",
-            value: `//*[@id='${startElementId}']`,
-            refinedBy : {
-                "@type": "TextPositionSelector",
-                start: this.textAnnotation.range.startOffset
-            }
-        },
-        endSelector: {
-            "@type": "XPathSelector",
-            value: `//*[@id='${endElementId}']`,
-            refinedBy : {
-                "@type": "TextPositionSelector",
-                end: this.textAnnotation.range.endOffset
-            }
-        }
-      }
-    },
+    // constructItem() {
+    //   let words = this._copy(this.textAnnotation.words);
+    //   let startElementId = words[0]
+    //   let endElementId = document.getElementById(words.reverse()[0]).nextElementSibling.id
+    //   return {
+    //     "@type": "RangeSelector",
+    //     startSelector: {
+    //         "@type": "XPathSelector",
+    //         value: `//*[@id='${startElementId}']`,
+    //         refinedBy : {
+    //             "@type": "TextPositionSelector",
+    //             start: this.textAnnotation.range.startOffset
+    //         }
+    //     },
+    //     endSelector: {
+    //         "@type": "XPathSelector",
+    //         value: `//*[@id='${endElementId}']`,
+    //         refinedBy : {
+    //             "@type": "TextPositionSelector",
+    //             end: this.textAnnotation.range.endOffset
+    //         }
+    //     }
+    //   }
+    // },
 
-    handelStart(wordElement, offset) {
-      console.log('wordElement', wordElement);
-      if (!wordElement) return;
-      const wordSpan = document.getElementById(wordElement);
-      console.log('wordSpan', wordSpan);
-      const word = wordSpan.innerText;
-      const link = this.createLink();
-      // console.log('link', link);
-      link.innerText = word.slice(offset, word.length);
-      // console.log('link', link);
-      wordSpan.innerHTML = `${word.slice(0, offset)}`;
-      wordSpan.append(link);
-    },
+    // handelStart(wordElement, offset) {
+    //   if (!wordElement) return;
+    //   const wordSpan = document.getElementById(wordElement);
+    //   const word = wordSpan.innerText;
+    //   const link = this.createLink();
+    //   link.innerText = word.slice(offset, word.length);
+    //   wordSpan.innerHTML = `${word.slice(0, offset)}`;
+    //   wordSpan.append(link);
+    // },
     
-    handelEnd(wordElement, offset) {
-      if (!wordElement) return;
-      const wordSpan = document.getElementById(wordElement);
-      const word = wordSpan.innerText;
-      const link = this.createLink();
-      link.innerText = word.slice(0, offset);
-      wordSpan.innerHTML = word.slice(offset, word.length);
-      wordSpan.prepend(link);
-    },
+    // handelEnd(wordElement, offset) {
+    //   if (!wordElement) return;
+    //   const wordSpan = document.getElementById(wordElement);
+    //   const word = wordSpan.innerText;
+    //   const link = this.createLink();
+    //   link.innerText = word.slice(0, offset);
+    //   wordSpan.innerHTML = word.slice(offset, word.length);
+    //   wordSpan.prepend(link);
+    // },
     
-    handelPart(wordElement, range) {
-      const wordSpan = document.getElementById(wordElement);
-
-      console.log('wordSpan', wordSpan);
-      console.log('range', range);
-      const word = wordSpan.innerText;
-      const link = this.createLink();
-      const start = word.slice(0, range.startOffset);
-      const end = word.slice(range.endOffset, word.length);
-      link.innerText = word.slice(range.startOffset, range.endOffset);
-      console.log('LINK', link);
-      wordSpan.innerHTML = start;
-      wordSpan.append(link);
-      wordSpan.append(end);
-      console.log('wordSpan', wordSpan);
-    },
+    // handelPart(wordElement, range) {
+    //   const wordSpan = document.getElementById(wordElement);
+    //   const word = wordSpan.innerText;
+    //   const link = this.createLink();
+    //   const start = word.slice(0, range.startOffset);
+    //   const end = word.slice(range.endOffset, word.length);
+    //   link.innerText = word.slice(range.startOffset, range.endOffset);
+    //   wordSpan.innerHTML = start;
+    //   wordSpan.append(link);
+    //   wordSpan.append(end);
+    // },
     
     uuidv4() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -451,25 +433,23 @@
       });
     },
     
-    createLink() {
-      const link = document.createElement('a');
-      link.setAttribute('href', '#');
-      link.setAttribute('data-id', this.uuid);
-      link.setAttribute('title', this.uuid);
-      return link;
-    },
+    // createLink() {
+    //   const link = document.createElement('a');
+    //   link.setAttribute('href', '#');
+    //   link.setAttribute('data-id', this.uuid);
+    //   link.setAttribute('title', this.uuid);
+    //   link.className += this.uuid;
+    //   return link;
+    // },
     
-    wrapWord(id) {
-      const wordSpan = document.getElementById(id);
-      console.log(wordSpan);
-      const word = wordSpan.innerText;
-      console.log(word);
-      const link = this.createLink();
-      link.innerText = word;
-      console.log(link);
-      wordSpan.innerHTML = '';
-      wordSpan.append(link);
-    },
+    // wrapWord(id) {
+    //   const wordSpan = document.getElementById(id);
+    //   const word = wordSpan.innerText;
+    //   const link = this.createLink();
+    //   link.innerText = word;
+    //   wordSpan.innerHTML = '';
+    //   wordSpan.append(link);
+    // },
 
     _copy(array) {
       let copy = [];
@@ -477,6 +457,16 @@
         copy.push(a);
       });
       return copy;
+    },
+
+    _hexToRgb(hex) {
+      let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      let rgb = result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 255, g: 20, b: 147 }
+      return `rgba(${r}, ${g}, ${b}, 0.5)`
     }
 
   };
