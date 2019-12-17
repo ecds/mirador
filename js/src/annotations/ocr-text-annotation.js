@@ -13,7 +13,8 @@
       viewer: null,
       links: [],
       boundingBoxes: [],
-      highlightColor: null
+      highlightColor: null,
+      retries: 0
     }, options);
     this.init(options);
   };
@@ -93,12 +94,16 @@
 
     updateSizeLocation(event) {},
 
-    parseOaAnno(timeout=500) {
-      // I don't like this timeout, but we have to wait for the OCR spans
+    parseOaAnno(timeout = 500) {
+      // I don't love this, but we have to wait for the OCR spans
       // to be added before we can add the text annotations.
       // This is only a problem when navigating between canvases with annotations
       // showing.
-      setTimeout(() => {
+      if (this.retries == 20) {
+        console.log('giving up', this.retries);
+        return;
+      } else {
+        this.retries = 0;
         this.uuid = this.oaAnno['@id'];
         if (this.oaAnno.on instanceof Array) {
           this.oaAnno.on = this.oaAnno.on[0];
@@ -112,58 +117,65 @@
           isTextAnno: true,
           textAnno: this.oaAnno
         });
-
+        
         var windowElement = this.state.getWindowElement(this.windowId);
-
+        
         this.annoToolTip.initializeViewerUpgradableToEditor({
           container: windowElement,
           viewport: windowElement
         });
-      
+        
         this.listenForActions();
-
+        
         let start = document.evaluate(
           this.oaAnno.on.selector.item.startSelector.value,
           document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
           ).singleNodeValue;
-
-        let end = document.evaluate(
-          this.oaAnno.on.selector.item.endSelector.value,
-          document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
-          ).singleNodeValue;
-
-        // This also makes me nervous.
-        // TODO: Set a max try
-        if (!start && !end) {
-          this.parseOaAnno();
-          return;
-        }
-        
-        let range = null;
-        let words = [];
-        
-        let previousToStart = start.previousElementSibling;
-        let ocrLayer = jQuery('#ocr-layer');
-        
-        if (previousToStart) {
-            range = jQuery(`#${previousToStart.id}`).nextUntil(`#${end.id}`, 'span');
+          
+          let end = document.evaluate(
+            this.oaAnno.on.selector.item.endSelector.value,
+            document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+            ).singleNodeValue;
+            
+          // This is not awesome, but we can't add the text annotations until the
+          // the OCR annotations are present in the DOM. So we try 20 times (see above)
+          // pausing for 300ms between tries.
+          if (!start && !end) {
+            setTimeout(() => {
+              this.retries += 1;
+              this.parseOaAnno(500, this.retries);
+              return;
+            }, 300);
           } else {
-            range = jQuery(`#${start.id}`).nextUntil(`#${end.id}`, 'span');
-          }
-        
-        range.each(function(word){words.push(range.get(word).id)});
-        
-        if (start.id == ocrLayer.children('span').first().attr('id')) {
-          words.push(start.id);
-        } else if (end.id == ocrLayer.children('span').last().attr('id')) {
-          words.push(end.id);
+            this.retries = 0;
+            let range = null;
+            let words = [];
+            
+            let previousToStart = start.previousElementSibling;
+            let ocrLayer = jQuery('#ocr-layer');
+            
+            if (previousToStart) {
+                range = jQuery(`#${previousToStart.id}`).nextUntil(`#${end.id}`, 'span');
+              } else {
+                range = jQuery(`#${start.id}`).nextUntil(`#${end.id}`, 'span');
+              }
+            
+            range.each(function(word){words.push(range.get(word).id)});
+            
+            if (start.id == ocrLayer.children('span').first().attr('id')) {
+              words.push(start.id);
+            } else if (end.id == ocrLayer.children('span').last().attr('id')) {
+              words.push(end.id);
+            }
+            
+            let startOffset = this.oaAnno.on.selector.item.startSelector.refinedBy.start;
+            let endOffset = this.oaAnno.on.selector.item.endSelector.refinedBy.end;
+            this._insertLinks(words, startOffset, endOffset);
+            this._addStyle();
         }
-        let startOffset = this.oaAnno.on.selector.item.startSelector.refinedBy.start;
-        let endOffset = this.oaAnno.on.selector.item.endSelector.refinedBy.end;
-        this._insertLinks(words, startOffset, endOffset);
-        this._addStyle();
-      }, 500);
+      }
     },
+          
 
     parseTextAnno() {
       let words = this._copy(this.textAnnotation.words);
