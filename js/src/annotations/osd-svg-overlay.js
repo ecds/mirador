@@ -1059,6 +1059,7 @@
 
     onDrawFinish: function () {
       var shape = this.path;
+      console.log("TCL: shape", shape)
       if (!shape) {
         return;
       }

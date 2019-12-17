@@ -36,6 +36,7 @@
       shape.fillColor.alpha = overlay.fillColorAlpha;
       shape.closed = true;
       overlay.fitFixedSizeShapes(shape);
+      console.log("TCL: shape", shape)
       return shape;
     },
 

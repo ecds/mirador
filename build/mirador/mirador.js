@@ -38410,22 +38410,26 @@ return /******/ (function(modules) { // webpackBootstrap
 
     // Check whether an annotation is supported under this formatting strategy
     isThisType: function (annotation) {
+      // if (this.oaAnno.on instanceof Array) {
+      //   this.oaAnno.on = this.oaAnno.on[0];
+      // }
       if (annotation.on && jQuery.isArray(annotation.on) && annotation.on.length > 0 && typeof annotation.on[0] === 'object' &&
-          annotation.on[0].selector && typeof annotation.on[0].selector === 'object' &&
-          annotation.on[0].selector['@type'] === 'oa:Choice' &&
-          annotation.on[0].selector.default && typeof annotation.on[0].selector.default === 'object' &&
-          annotation.on[0].selector.default.value && typeof annotation.on[0].selector.default.value === 'string' &&
-          annotation.on[0].selector.item && typeof annotation.on[0].selector.item === 'object' &&
-          annotation.on[0].selector.item.value && typeof annotation.on[0].selector.item.value === 'string'
-        ) {
+      annotation.on[0].selector && typeof annotation.on[0].selector === 'object' &&
+      annotation.on[0].selector['@type'] === 'oa:Choice' &&
+      annotation.on[0].selector.default && typeof annotation.on[0].selector.default === 'object' &&
+      annotation.on[0].selector.default.value && typeof annotation.on[0].selector.default.value === 'string' &&
+      annotation.on[0].selector.item && typeof annotation.on[0].selector.item === 'object' &&
+      annotation.on[0].selector.item.value && typeof annotation.on[0].selector.item.value === 'string'
+      ) {
         return annotation.on[0].selector.default.value.indexOf('xywh=') === 0 && annotation.on[0].selector.item.value.indexOf('<svg') === 0;
       } else if (typeof annotation.on === 'object' &&
       annotation.on.selector && typeof annotation.on.selector === 'object' &&
-      annotation.on.selector.item['@type'] === 'oa:Choice' &&
+      (annotation.on.selector.item['@type'] === 'oa:Choice' || annotation.on.selector.item['@type'] === 'oa:SvgSelector') &&
       annotation.on.selector.item.default && typeof annotation.on.selector.item.default === 'object' &&
-      annotation.on.selector.item.default.value && typeof annotation.on.selector.item.value === 'string' &&
+      // annotation.on.selector.item.default.value && typeof annotation.on.selector.item.value === 'string' &&
       annotation.on.selector.item && typeof annotation.on.selector.item === 'object' &&
       annotation.on.selector.item.value && typeof annotation.on.selector.item.value === 'string') {
+        console.log("TCL: dual annotation.on", annotation.on)
         return annotation.on.selector.item.default.value.indexOf('xywh=') === 0 && annotation.on.selector.item.value.indexOf('<svg') === 0;
       }
       return false;
@@ -38516,6 +38520,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
     // Check whether an annotation is supported under this formatting strategy
     isThisType: function (annotation) {
+      console.log("TCL: legacy annotation.on", annotation.on)
+
       if ((annotation.on.selector.item && annotation.on.selector.item['@type']  !== 'RangeSelector') ||
           annotation.on && typeof annotation.on === 'object' &&
           annotation.on.selector && typeof annotation.on.selector === 'object' &&
@@ -39065,6 +39071,7 @@ return /******/ (function(modules) { // webpackBootstrap
       var _this = this
       if (!this.svgOverlay.inEditOrCreateMode) {
         this.osdViewer.setMouseNavEnabled(false);
+        document.getElementById(_this.osdViewer.id).classList.add('no-select-ocr');
         this.svgOverlay.show();
         this.svgOverlay.enable();
         this.render();
@@ -39076,6 +39083,7 @@ return /******/ (function(modules) { // webpackBootstrap
     enterCreateShape: function () {
       if (!this.svgOverlay.inEditOrCreateMode) {
         this.osdViewer.setMouseNavEnabled(false);
+        document.getElementById(_this.osdViewer.id).classList.add('no-select-ocr');
         this.svgOverlay.show();
         this.svgOverlay.enable();
       } else {
@@ -39085,6 +39093,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
     enterEditAnnotation: function () {
       this.osdViewer.setMouseNavEnabled(false);
+      document.getElementById(this.osdViewer.id).classList.add('no-select-ocr');
       this.svgOverlay.show();
       this.svgOverlay.enableEdit();
     },
@@ -39106,11 +39115,12 @@ return /******/ (function(modules) { // webpackBootstrap
         this.svgOverlay.hide();
       }
     },
-
+    
     render: function () {
       if (this.parent.mode !== $.AnnotationsLayer.DISPLAY_ANNOTATIONS) {
         return;
       }
+      document.getElementById(this.osdViewer.id).classList.remove('no-select-ocr');
       this.svgOverlay.restoreEditedShapes();
       this.svgOverlay.paperScope.activate();
       this.svgOverlay.paperScope.project.clear();
@@ -39171,6 +39181,7 @@ return /******/ (function(modules) { // webpackBootstrap
         for (var i = 0; i < strategies.length; i++) {
           if (strategies[i].isThisType(annotation, strategies[i])) {
             shapeArray = strategies[i].parseRegion(annotation, this);
+            console.log("TCL: strategies[i]", strategies[i])
             return shapeArray;
           }
         }
@@ -41091,6 +41102,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
     onDrawFinish: function () {
       var shape = this.path;
+      console.log("TCL: shape", shape)
       if (!shape) {
         return;
       }
@@ -41227,6 +41239,7 @@ return /******/ (function(modules) { // webpackBootstrap
       shape.fillColor.alpha = overlay.fillColorAlpha;
       shape.closed = true;
       overlay.fitFixedSizeShapes(shape);
+      console.log("TCL: shape", shape)
       return shape;
     },
 
@@ -42163,74 +42176,77 @@ return /******/ (function(modules) { // webpackBootstrap
     },
 
     enableSelecting() {
-      var _this = this;
-      // Just a reminder. Will probably never need this.
-      this.annotationCanvas.style.display = 'none';
-      
-      jQuery(_this.osd.canvas).css("cursor", "text");
-      
-      this.osd.canvas.addEventListener('mousedown', event => {
-        this.osd.setMouseNavEnabled(false);
-        this.osd.gestureSettingsMouse.clickToZoom = false;
-        this.osd.mouseNavEnabled = false;
-        this.osd.panVertical = false;
-        this.osd.panHorizontal = false;
-      });
+      setTimeout(() => {
 
-      this.osd.canvas.addEventListener('mouseup', event => {
-        _this.annotationCanvas.style.display = 'block';
-        if (!window.getSelection().rangeCount) return;
-        let range = window.getSelection().getRangeAt(0);
-        _this.textAnnotation = {
-          range: range,
-          words: []
-        }
-        range.cloneContents().querySelectorAll('span').forEach(word => {
-          if (word.id) {
-            _this.textAnnotation.words.push(word.id)
+        var _this = this;
+        this.annotationCanvas.style.display = 'none';
+        
+        jQuery(_this.osd.canvas).css("cursor", "text");
+        document.getElementById(_this.osd.id).classList.remove('no-select-ocr');
+        
+        this.osd.canvas.addEventListener('mousedown', event => {
+          this.osd.setMouseNavEnabled(false);
+          this.osd.gestureSettingsMouse.clickToZoom = false;
+          this.osd.mouseNavEnabled = false;
+          this.osd.panVertical = false;
+          this.osd.panHorizontal = false;
+        });
+  
+        this.osd.canvas.addEventListener('mouseup', event => {
+          _this.annotationCanvas.style.display = 'block';
+          if (!window.getSelection().rangeCount) return;
+          let range = window.getSelection().getRangeAt(0);
+          _this.textAnnotation = {
+            range: range,
+            words: []
           }
+          range.cloneContents().querySelectorAll('span').forEach(word => {
+            if (word.id) {
+              _this.textAnnotation.words.push(word.id)
+            }
+          });
+  
+          if (_this.textAnnotation.words.length == 0) {
+            _this.textAnnotation.words.push(range.startContainer.parentElement.id)
+          }
+          
+          this.annoTooltip = new $.AnnotationTooltip({
+            targetElement: jQuery(_this.osd.element),
+            state: this.state,
+            eventEmitter: this.eventEmitter,
+            windowId: this.windowId
+          });
+          
+          this.annoTooltip.initializeViewerUpgradableToEditor({
+            container: document.getElementsByClassName('slot')[0],
+            viewport: document.getElementsByClassName('slot')[0]
+          });
+          
+          this.annoTooltip.showEditor({
+            annotation: {},
+            onSaveClickCheck: function () {
+              return _this.textAnnotation.words.length;
+            },
+            onTextAnnotationCreated: function (oaAnno) {
+              // TODO: Maybe move `constructItem` to the write strategy `buildAnnotation`
+              _this.ocrTextAnnotation = new $.OcrTextAnnotation(
+                {
+                  textAnnotation: _this.textAnnotation,
+                  oaAnno: oaAnno,
+                  canvasId: _this.state.getWindowObjectById(_this.windowId),
+                  overlay: _this,
+                  viewer: _this.osd,
+                  eventEmitter: _this.eventEmitter,
+                  state: _this.state,
+                  highlightColor: _this.highlightColor
+                }
+              );
+              window.getSelection().empty();
+              _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
+            },
+          });
         });
-
-        if (_this.textAnnotation.words.length == 0) {
-          _this.textAnnotation.words.push(range.startContainer.parentElement.id)
-        }
-        
-        this.annoTooltip = new $.AnnotationTooltip({
-          targetElement: jQuery(_this.osd.element),
-          state: this.state,
-          eventEmitter: this.eventEmitter,
-          windowId: this.windowId
-        });
-        
-        this.annoTooltip.initializeViewerUpgradableToEditor({
-          container: document.getElementsByClassName('slot')[0],
-          viewport: document.getElementsByClassName('slot')[0]
-        });
-        
-        this.annoTooltip.showEditor({
-          annotation: {},
-          onSaveClickCheck: function () {
-            return _this.textAnnotation.words.length;
-          },
-          onTextAnnotationCreated: function (oaAnno) {
-            // TODO: Maybe move `constructItem` to the write strategy `buildAnnotation`
-            _this.ocrTextAnnotation = new $.OcrTextAnnotation(
-              {
-                textAnnotation: _this.textAnnotation,
-                oaAnno: oaAnno,
-                canvasId: _this.state.getWindowObjectById(_this.windowId),
-                overlay: _this,
-                viewer: _this.osd,
-                eventEmitter: _this.eventEmitter,
-                state: _this.state,
-                highlightColor: _this.highlightColor
-              }
-            );
-            window.getSelection().empty();
-            _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
-          },
-        });
-      });
+      }, 500);
     },
 
     // The delay argument is passed to textAnno. It sets the timeout
@@ -42303,6 +42319,8 @@ return /******/ (function(modules) { // webpackBootstrap
         if (tool === _this.logoClass) {
           _this.selecting = true;
           _this.enableSelecting()
+        } else {
+          _this.selecting = false;
         }
       }));
 

@@ -13,6 +13,8 @@
 
     // Check whether an annotation is supported under this formatting strategy
     isThisType: function (annotation) {
+      console.log("TCL: legacy annotation.on", annotation.on)
+
       if ((annotation.on.selector.item && annotation.on.selector.item['@type']  !== 'RangeSelector') ||
           annotation.on && typeof annotation.on === 'object' &&
           annotation.on.selector && typeof annotation.on.selector === 'object' &&

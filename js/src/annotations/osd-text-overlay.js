@@ -153,74 +153,77 @@
     },
 
     enableSelecting() {
-      var _this = this;
-      // Just a reminder. Will probably never need this.
-      this.annotationCanvas.style.display = 'none';
-      
-      jQuery(_this.osd.canvas).css("cursor", "text");
-      
-      this.osd.canvas.addEventListener('mousedown', event => {
-        this.osd.setMouseNavEnabled(false);
-        this.osd.gestureSettingsMouse.clickToZoom = false;
-        this.osd.mouseNavEnabled = false;
-        this.osd.panVertical = false;
-        this.osd.panHorizontal = false;
-      });
+      setTimeout(() => {
 
-      this.osd.canvas.addEventListener('mouseup', event => {
-        _this.annotationCanvas.style.display = 'block';
-        if (!window.getSelection().rangeCount) return;
-        let range = window.getSelection().getRangeAt(0);
-        _this.textAnnotation = {
-          range: range,
-          words: []
-        }
-        range.cloneContents().querySelectorAll('span').forEach(word => {
-          if (word.id) {
-            _this.textAnnotation.words.push(word.id)
+        var _this = this;
+        this.annotationCanvas.style.display = 'none';
+        
+        jQuery(_this.osd.canvas).css("cursor", "text");
+        document.getElementById(_this.osd.id).classList.remove('no-select-ocr');
+        
+        this.osd.canvas.addEventListener('mousedown', event => {
+          this.osd.setMouseNavEnabled(false);
+          this.osd.gestureSettingsMouse.clickToZoom = false;
+          this.osd.mouseNavEnabled = false;
+          this.osd.panVertical = false;
+          this.osd.panHorizontal = false;
+        });
+  
+        this.osd.canvas.addEventListener('mouseup', event => {
+          _this.annotationCanvas.style.display = 'block';
+          if (!window.getSelection().rangeCount) return;
+          let range = window.getSelection().getRangeAt(0);
+          _this.textAnnotation = {
+            range: range,
+            words: []
           }
+          range.cloneContents().querySelectorAll('span').forEach(word => {
+            if (word.id) {
+              _this.textAnnotation.words.push(word.id)
+            }
+          });
+  
+          if (_this.textAnnotation.words.length == 0) {
+            _this.textAnnotation.words.push(range.startContainer.parentElement.id)
+          }
+          
+          this.annoTooltip = new $.AnnotationTooltip({
+            targetElement: jQuery(_this.osd.element),
+            state: this.state,
+            eventEmitter: this.eventEmitter,
+            windowId: this.windowId
+          });
+          
+          this.annoTooltip.initializeViewerUpgradableToEditor({
+            container: document.getElementsByClassName('slot')[0],
+            viewport: document.getElementsByClassName('slot')[0]
+          });
+          
+          this.annoTooltip.showEditor({
+            annotation: {},
+            onSaveClickCheck: function () {
+              return _this.textAnnotation.words.length;
+            },
+            onTextAnnotationCreated: function (oaAnno) {
+              // TODO: Maybe move `constructItem` to the write strategy `buildAnnotation`
+              _this.ocrTextAnnotation = new $.OcrTextAnnotation(
+                {
+                  textAnnotation: _this.textAnnotation,
+                  oaAnno: oaAnno,
+                  canvasId: _this.state.getWindowObjectById(_this.windowId),
+                  overlay: _this,
+                  viewer: _this.osd,
+                  eventEmitter: _this.eventEmitter,
+                  state: _this.state,
+                  highlightColor: _this.highlightColor
+                }
+              );
+              window.getSelection().empty();
+              _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
+            },
+          });
         });
-
-        if (_this.textAnnotation.words.length == 0) {
-          _this.textAnnotation.words.push(range.startContainer.parentElement.id)
-        }
-        
-        this.annoTooltip = new $.AnnotationTooltip({
-          targetElement: jQuery(_this.osd.element),
-          state: this.state,
-          eventEmitter: this.eventEmitter,
-          windowId: this.windowId
-        });
-        
-        this.annoTooltip.initializeViewerUpgradableToEditor({
-          container: document.getElementsByClassName('slot')[0],
-          viewport: document.getElementsByClassName('slot')[0]
-        });
-        
-        this.annoTooltip.showEditor({
-          annotation: {},
-          onSaveClickCheck: function () {
-            return _this.textAnnotation.words.length;
-          },
-          onTextAnnotationCreated: function (oaAnno) {
-            // TODO: Maybe move `constructItem` to the write strategy `buildAnnotation`
-            _this.ocrTextAnnotation = new $.OcrTextAnnotation(
-              {
-                textAnnotation: _this.textAnnotation,
-                oaAnno: oaAnno,
-                canvasId: _this.state.getWindowObjectById(_this.windowId),
-                overlay: _this,
-                viewer: _this.osd,
-                eventEmitter: _this.eventEmitter,
-                state: _this.state,
-                highlightColor: _this.highlightColor
-              }
-            );
-            window.getSelection().empty();
-            _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
-          },
-        });
-      });
+      }, 500);
     },
 
     // The delay argument is passed to textAnno. It sets the timeout
@@ -293,6 +296,8 @@
         if (tool === _this.logoClass) {
           _this.selecting = true;
           _this.enableSelecting()
+        } else {
+          _this.selecting = false;
         }
       }));
 

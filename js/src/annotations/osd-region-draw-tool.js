@@ -43,6 +43,7 @@
       var _this = this
       if (!this.svgOverlay.inEditOrCreateMode) {
         this.osdViewer.setMouseNavEnabled(false);
+        document.getElementById(_this.osdViewer.id).classList.add('no-select-ocr');
         this.svgOverlay.show();
         this.svgOverlay.enable();
         this.render();
@@ -54,6 +55,7 @@
     enterCreateShape: function () {
       if (!this.svgOverlay.inEditOrCreateMode) {
         this.osdViewer.setMouseNavEnabled(false);
+        document.getElementById(_this.osdViewer.id).classList.add('no-select-ocr');
         this.svgOverlay.show();
         this.svgOverlay.enable();
       } else {
@@ -63,6 +65,7 @@
 
     enterEditAnnotation: function () {
       this.osdViewer.setMouseNavEnabled(false);
+      document.getElementById(this.osdViewer.id).classList.add('no-select-ocr');
       this.svgOverlay.show();
       this.svgOverlay.enableEdit();
     },
@@ -84,11 +87,12 @@
         this.svgOverlay.hide();
       }
     },
-
+    
     render: function () {
       if (this.parent.mode !== $.AnnotationsLayer.DISPLAY_ANNOTATIONS) {
         return;
       }
+      document.getElementById(this.osdViewer.id).classList.remove('no-select-ocr');
       this.svgOverlay.restoreEditedShapes();
       this.svgOverlay.paperScope.activate();
       this.svgOverlay.paperScope.project.clear();
@@ -149,6 +153,7 @@
         for (var i = 0; i < strategies.length; i++) {
           if (strategies[i].isThisType(annotation, strategies[i])) {
             shapeArray = strategies[i].parseRegion(annotation, this);
+            console.log("TCL: strategies[i]", strategies[i])
             return shapeArray;
           }
         }

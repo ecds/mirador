@@ -13,22 +13,26 @@
 
     // Check whether an annotation is supported under this formatting strategy
     isThisType: function (annotation) {
+      // if (this.oaAnno.on instanceof Array) {
+      //   this.oaAnno.on = this.oaAnno.on[0];
+      // }
       if (annotation.on && jQuery.isArray(annotation.on) && annotation.on.length > 0 && typeof annotation.on[0] === 'object' &&
-          annotation.on[0].selector && typeof annotation.on[0].selector === 'object' &&
-          annotation.on[0].selector['@type'] === 'oa:Choice' &&
-          annotation.on[0].selector.default && typeof annotation.on[0].selector.default === 'object' &&
-          annotation.on[0].selector.default.value && typeof annotation.on[0].selector.default.value === 'string' &&
-          annotation.on[0].selector.item && typeof annotation.on[0].selector.item === 'object' &&
-          annotation.on[0].selector.item.value && typeof annotation.on[0].selector.item.value === 'string'
-        ) {
+      annotation.on[0].selector && typeof annotation.on[0].selector === 'object' &&
+      annotation.on[0].selector['@type'] === 'oa:Choice' &&
+      annotation.on[0].selector.default && typeof annotation.on[0].selector.default === 'object' &&
+      annotation.on[0].selector.default.value && typeof annotation.on[0].selector.default.value === 'string' &&
+      annotation.on[0].selector.item && typeof annotation.on[0].selector.item === 'object' &&
+      annotation.on[0].selector.item.value && typeof annotation.on[0].selector.item.value === 'string'
+      ) {
         return annotation.on[0].selector.default.value.indexOf('xywh=') === 0 && annotation.on[0].selector.item.value.indexOf('<svg') === 0;
       } else if (typeof annotation.on === 'object' &&
       annotation.on.selector && typeof annotation.on.selector === 'object' &&
-      annotation.on.selector.item['@type'] === 'oa:Choice' &&
+      (annotation.on.selector.item['@type'] === 'oa:Choice' || annotation.on.selector.item['@type'] === 'oa:SvgSelector') &&
       annotation.on.selector.item.default && typeof annotation.on.selector.item.default === 'object' &&
-      annotation.on.selector.item.default.value && typeof annotation.on.selector.item.value === 'string' &&
+      // annotation.on.selector.item.default.value && typeof annotation.on.selector.item.value === 'string' &&
       annotation.on.selector.item && typeof annotation.on.selector.item === 'object' &&
       annotation.on.selector.item.value && typeof annotation.on.selector.item.value === 'string') {
+        console.log("TCL: dual annotation.on", annotation.on)
         return annotation.on.selector.item.default.value.indexOf('xywh=') === 0 && annotation.on.selector.item.value.indexOf('<svg') === 0;
       }
       return false;
