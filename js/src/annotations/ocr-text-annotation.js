@@ -70,6 +70,16 @@
         _this.oaAnno.styledBy = _this._constructStyle();
       }));
 
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onTextAnnotationDeleted', function (event, annoId) {
+        setTimeout(function() {
+          let links = jQuery(`a[title="${annoId}"]`);
+          if (links.length > 0) {
+            jQuery(`a[title="${annoId}"]`).contents().unwrap();
+          }
+        }, 300);
+      }));
+
+
       var _updateSizeLocation = function() { _this.updateSizeLocation()}
 
       this.viewer.addHandler('animation', _updateSizeLocation());

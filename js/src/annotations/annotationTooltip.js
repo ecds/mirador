@@ -192,6 +192,7 @@
       var selector = '#annotation-viewer-' + _this.windowId;
 
       jQuery(selector + ' a.delete').on('click', function (event) {
+        console.log(_this)
         event.preventDefault();
         var elem = this;
         new $.DialogBuilder(viewerParams.container).dialog({
@@ -295,6 +296,7 @@
         var id = display.attr('data-anno-id');
         var oaAnno = viewerParams.getAnnoFromRegion(id)[0];
         _this.removeAllEvents();
+        api.hide();
         _this.unFreezeQtip(api, oaAnno, viewerParams);
         _this.eventEmitter.publish('annotationEditCancel.' + _this.windowId, [id]);
       });
@@ -354,7 +356,6 @@
           // }
           api.disable(false);
           _this.setTooltipContent(params.annotations);
-          console.log("TCL: params.annotations", params.annotations)
           api.cache.origin = params.triggerEvent;
           api.reposition(params.triggerEvent, true);
           api.show(params.triggerEvent);
@@ -401,7 +402,6 @@
           // TODO: This is sort of a hack to make sure the correct
           // annotation is set for the editor.
           _this.oaAnno = annotation;
-          console.log("TCL: annoText", annoText)
         }
         var username = '';
         if (annotation.annotatedBy && annotation.annotatedBy.name) {

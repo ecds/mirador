@@ -150,6 +150,7 @@
         data: JSON.stringify({"id": annotationID }),
         contentType: "application/json; charset=utf-8",
         success: function(data) {
+          _this.eventEmitter.publish('onTextAnnotationDeleted', annotationID);
           if (typeof successCallback === "function") {
             successCallback();
           }

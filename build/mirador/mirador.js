@@ -37218,6 +37218,7 @@ return /******/ (function(modules) { // webpackBootstrap
       var selector = '#annotation-viewer-' + _this.windowId;
 
       jQuery(selector + ' a.delete').on('click', function (event) {
+        console.log(_this)
         event.preventDefault();
         var elem = this;
         new $.DialogBuilder(viewerParams.container).dialog({
@@ -37321,6 +37322,7 @@ return /******/ (function(modules) { // webpackBootstrap
         var id = display.attr('data-anno-id');
         var oaAnno = viewerParams.getAnnoFromRegion(id)[0];
         _this.removeAllEvents();
+        api.hide();
         _this.unFreezeQtip(api, oaAnno, viewerParams);
         _this.eventEmitter.publish('annotationEditCancel.' + _this.windowId, [id]);
       });
@@ -37380,7 +37382,6 @@ return /******/ (function(modules) { // webpackBootstrap
           // }
           api.disable(false);
           _this.setTooltipContent(params.annotations);
-          console.log("TCL: params.annotations", params.annotations)
           api.cache.origin = params.triggerEvent;
           api.reposition(params.triggerEvent, true);
           api.show(params.triggerEvent);
@@ -37427,7 +37428,6 @@ return /******/ (function(modules) { // webpackBootstrap
           // TODO: This is sort of a hack to make sure the correct
           // annotation is set for the editor.
           _this.oaAnno = annotation;
-          console.log("TCL: annoText", annoText)
         }
         var username = '';
         if (annotation.annotatedBy && annotation.annotatedBy.name) {
@@ -38700,6 +38700,16 @@ return /******/ (function(modules) { // webpackBootstrap
         _this.highlightColor = _this._hexToRgb(color);
         _this.oaAnno.styledBy = _this._constructStyle();
       }));
+
+      this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onTextAnnotationDeleted', function (event, annoId) {
+        setTimeout(function() {
+          let links = jQuery(`a[title="${annoId}"]`);
+          if (links.length > 0) {
+            jQuery(`a[title="${annoId}"]`).contents().unwrap();
+          }
+        }, 300);
+      }));
+
 
       var _updateSizeLocation = function() { _this.updateSizeLocation()}
 
@@ -40431,7 +40441,7 @@ return /******/ (function(modules) { // webpackBootstrap
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreatedCanceled.' + _this.windowId, function (event, cancelCallback, immediate) {
         var cancel = function () {
           _this.inEditOrCreateMode = false;
-          _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
+          // _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
 
           _this.clearDraftData();
           _this.annoTooltip = null;
@@ -42650,6 +42660,7 @@ return /******/ (function(modules) { // webpackBootstrap
         data: JSON.stringify({"id": annotationID }),
         contentType: "application/json; charset=utf-8",
         success: function(data) {
+          _this.eventEmitter.publish('onTextAnnotationDeleted', annotationID);
           if (typeof successCallback === "function") {
             successCallback();
           }
@@ -43004,7 +43015,6 @@ return /******/ (function(modules) { // webpackBootstrap
   $.TinyMCEAnnotationBodyEditor.prototype = {
     init: function () {
       var _this = this;
-      console.log("TCL: this", this)
       var annoText = '',
         selectedTags = [],
         tags = [];

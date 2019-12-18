@@ -16,7 +16,6 @@
   $.TinyMCEAnnotationBodyEditor.prototype = {
     init: function () {
       var _this = this;
-      console.log("TCL: this", this)
       var annoText = '',
         selectedTags = [],
         tags = [];

@@ -380,7 +380,7 @@
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreatedCanceled.' + _this.windowId, function (event, cancelCallback, immediate) {
         var cancel = function () {
           _this.inEditOrCreateMode = false;
-          _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
+          // _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
 
           _this.clearDraftData();
           _this.annoTooltip = null;
