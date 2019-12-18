@@ -153,7 +153,6 @@
         for (var i = 0; i < strategies.length; i++) {
           if (strategies[i].isThisType(annotation, strategies[i])) {
             shapeArray = strategies[i].parseRegion(annotation, this);
-            console.log("TCL: strategies[i]", strategies[i])
             return shapeArray;
           }
         }

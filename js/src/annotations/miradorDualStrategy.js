@@ -32,7 +32,6 @@
       // annotation.on.selector.item.default.value && typeof annotation.on.selector.item.value === 'string' &&
       annotation.on.selector.item && typeof annotation.on.selector.item === 'object' &&
       annotation.on.selector.item.value && typeof annotation.on.selector.item.value === 'string') {
-        console.log("TCL: dual annotation.on", annotation.on)
         return annotation.on.selector.item.default.value.indexOf('xywh=') === 0 && annotation.on.selector.item.value.indexOf('<svg') === 0;
       }
       return false;

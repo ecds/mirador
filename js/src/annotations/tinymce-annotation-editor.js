@@ -16,6 +16,7 @@
   $.TinyMCEAnnotationBodyEditor.prototype = {
     init: function () {
       var _this = this;
+      console.log("TCL: this", this)
       var annoText = '',
         selectedTags = [],
         tags = [];
@@ -115,7 +116,7 @@
 
       // remove all tag-related content in annotation
       if (jQuery.isArray(oaAnno.resource)) {
-      oaAnno.motivation = jQuery.grep(oaAnno.motivation, function (value) {
+        oaAnno.motivation = jQuery.grep(oaAnno.motivation, function (value) {
         return value !== 'oa:tagging';
       });
       oaAnno.resource = jQuery.grep(oaAnno.resource, function (value) {

@@ -30,6 +30,7 @@
      * }
      */
     showEditor: function (params) {
+    console.log("TCL: params", params)
       var _this = this;
       if (_this.activeEditor) { return; }
 
@@ -227,7 +228,9 @@
         event.preventDefault();
         var display = jQuery(this).parents('.annotation-display');
         var id = display.attr('data-anno-id');
+        console.log("TCL: id", id, _this.oaAnno)
         var oaAnno = null;
+        console.log("TCL: _this.oaAnno", _this.oaAnno)
         if (_this.isTextAnno) {
           oaAnno = _this.textAnno;
         } else if (_this.oaAnno) {
@@ -351,6 +354,7 @@
           // }
           api.disable(false);
           _this.setTooltipContent(params.annotations);
+          console.log("TCL: params.annotations", params.annotations)
           api.cache.origin = params.triggerEvent;
           api.reposition(params.triggerEvent, true);
           api.show(params.triggerEvent);
@@ -373,11 +377,12 @@
     },
 
     getViewerContent: function (annotations) {
+      let _this = this;
       var annoText,
-        tags = [],
-        htmlAnnotations = [],
-        id;
-
+      tags = [],
+      htmlAnnotations = [],
+      id;
+      
       jQuery.each(annotations, function (index, annotation) {
         tags = [];
         if (jQuery.isArray(annotation.resource)) {
@@ -386,10 +391,17 @@
               tags.push(value.chars);
             } else {
               annoText = value.chars;
-            }
+              // TODO: This is sort of a hack to make sure the correct
+              // annotation is set for the editor.
+              _this.oaAnno = value;
+        }
           });
         } else {
           annoText = annotation.resource.chars;
+          // TODO: This is sort of a hack to make sure the correct
+          // annotation is set for the editor.
+          _this.oaAnno = annotation;
+          console.log("TCL: annoText", annoText)
         }
         var username = '';
         if (annotation.annotatedBy && annotation.annotatedBy.name) {
