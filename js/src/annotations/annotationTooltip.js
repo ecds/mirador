@@ -79,7 +79,7 @@
 
             jQuery(selector + ' a.cancel').on('click', function (event) {
               event.preventDefault();
-
+              window.getSelection().empty();
               var cancelCallback = function () {
                 api.destroy();
               };

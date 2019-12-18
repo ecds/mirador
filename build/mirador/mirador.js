@@ -37105,7 +37105,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
             jQuery(selector + ' a.cancel').on('click', function (event) {
               event.preventDefault();
-
+              window.getSelection().empty();
               var cancelCallback = function () {
                 api.destroy();
               };
@@ -42202,8 +42202,11 @@ return /******/ (function(modules) { // webpackBootstrap
   
         this.osd.canvas.addEventListener('mouseup', event => {
           _this.annotationCanvas.style.display = 'block';
-          if (!window.getSelection().rangeCount) return;
-          let range = window.getSelection().getRangeAt(0);
+          let selection = window.getSelection();
+          if (!selection.rangeCount) return;
+          if (selection.anchorOffset == selection.focusOffset) return;
+          let range = selection.getRangeAt(0);
+          console.log("TCL: enableSelecting -> range", range)
           _this.textAnnotation = {
             range: range,
             words: []
@@ -42249,7 +42252,7 @@ return /******/ (function(modules) { // webpackBootstrap
                   highlightColor: _this.highlightColor
                 }
               );
-              window.getSelection().empty();
+              selection.empty();
               _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
             },
           });

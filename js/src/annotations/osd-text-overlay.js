@@ -171,8 +171,11 @@
   
         this.osd.canvas.addEventListener('mouseup', event => {
           _this.annotationCanvas.style.display = 'block';
-          if (!window.getSelection().rangeCount) return;
-          let range = window.getSelection().getRangeAt(0);
+          let selection = window.getSelection();
+          if (!selection.rangeCount) return;
+          if (selection.anchorOffset == selection.focusOffset) return;
+          let range = selection.getRangeAt(0);
+          console.log("TCL: enableSelecting -> range", range)
           _this.textAnnotation = {
             range: range,
             words: []
@@ -218,7 +221,7 @@
                   highlightColor: _this.highlightColor
                 }
               );
-              window.getSelection().empty();
+              selection.empty();
               _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
             },
           });
