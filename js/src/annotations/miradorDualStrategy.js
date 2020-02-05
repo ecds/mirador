@@ -76,7 +76,11 @@
               },
               item: {
                 '@type': 'oa:SvgSelector',
-                value: svg
+                value: svg,
+                default: {
+                  '@type': 'oa.FragmentSelector',
+                  value: 'xywh=' + Math.round(bounds.x) + ',' + Math.round(bounds.y) + ',' + Math.round(bounds.width) + ',' + Math.round(bounds.height)
+                }
               },
               value: 'xywh=' + Math.round(bounds.x) + ',' + Math.round(bounds.y) + ',' + Math.round(bounds.width) + ',' + Math.round(bounds.height)
             },

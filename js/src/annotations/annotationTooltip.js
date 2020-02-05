@@ -30,7 +30,7 @@
      * }
      */
     showEditor: function (params) {
-    console.log("TCL: params", params)
+    console.log("TCL: showEditor params", params)
       var _this = this;
       if (_this.activeEditor) { return; }
 
@@ -123,6 +123,7 @@
      * }
      */
     initializeViewerUpgradableToEditor: function (params) {
+      console.log("TCL: params init to editor", params)
       var _this = this;
       _this.activeEditorTip = jQuery(_this.targetElement).qtip({
         overwrite: true,
@@ -229,9 +230,8 @@
         event.preventDefault();
         var display = jQuery(this).parents('.annotation-display');
         var id = display.attr('data-anno-id');
-        console.log("TCL: id", id, _this.oaAnno)
         var oaAnno = null;
-        console.log("TCL: _this.oaAnno", _this.oaAnno)
+        console.log("TCL: _this.oaAnno edit clicked", _this.oaAnno)
         if (_this.isTextAnno) {
           oaAnno = _this.textAnno;
         } else if (_this.oaAnno) {
@@ -313,7 +313,6 @@
      * }
      */
     showViewer: function (params) {
-      // console.log('showViewer', params.annotations, this)
       var _this = this;
       var api = jQuery(_this.targetElement).qtip('api');
       // console.log('target', _this.targetElement, params)
@@ -394,7 +393,7 @@
               annoText = value.chars;
               // TODO: This is sort of a hack to make sure the correct
               // annotation is set for the editor.
-              _this.oaAnno = value;
+              _this.oaAnno = annotation;
         }
           });
         } else {

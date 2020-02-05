@@ -152,6 +152,7 @@
       if (typeof annotation === 'object' && annotation.on) {
         for (var i = 0; i < strategies.length; i++) {
           if (strategies[i].isThisType(annotation, strategies[i])) {
+            console.log(strategies[i], annotation)
             shapeArray = strategies[i].parseRegion(annotation, this);
             return shapeArray;
           }

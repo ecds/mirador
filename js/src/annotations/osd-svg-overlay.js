@@ -322,7 +322,8 @@
         }
       // }
 
-        jQuery.when(onAnnotationSaved.promise()).then(function () {
+        jQuery.when(onAnnotationSaved.promise()).then(function (response) {
+          console.log("TCL: response", response)
           _this.eventEmitter.publish('annotationEditSaveSuccessful.' + _this.windowId);
           _this.eventEmitter.publish('SET_ANNOTATION_EDITING.' + _this.windowId, {
             annotationId: oaAnno['@id'],
@@ -413,6 +414,9 @@
           });
         } else {
           cancel();
+          if (cancelCallback) {
+            cancelCallback();
+          }
         }
       }));
 
@@ -1096,8 +1100,9 @@
         this.eventEmitter.publish('annotationShapeCreated.' + this.windowId, [this, shape]);
         return;
       }
-      var _this = this;
+      console.log("TCL: _this", _this)
       if (typeof this.annoEditorVisible === 'undefined' || !this.annoEditorVisible) {
+        var _this = this;
         this.annoTooltip.showEditor({
           annotation: {},
           onSaveClickCheck: function () {

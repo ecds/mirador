@@ -16,6 +16,7 @@
   $.TinyMCEAnnotationBodyEditor.prototype = {
     init: function () {
       var _this = this;
+      console.log("TCL: _this.annotation", _this)
       var annoText = '',
         selectedTags = [],
         tags = [];
@@ -48,6 +49,7 @@
     },
 
     show: function (selector) {
+    console.log("TCL: selector", selector)
       this.editorContainer = jQuery(selector)
         .prepend(this.editorMarkup);
       tinymce.init({
@@ -81,7 +83,8 @@
 
       var motivation = [],
         resource = [],
-        on;
+        on,
+        selectedTags = this.editorContainer.find('.tags-editor').val();
 
       if (tags && tags.length > 0) {
         motivation.push('oa:tagging');
@@ -108,37 +111,29 @@
 
     updateAnnotation: function (oaAnno) {
       var selectedTags = this.editorContainer.find('.tags-editor').val(),
-        resourceText = tinymce.activeEditor.getContent();
-
-      // var motivation = [],
-      //   resource = [];
-
-      // remove all tag-related content in annotation
-      if (jQuery.isArray(oaAnno.resource)) {
-        oaAnno.motivation = jQuery.grep(oaAnno.motivation, function (value) {
-        return value !== 'oa:tagging';
-      });
-      oaAnno.resource = jQuery.grep(oaAnno.resource, function (value) {
-        return value['@type'] !== 'oa:Tag';
-      });
-      // re-add tagging if we have them
+      resourceText = tinymce.activeEditor.getContent();
+      
       if (selectedTags.length > 0) {
-        oaAnno.motivation.push('oa:tagging');
-        jQuery.each(selectedTags, function (index, value) {
+        if (oaAnno.resource instanceof Array) {
+          // remove existing tags
+          oaAnno.resource = jQuery.grep(oaAnno.resource, function (value) {
+            return value['@type'] !== 'oa:Tag';
+          });
+          oaAnno.resource[0].chars = resourceText;
+        } else {
+          oaAnno.resource.chars = resourceText;
+          oaAnno.resource = [oaAnno.resource];
+        }
+        selectedTags.forEach(function(tag) {
           oaAnno.resource.push({
             '@type': 'oa:Tag',
-            chars: value
+            'chars': tag
           });
-        });
-      }
-        jQuery.each(oaAnno.resource, function (index, value) {
-          if (value['@type'] === 'dctypes:Text') {
-            value.chars = resourceText;
-          }
         });
       } else {
         oaAnno.resource.chars = resourceText;
       }
+      console.log("TCL: oaAnno", oaAnno)
     },
 
     editorTemplate: $.Handlebars.compile([
