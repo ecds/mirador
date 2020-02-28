@@ -16,7 +16,6 @@
   $.TinyMCEAnnotationBodyEditor.prototype = {
     init: function () {
       var _this = this;
-      console.log("TCL: _this.annotation", _this)
       var annoText = '',
         selectedTags = [],
         tags = [];
@@ -49,7 +48,6 @@
     },
 
     show: function (selector) {
-    console.log("TCL: selector", selector)
       this.editorContainer = jQuery(selector)
         .prepend(this.editorMarkup);
       tinymce.init({
@@ -133,14 +131,13 @@
       } else {
         oaAnno.resource.chars = resourceText;
       }
-      console.log("TCL: oaAnno", oaAnno)
     },
 
     editorTemplate: $.Handlebars.compile([
       '<textarea class="text-editor" placeholder="{{t "comments"}}…">{{#if content}}{{content}}{{/if}}</textarea>',
       '<select id="tags-editor-{{windowId}}" class="tags-editor" multiple="true">{{#each tags}}',
       '<option value="{{this}}" {{#ifContains ../selectedTags this }}selected="selected"{{/ifContains}}>{{this}}</option>',
-      '{{/each}}</select>'
+      '{{/each}}<option value="h">hello</option></select>'
     ].join(''))
   };
 

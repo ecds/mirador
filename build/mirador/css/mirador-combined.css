@@ -1963,9 +1963,6 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
 .hide-annotations span a {
   background-color: unset !important;
 }
-.no-select-ocr span {
-  display: none !important;
-}
 .mirador-container {
   /* Full screen
   -------------------------------------------------------------------------- */

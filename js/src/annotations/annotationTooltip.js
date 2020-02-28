@@ -30,7 +30,6 @@
      * }
      */
     showEditor: function (params) {
-    console.log("TCL: showEditor params", params)
       var _this = this;
       if (_this.activeEditor) { return; }
 

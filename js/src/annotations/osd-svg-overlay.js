@@ -1100,7 +1100,6 @@
         this.eventEmitter.publish('annotationShapeCreated.' + this.windowId, [this, shape]);
         return;
       }
-      console.log("TCL: _this", _this)
       if (typeof this.annoEditorVisible === 'undefined' || !this.annoEditorVisible) {
         var _this = this;
         this.annoTooltip.showEditor({

@@ -175,7 +175,6 @@
           if (!selection.rangeCount) return;
           if (selection.anchorOffset == selection.focusOffset) return;
           let range = selection.getRangeAt(0);
-          console.log("TCL: enableSelecting -> range", range)
           _this.textAnnotation = {
             range: range,
             words: []
