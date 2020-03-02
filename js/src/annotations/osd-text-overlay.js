@@ -2,7 +2,7 @@
   $.TextOverlay = function (options) {
     jQuery.extend(this, {
       name: 'TextOverlay',
-      logoClass: 'fas fa-i-cursor',
+      logoClass: 'fa-i-cursor',
       idPrefix: 'ocr_',
       tooltip: 'Select Text',
       useFontAwesome: true,
@@ -295,8 +295,10 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function (event, tool) {
+      console.log("TCL: tool", tool)
+      console.log("TCL: event", event)
 
-        if (tool === _this.logoClass) {
+        if (!tool) {
           _this.selecting = true;
           _this.enableSelecting()
         } else {

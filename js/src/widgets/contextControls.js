@@ -264,7 +264,7 @@
       '{{#each tools}}',
       '<a class="mirador-osd-{{this.logoClass}}-mode hud-control mirador-osd-edit-mode" title="{{t this.tooltip}}" uk-tooltip="{{t this.tooltip}}; pos: bottom-left">',
       '{{#if this.useFontAwesome}}',
-      '<i class="{{this.logoClass}}"></i>',
+      '<i class="fas {{this.logoClass}}"></i>',
       '{{else}}',
       '<i class="material-icons">{{this.logoClass}}</i>',
       '{{/if}}',

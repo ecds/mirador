@@ -42050,7 +42050,7 @@ return /******/ (function(modules) { // webpackBootstrap
   $.TextOverlay = function (options) {
     jQuery.extend(this, {
       name: 'TextOverlay',
-      logoClass: 'fas fa-i-cursor',
+      logoClass: 'fa-i-cursor',
       idPrefix: 'ocr_',
       tooltip: 'Select Text',
       useFontAwesome: true,
@@ -42343,8 +42343,10 @@ return /******/ (function(modules) { // webpackBootstrap
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function (event, tool) {
+      console.log("TCL: tool", tool)
+      console.log("TCL: event", event)
 
-        if (tool === _this.logoClass) {
+        if (!tool) {
           _this.selecting = true;
           _this.enableSelecting()
         } else {
@@ -45727,7 +45729,7 @@ return /******/ (function(modules) { // webpackBootstrap
       '{{#each tools}}',
       '<a class="mirador-osd-{{this.logoClass}}-mode hud-control mirador-osd-edit-mode" title="{{t this.tooltip}}" uk-tooltip="{{t this.tooltip}}; pos: bottom-left">',
       '{{#if this.useFontAwesome}}',
-      '<i class="{{this.logoClass}}"></i>',
+      '<i class="fas {{this.logoClass}}"></i>',
       '{{else}}',
       '<i class="material-icons">{{this.logoClass}}</i>',
       '{{/if}}',
