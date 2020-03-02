@@ -71,6 +71,7 @@
             var values = {};
             values.logoClass = allTools[j].logoClass;
             values.tooltip = allTools[j].tooltip;
+            values.useFontAwesome = allTools[j].useFontAwesome;
             this.availableAnnotationTools.push(values);
           }
         }

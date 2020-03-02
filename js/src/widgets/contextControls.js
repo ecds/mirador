@@ -59,7 +59,7 @@
           showRefresh: annotationProperties.annotationRefresh
         })).appendTo(this.container.find('.mirador-osd-annotation-controls'));
         this.annotationElement.hide();
-        this.setQtips(this.container.find('.mirador-osd-annotation-controls'));
+        // this.setQtips(this.container.find('.mirador-osd-annotation-controls'));
         this.setBorderFillColorPickers();
       }
 
@@ -78,32 +78,32 @@
           showInvert: this.canvasControls.imageManipulation.controls.invert,
           showMirror: this.canvasControls.imageManipulation.controls.mirror
         })).appendTo(this.container.find('.mirador-manipulation-controls'));
-        this.setQtips(this.container.find('.mirador-manipulation-controls'));
+        // this.setQtips(this.container.find('.mirador-manipulation-controls'));
         this.manipulationElement.hide();
       }
 
       this.bindEvents();
     },
 
-    setQtips: function (element) {
-      var _this = this;
-      element.find('a').each(function () {
-        jQuery(this).qtip({
-          content: {
-            text: jQuery(this).attr('title')
-          },
-          position: {
-            my: 'bottom center',
-            at: 'top center',
-            viewport: true,
-            container: _this.qtipElement
-          },
-          style: {
-            classes: 'qtip-dark qtip-shadow qtip-rounded'
-          }
-        });
-      });
-    },
+    // setQtips: function (element) {
+    //   var _this = this;
+    //   element.find('a').each(function () {
+    //     jQuery(this).qtip({
+    //       content: {
+    //         text: jQuery(this).attr('title')
+    //       },
+    //       position: {
+    //         my: 'bottom center',
+    //         at: 'top center',
+    //         viewport: true,
+    //         container: _this.qtipElement
+    //       },
+    //       style: {
+    //         classes: 'qtip-dark qtip-shadow qtip-rounded uk-margin'
+    //       }
+    //     });
+    //   });
+    // },
 
     addColorPicker: function (selector, options) {
       this.container.find(selector).spectrum(options);
@@ -258,12 +258,16 @@
 
     annotationTemplate: $.Handlebars.compile([
       '{{#if showEdit}}',
-      '<a class="mirador-osd-pointer-mode hud-control selected" title="{{t "pointerTooltip"}}">',
+      '<a class="mirador-osd-pointer-mode hud-control selected" title="{{t "pointerTooltip"}}"  uk-tooltip="{{t pointerTooltip}}; pos: bottom-left">',
       '<i class="fa fa-mouse-pointer"></i>',
       '</a>',
       '{{#each tools}}',
-      '<a class="mirador-osd-{{this.logoClass}}-mode hud-control mirador-osd-edit-mode" title="{{t this.tooltip}}">',
+      '<a class="mirador-osd-{{this.logoClass}}-mode hud-control mirador-osd-edit-mode" title="{{t this.tooltip}}" uk-tooltip="{{t this.tooltip}}; pos: bottom-left">',
+      '{{#if this.useFontAwesome}}',
+      '<i class="{{this.logoClass}}"></i>',
+      '{{else}}',
       '<i class="material-icons">{{this.logoClass}}</i>',
+      '{{/if}}',
       '</a>',
       '{{/each}}',
       '{{#if showStrokeStyle}}',

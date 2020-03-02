@@ -2,9 +2,10 @@
   $.TextOverlay = function (options) {
     jQuery.extend(this, {
       name: 'TextOverlay',
-      logoClass: 'text_format',
+      logoClass: 'fas fa-i-cursor',
       idPrefix: 'ocr_',
-      tooltip: 'ocrTooltip',
+      tooltip: 'Select Text',
+      useFontAwesome: true,
       osd: null,
       canvasID: null,
       words: [],

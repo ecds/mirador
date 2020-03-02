@@ -1058,7 +1058,7 @@
 
     template: $.Handlebars.compile([
       '<div class="window">',
-      '<div class="manifest-info">',
+      '<div class="manifest-info uk-margin-small-top">',
       '<div class="window-manifest-navigation">',
       '{{#if userButtons}}',
       '{{windowuserbtns userButtons}}',
