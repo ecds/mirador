@@ -295,8 +295,6 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function (event, tool) {
-      console.log("TCL: tool", tool)
-      console.log("TCL: event", event)
 
         if (!tool) {
           _this.selecting = true;
