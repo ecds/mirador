@@ -137,7 +137,7 @@
       '<textarea class="text-editor" placeholder="{{t "comments"}}…">{{#if content}}{{content}}{{/if}}</textarea>',
       '<select id="tags-editor-{{windowId}}" class="tags-editor" multiple="true">{{#each tags}}',
       '<option value="{{this}}" {{#ifContains ../selectedTags this }}selected="selected"{{/ifContains}}>{{this}}</option>',
-      '{{/each}}<option value="h">hello</option></select>'
+      '{{/each}}</select>'
     ].join(''))
   };
 
