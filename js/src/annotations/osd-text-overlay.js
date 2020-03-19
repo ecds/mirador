@@ -222,6 +222,7 @@
                 }
               );
               selection.empty();
+              document.getElementById(_this.osd.id).classList.add('no-select-ocr')
               _this.eventEmitter.publish('onTextAnnotationCreated.' + _this.windowId, [_this.ocrTextAnnotation.oaAnno]);
             },
           });
@@ -295,12 +296,14 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function (event, tool) {
-
+        console.log("event", event)
+        console.log("tool", tool)
         if (!tool) {
           _this.selecting = true;
           _this.enableSelecting()
         } else {
           _this.selecting = false;
+          document.getElementById(_this.osd.id).classList.add('no-select-ocr')
         }
       }));
 

@@ -1,6 +1,6 @@
 {
   "name": "mirador",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "Multi-window image viewer, a web-based tool to support researcher goals",
   "files": [
     "dist/*"
