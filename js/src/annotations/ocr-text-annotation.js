@@ -50,6 +50,7 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
+        console.log("listenForActions -> event", event)
         if (_this.annoToolTip) {
           _this.annoToolTip.inEditOrCreateMode = false;
         }

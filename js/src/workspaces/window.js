@@ -485,6 +485,7 @@
       });
 
       _this.eventEmitter.subscribe('annotationUpdated.'+_this.id, function(event, oaAnno) {
+        console.log("annotatinUpdated event!!!!", event)
         //first function is success callback, second is error callback
         _this.endpoint.update(oaAnno, function(data) {
           jQuery.each(_this.annotationsList, function(index, value) {

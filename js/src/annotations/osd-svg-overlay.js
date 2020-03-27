@@ -267,9 +267,10 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
+        console.log('%%%%%%%%%%%%%%%%%%%%%%%%% annotationEditSave %%%%%%%%%%%%%%%%%%%%')
         var onAnnotationSaved = jQuery.Deferred();
         if ((oaAnno.on instanceof Array && oaAnno.on[0].selector.item['@type'] == 'RangeSelector') || (oaAnno.on && oaAnno.on.selector.item['@type'] == 'RangeSelector')) {
-          _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
+          // _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
           onAnnotationSaved.resolve();
         } else if (!_this.draftPaths.length) {
           new $.DialogBuilder(_this.slotWindowElement).dialog({
@@ -288,6 +289,7 @@
                     };
                   }
                     // save to endpoint
+                    console.log("SAVEING TO ENDPOINT oaAnno", oaAnno)
                   _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
                   onAnnotationSaved.resolve();
                 }
@@ -317,12 +319,14 @@
             overlay: _this
           });
           // save to endpoint
+          console.log("SAVING TO ENDPOINT*************************** oaAnno", oaAnno)
           _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
           onAnnotationSaved.resolve();
         }
       // }
 
         jQuery.when(onAnnotationSaved.promise()).then(function (response) {
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!esponse", response)
           console.log("TCL: response", response)
           _this.eventEmitter.publish('annotationEditSaveSuccessful.' + _this.windowId);
           _this.eventEmitter.publish('SET_ANNOTATION_EDITING.' + _this.windowId, {

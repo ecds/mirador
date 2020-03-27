@@ -37308,9 +37308,11 @@ return /******/ (function(modules) { // webpackBootstrap
         }        
         if (_this.isTextAnno) {
           _this.activeEditor.updateAnnotation(_this.textAnno);
+          console.log("On SAVE TEXT!!! _this.textAnno", _this.textAnno)
           _this.eventEmitter.publish('annotationEditSave.' + _this.windowId, [_this.textAnno]);
         } else {
           _this.activeEditor.updateAnnotation(oaAnno);
+          console.log("On SAVE SVG!!!! oaAnno", oaAnno)
           _this.eventEmitter.publish('annotationEditSave.' + _this.windowId, [oaAnno]);  
         }
       });
@@ -38683,6 +38685,7 @@ return /******/ (function(modules) { // webpackBootstrap
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
+        console.log("listenForActions -> event", event)
         if (_this.annoToolTip) {
           _this.annoToolTip.inEditOrCreateMode = false;
         }
@@ -40331,9 +40334,10 @@ return /******/ (function(modules) { // webpackBootstrap
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
+        console.log('%%%%%%%%%%%%%%%%%%%%%%%%% annotationEditSave %%%%%%%%%%%%%%%%%%%%')
         var onAnnotationSaved = jQuery.Deferred();
         if ((oaAnno.on instanceof Array && oaAnno.on[0].selector.item['@type'] == 'RangeSelector') || (oaAnno.on && oaAnno.on.selector.item['@type'] == 'RangeSelector')) {
-          _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
+          // _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
           onAnnotationSaved.resolve();
         } else if (!_this.draftPaths.length) {
           new $.DialogBuilder(_this.slotWindowElement).dialog({
@@ -40352,6 +40356,7 @@ return /******/ (function(modules) { // webpackBootstrap
                     };
                   }
                     // save to endpoint
+                    console.log("SAVEING TO ENDPOINT oaAnno", oaAnno)
                   _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
                   onAnnotationSaved.resolve();
                 }
@@ -40381,12 +40386,14 @@ return /******/ (function(modules) { // webpackBootstrap
             overlay: _this
           });
           // save to endpoint
+          console.log("SAVING TO ENDPOINT*************************** oaAnno", oaAnno)
           _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
           onAnnotationSaved.resolve();
         }
       // }
 
         jQuery.when(onAnnotationSaved.promise()).then(function (response) {
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!esponse", response)
           console.log("TCL: response", response)
           _this.eventEmitter.publish('annotationEditSaveSuccessful.' + _this.windowId);
           _this.eventEmitter.publish('SET_ANNOTATION_EDITING.' + _this.windowId, {
@@ -42685,6 +42692,7 @@ return /******/ (function(modules) { // webpackBootstrap
     
     //Update an annotation given the OA version
     update: function(oaAnnotation, successCallback, errorCallback) {
+      console.log("oaAnnotation", oaAnnotation)
       delete oaAnnotation.endpoint;
       var annotation = this.getAnnotationInEndpoint(oaAnnotation),
       _this = this;
@@ -43941,6 +43949,7 @@ return /******/ (function(modules) { // webpackBootstrap
       });
 
       _this.eventEmitter.subscribe('annotationUpdated.'+_this.id, function(event, oaAnno) {
+        console.log("annotatinUpdated event!!!!", event)
         //first function is success callback, second is error callback
         _this.endpoint.update(oaAnno, function(data) {
           jQuery.each(_this.annotationsList, function(index, value) {

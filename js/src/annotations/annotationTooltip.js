@@ -282,9 +282,11 @@
         }        
         if (_this.isTextAnno) {
           _this.activeEditor.updateAnnotation(_this.textAnno);
+          console.log("On SAVE TEXT!!! _this.textAnno", _this.textAnno)
           _this.eventEmitter.publish('annotationEditSave.' + _this.windowId, [_this.textAnno]);
         } else {
           _this.activeEditor.updateAnnotation(oaAnno);
+          console.log("On SAVE SVG!!!! oaAnno", oaAnno)
           _this.eventEmitter.publish('annotationEditSave.' + _this.windowId, [oaAnno]);  
         }
       });

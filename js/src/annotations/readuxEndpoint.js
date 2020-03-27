@@ -165,6 +165,7 @@
     
     //Update an annotation given the OA version
     update: function(oaAnnotation, successCallback, errorCallback) {
+      console.log("oaAnnotation", oaAnnotation)
       delete oaAnnotation.endpoint;
       var annotation = this.getAnnotationInEndpoint(oaAnnotation),
       _this = this;
