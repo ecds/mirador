@@ -49,9 +49,11 @@
       
       this.eventEmitter.subscribe('windowUpdated', (event, new_state) => {
 
-        _this.canvasEvent.detail.volume = _this.volume;
-        _this.canvasEvent.detail.canvas = _this.page;
-        window.dispatchEvent(_this.canvasEvent);
+        // _this.canvasEvent.detail.volume = _this.volume;
+        // _this.canvasEvent.detail.canvas = _this.page;
+        // _this.canvasEvent.detail.annotationAdded = false;
+        // _this.canvasEvent.detail.annotationDeleted = false;
+        // window.dispatchEvent(_this.canvasEvent);
         
         // If the user navigated to the canvas using the back or forward buttons,
         // we don't want to mess with the state. Doing so would clear any forward states
@@ -85,18 +87,6 @@
   search: function(options, successCallback, errorCallback) {
     // if (this.username == null) return;
     this.annotationsList = [];
-    // Vue.set(readux.$refs["rx-url-canvas"], "url", options.uri); // readux is the vue instance
-    // Vue.set(readux.$refs["rx-url-canvas"], "label", "Stable Canvas"); // readux is the vue instance
-    // Vue.set(readux.$refs["rx-url-stable-page"], "url", window.location.href); // readux is the vue instance
-    // Vue.set(readux.$refs["rx-url-stable-page"], "label", "Stable Page"); // readux is the vue instance
-    // var linkContainer = document.getElementById("myLink");
-    // var link = document.createElement('a');
-    // var linkText = document.createTextNode(options.uri);
-    // link.href = options.uri;
-    // link.title = 'Stable link for canvas';
-    // link.appendChild(linkText);
-    // linkContainer.innerHTML='';
-    // linkContainer.appendChild(link);
     this.volume = options.uri.split('/').reverse()[2];
     this.page = options.uri.split('/').reverse()[0];
 
@@ -111,30 +101,24 @@
       data: { },
       contentType: "application/json; charset=utf-8",
       success: function(data) {
-        //check if a function has been passed in, otherwise, treat it as a normal search
-        // if (typeof successCallback === "function") {
-        //   // successCallback(data);
-        // } else {
           jQuery.each(data, function(index, value) {
-            // if (!value) return;
             if (value && value instanceof Array) {
               value.forEach(annotation => {                
                 // TODO: Maybe a check for annotated by current user?
-                // if (value.resource["@type"] !== 'cnt:ContentAsText') {  
-                //   value.endpoint = _this;
                 if (annotation.resource) {
                   annotation.endpoint = _this;
                   _this.annotationsList.push(annotation);
                 }
               })
-              // if (!value.resource) continue;
             }
-            // }
           });
           _this.canvasEvent.detail.annotationsOnPage = _this.annotationsList.length;
+          _this.canvasEvent.detail.canvas = _this.page;
+          _this.canvasEvent.detail.annotationAdded = false;
+          _this.canvasEvent.detail.annotationDeleted = false;
+        window.dispatchEvent(_this.canvasEvent);
           _this.dfd.resolve(true);
           return _this.annotationsList;
-        // }
       },
       error: function() {
         if (typeof errorCallback === "function") {
@@ -159,7 +143,9 @@
         success: function(data) {
           _this.eventEmitter.publish('onTextAnnotationDeleted', annotationID);
           _this.canvasEvent.detail.annotationsOnPage = parseInt(_this.canvasEvent.detail.annotationsOnPage) - 1;
+          _this.canvasEvent.detail.annotationDeleted = true;
           window.dispatchEvent(_this.canvasEvent);
+          _this.canvasEvent.detail.annotationDeleted = false;
           if (typeof successCallback === "function") {
             successCallback();
           }
@@ -207,7 +193,6 @@
     create: function(oaAnnotation, successCallback, errorCallback) {
       
       var _this = this;
-      console.log("TCL: oaAnnotation.on", oaAnnotation.on)
       var canvas = null;
       if (jQuery.isArray(oaAnnotation.on)) {
         canvas = oaAnnotation.on[0].full.split('/').reverse()[0];
@@ -229,7 +214,9 @@
         contentType: "application/json; charset=utf-8",
         success: function(data) {
           _this.canvasEvent.detail.annotationsOnPage = parseInt(_this.canvasEvent.detail.annotationsOnPage) + 1;
+          _this.canvasEvent.detail.annotationAdded = true;
           window.dispatchEvent(_this.canvasEvent);
+          _this.canvasEvent.detail.annotationAdded = false;
           oaAnnotation = data;
           oaAnnotation.endpoint = _this;
           if (typeof successCallback === 'function') {

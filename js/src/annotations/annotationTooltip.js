@@ -122,7 +122,6 @@
      * }
      */
     initializeViewerUpgradableToEditor: function (params) {
-      console.log("TCL: params init to editor", params)
       var _this = this;
       _this.activeEditorTip = jQuery(_this.targetElement).qtip({
         overwrite: true,
@@ -192,7 +191,6 @@
       var selector = '#annotation-viewer-' + _this.windowId;
 
       jQuery(selector + ' a.delete').on('click', function (event) {
-        console.log(_this)
         event.preventDefault();
         var elem = this;
         new $.DialogBuilder(viewerParams.container).dialog({
@@ -230,7 +228,6 @@
         var display = jQuery(this).parents('.annotation-display');
         var id = display.attr('data-anno-id');
         var oaAnno = null;
-        console.log("TCL: _this.oaAnno edit clicked", _this.oaAnno)
         if (_this.isTextAnno) {
           oaAnno = _this.textAnno;
         } else if (_this.oaAnno) {

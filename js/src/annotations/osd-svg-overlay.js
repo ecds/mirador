@@ -319,15 +319,12 @@
             overlay: _this
           });
           // save to endpoint
-          console.log("SAVING TO ENDPOINT*************************** oaAnno", oaAnno)
           _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
           onAnnotationSaved.resolve();
         }
       // }
 
         jQuery.when(onAnnotationSaved.promise()).then(function (response) {
-        console.log("!!!!!!!!!!!!!!!!!!!!!!!esponse", response)
-          console.log("TCL: response", response)
           _this.eventEmitter.publish('annotationEditSaveSuccessful.' + _this.windowId);
           _this.eventEmitter.publish('SET_ANNOTATION_EDITING.' + _this.windowId, {
             annotationId: oaAnno['@id'],
@@ -1067,7 +1064,6 @@
 
     onDrawFinish: function () {
       var shape = this.path;
-      console.log("TCL: shape", shape)
       if (!shape) {
         return;
       }

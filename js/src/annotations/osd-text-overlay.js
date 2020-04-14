@@ -296,8 +296,6 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function (event, tool) {
-        console.log("event", event)
-        console.log("tool", tool)
         if (!tool) {
           _this.selecting = true;
           _this.enableSelecting()
