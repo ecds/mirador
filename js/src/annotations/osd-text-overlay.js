@@ -159,8 +159,7 @@
         var _this = this;
         this.annotationCanvas.style.display = 'none';
         
-        jQuery(_this.osd.canvas).css("cursor", "text");
-        document.getElementById(_this.osd.id).classList.remove('no-select-ocr');
+        document.getElementById(this.osd.id).classList.remove('no-select-ocr');
         
         this.osd.canvas.addEventListener('mousedown', event => {
           this.osd.setMouseNavEnabled(false);
@@ -228,6 +227,7 @@
           });
         });
       }, 500);
+      jQuery(this.osd.canvas).css("cursor", "text");
     },
 
     // The delay argument is passed to textAnno. It sets the timeout
@@ -296,7 +296,8 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('toggleDrawingTool.' + _this.windowId, function (event, tool) {
-        if (!tool) {
+      console.log("tool", tool)
+        if (tool == 'fa-i-cursor') {
           _this.selecting = true;
           _this.enableSelecting()
         } else {

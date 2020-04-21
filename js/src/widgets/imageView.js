@@ -271,6 +271,9 @@
       // Annotation specific controls
       this.element.find('.mirador-osd-edit-mode').on('click', function () {
         var shape = jQuery(this).find('.material-icons').html();
+        if (!shape) {
+          shape = 'fa-i-cursor';
+        }
         if (_this.hud.annoState.current === 'pointer') {
           _this.hud.annoState.chooseShape(shape);
         } else {

@@ -267,7 +267,6 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
-        console.log('%%%%%%%%%%%%%%%%%%%%%%%%% annotationEditSave %%%%%%%%%%%%%%%%%%%%')
         var onAnnotationSaved = jQuery.Deferred();
         if ((oaAnno.on instanceof Array && oaAnno.on[0].selector.item['@type'] == 'RangeSelector') || (oaAnno.on && oaAnno.on.selector.item['@type'] == 'RangeSelector')) {
           // _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
@@ -289,7 +288,6 @@
                     };
                   }
                     // save to endpoint
-                    console.log("SAVEING TO ENDPOINT oaAnno", oaAnno)
                   _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
                   onAnnotationSaved.resolve();
                 }

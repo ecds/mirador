@@ -156,6 +156,7 @@
             });
           },
           onchangeShape: function (event, from, to, shape) {
+          console.log("event, from, to, shape", event, from, to, shape)
             _this.eventEmitter.publish('HUD_REMOVE_CLASS.' + _this.windowId, ['.mirador-osd-pointer-mode', 'selected']);
             _this.eventEmitter.publish('HUD_REMOVE_CLASS.' + _this.windowId, ['.mirador-osd-edit-mode', 'selected']);
             _this.eventEmitter.publish('HUD_REMOVE_CLASS.' + _this.windowId, ['.hud-dropdown', 'hud-disabled']);
