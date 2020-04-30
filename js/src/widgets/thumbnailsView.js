@@ -186,9 +186,9 @@
 
     template: $.Handlebars.compile([
       '<div class="{{thumbnailCls}}">',
-      '<ul class="{{listingCssCls}}" role="list" aria-label="Thumbnails">',
+      '<ul class="{{listingCssCls}}" role="list" aria-label="Thumbnails" aria-hidden="true">',
       '{{#thumbs}}',
-      '<li class="{{highlight}}" role="listitem" aria-label="Thumbnail">',
+      '<li class="{{highlight}}" role="listitem" aria-label="Thumbnail" aria-hidden="true">',
       '<img class="thumbnail-image {{highlight}}" title="{{title}}" data-image-id="{{id}}" src="" data="{{thumbUrl}}" height="{{../defaultHeight}}" width="{{width}}">',
       '<div class="thumb-label">{{title}}</div>',
       '</li>',

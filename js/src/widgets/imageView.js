@@ -180,8 +180,20 @@
         _this.next();
       });
 
+      this.element.find('.mirador-osd-next').on('keyup', function () {
+        if (event.key == 'Enter') {
+          _this.next();
+        }
+      });
+    
       this.element.find('.mirador-osd-previous').on('click', function () {
         _this.previous();
+      });
+
+      this.element.find('.mirador-osd-previous').on('keyup', function(event) {
+        if (event.key == 'Enter') {
+          _this.previous();
+        }
       });
 
       this.element.find('.mirador-osd-annotations-layer').on('click', function () {
@@ -201,6 +213,25 @@
         }
       });
 
+      this.element.find('.mirador-osd-annotations-layer').on('keyup', function (event) {
+        if (event.key == 'Enter') {
+          if (_this.hud.annoState.current === 'none') {
+            _this.hud.annoState.startup(this);
+          }
+          if (_this.hud.annoState.current === 'off') {
+            _this.hud.annoState.displayOn(this);
+            _this.annotationState = 'on';
+            // _this.ocrAnnotations.annotationState = 'on';
+          } else {
+            //make sure to force the controls back to auto fade
+            _this.forceShowControls = false;
+            _this.hud.annoState.displayOff(this);
+            _this.annotationState = 'off';
+            // _this.ocrAnnotations.removeTextOverlay();
+          }
+        }
+      });
+      
       this.element.find('.mirador-manipulation-toggle').on('click', function () {
         if (_this.hud.manipulationState.current === 'none') {
           _this.hud.manipulationState.startup(this);
