@@ -14,7 +14,8 @@
       links: [],
       boundingBoxes: [],
       highlightColor: null,
-      retries: 0
+      retries: 0,
+      isSaving: false
     }, options);
     this.init(options);
   };
@@ -50,20 +51,17 @@
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('annotationEditSave.' + _this.windowId, function (event, oaAnno) {
-        console.log("listenForActions -> event", event)
         if (_this.annoToolTip) {
           _this.annoToolTip.inEditOrCreateMode = false;
         }
+        if (oaAnno['@id'] != _this.oaAnno['@id']) return;
         if ((oaAnno.on instanceof Array && oaAnno.on[0].selector.item['@type'] != 'RangeSelector') || (oaAnno.on instanceof Object && oaAnno.on.selector && oaAnno.on.selector.item['@type'] != 'RangeSelector')) return;
+        if (_this.isSaving) return;
+        _this.isSaving = true;
         _this.inEditOrCreateMode = false;
         var onAnnotationSaved = jQuery.Deferred();
         _this.eventEmitter.publish('annotationUpdated.' + _this.windowId, [oaAnno]);
         onAnnotationSaved.resolve();
-        jQuery.when(onAnnotationSaved.promise()).then(function () {
-          _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
- 
-        }, function () {
-        });
       }));
 
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('changeBorderColor.' + _this.windowId, function (event, color) {
