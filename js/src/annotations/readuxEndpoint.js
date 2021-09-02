@@ -44,9 +44,9 @@
         _this.newCanvasID = newCanvasID;
         _this.eventEmitter.publish('SET_CURRENT_CANVAS_ID.' + _this.windowID, newCanvasID.replace(/%3A/g, ':'), this);
       });
-      
+
       _this.canvasEvent = new CustomEvent('canvasswitch', {bubbles: true, detail: {}});
-      
+
       this.eventEmitter.subscribe('windowUpdated', (event, new_state) => {
 
         // _this.canvasEvent.detail.volume = _this.volume;
@@ -54,7 +54,7 @@
         // _this.canvasEvent.detail.annotationAdded = false;
         // _this.canvasEvent.detail.annotationDeleted = false;
         // window.dispatchEvent(_this.canvasEvent);
-        
+
         // If the user navigated to the canvas using the back or forward buttons,
         // we don't want to mess with the state. Doing so would clear any forward states
         // and make the back only one canvas deep.
@@ -82,7 +82,7 @@
         }
       });
   },
-  
+
   //Search endpoint for all annotations with a given URI in options
   search: function(options, successCallback, errorCallback) {
     // if (this.username == null) return;
@@ -91,7 +91,7 @@
     this.page = options.uri.split('/').reverse()[0];
 
     let _this = this;
-    
+
     //use options.uri
     jQuery.ajax({
       url: `/annotations/${options.username}/${_this.volume}/list/${_this.page}`,
@@ -103,7 +103,7 @@
       success: function(data) {
           jQuery.each(data, function(index, value) {
             if (value && value instanceof Array) {
-              value.forEach(annotation => {                
+              value.forEach(annotation => {
                 // TODO: Maybe a check for annotated by current user?
                 if (annotation.resource) {
                   annotation.endpoint = _this;
@@ -114,6 +114,7 @@
           });
           _this.canvasEvent.detail.annotationsOnPage = _this.annotationsList.length;
           _this.canvasEvent.detail.canvas = _this.page;
+          _this.canvasEvent.detail.volume = _this.volume;
           _this.canvasEvent.detail.annotationAdded = false;
           _this.canvasEvent.detail.annotationDeleted = false;
         window.dispatchEvent(_this.canvasEvent);
@@ -127,10 +128,10 @@
       }
     });
   },
-    
+
     //Delete an annotation by endpoint identifier
     deleteAnnotation: function(annotationID, successCallback, errorCallback) {
-      var _this = this;        
+      var _this = this;
       jQuery.ajax({
         url: '/annotations-crud/',
         type: 'DELETE',
@@ -157,14 +158,14 @@
         }
       });
     },
-    
+
     //Update an annotation given the OA version
     update: function(oaAnnotation, successCallback, errorCallback) {
       // console.log("oaAnnotation", oaAnnotation)
       delete oaAnnotation.endpoint;
       var annotation = this.getAnnotationInEndpoint(oaAnnotation),
       _this = this;
-      
+
       jQuery.ajax({
         url: '/annotations-crud/',
         type: 'PUT',
@@ -191,7 +192,7 @@
     //takes OA Annotation, gets Endpoint Annotation, and saves
     //if successful, MUST return the OA rendering of the annotation
     create: function(oaAnnotation, successCallback, errorCallback) {
-      
+
       var _this = this;
       var canvas = null;
       if (jQuery.isArray(oaAnnotation.on)) {
@@ -202,7 +203,7 @@
       if (!oaAnnotation['@id']) {
         oaAnnotation['@id'] = _this.uuidv4();
       }
-      
+
       jQuery.ajax({
         url: '/annotations-crud/',
         type: 'POST',
@@ -250,7 +251,7 @@
     userAuthorize: function(action, annotation) {
       return true;
     },
-    
+
     uuidv4() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
