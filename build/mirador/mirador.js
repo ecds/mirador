@@ -11,7 +11,7 @@ void 0 === jQuery.migrateMute && (jQuery.migrateMute = !0), function(e) {
     "use strict";
     function r(r) {
         var n = t.console;
-        o[r] || (o[r] = !0, e.migrateWarnings.push(r), n && n.warn && !e.migrateMute && (n.warn("JQMIGRATE: " + r), 
+        o[r] || (o[r] = !0, e.migrateWarnings.push(r), n && n.warn && !e.migrateMute && (n.warn("JQMIGRATE: " + r),
         e.migrateTrace && n.trace && n.trace()));
     }
     function n(e, t, n, a) {
@@ -33,8 +33,8 @@ void 0 === jQuery.migrateMute && (jQuery.migrateMute = !0), function(e) {
     }
     e.migrateVersion = "3.0.1", function() {
         var r = /^[12]\./;
-        t.console && t.console.log && (e && !r.test(e.fn.jquery) || t.console.log("JQMIGRATE: jQuery 3.0.0+ REQUIRED"), 
-        e.migrateWarnings && t.console.log("JQMIGRATE: Migrate plugin loaded multiple times"), 
+        t.console && t.console.log && (e && !r.test(e.fn.jquery) || t.console.log("JQMIGRATE: jQuery 3.0.0+ REQUIRED"),
+        e.migrateWarnings && t.console.log("JQMIGRATE: Migrate plugin loaded multiple times"),
         t.console.log("JQMIGRATE: Migrate is installed" + (e.migrateMute ? "" : " with logging active") + ", version " + e.migrateVersion));
     }();
     var o = {};
@@ -44,7 +44,7 @@ void 0 === jQuery.migrateMute && (jQuery.migrateMute = !0), function(e) {
     var i = e.fn.init, s = e.isNumeric, u = e.find, c = /\[(\s*[-\w]+\s*)([~|^$*]?=)\s*([-\w#]*?#[-\w#]*)\s*\]/, l = /\[(\s*[-\w]+\s*)([~|^$*]?=)\s*([-\w#]*?#[-\w#]*)\s*\]/g;
     e.fn.init = function(e) {
         var t = Array.prototype.slice.call(arguments);
-        return "string" == typeof e && "#" === e && (r("jQuery( '#' ) is not a valid selector"), 
+        return "string" == typeof e && "#" === e && (r("jQuery( '#' ) is not a valid selector"),
         t[0] = []), i.apply(this, t);
     }, e.fn.init.prototype = e.fn, e.find = function(e) {
         var n = Array.prototype.slice.call(arguments);
@@ -55,7 +55,7 @@ void 0 === jQuery.migrateMute && (jQuery.migrateMute = !0), function(e) {
                 return "[" + t + r + '"' + n + '"]';
             });
             try {
-                t.document.querySelector(e), r("Attribute selector with '#' must be quoted: " + n[0]), 
+                t.document.querySelector(e), r("Attribute selector with '#' must be quoted: " + n[0]),
                 n[0] = e;
             } catch (e) {
                 r("Attribute selector with '#' was not fixed: " + n[0]);
@@ -66,7 +66,7 @@ void 0 === jQuery.migrateMute && (jQuery.migrateMute = !0), function(e) {
     var d;
     for (d in u) Object.prototype.hasOwnProperty.call(u, d) && (e.find[d] = u[d]);
     e.fn.size = function() {
-        return r("jQuery.fn.size() is deprecated and removed; use the .length property"), 
+        return r("jQuery.fn.size() is deprecated and removed; use the .length property"),
         this.length;
     }, e.parseJSON = function() {
         return r("jQuery.parseJSON is deprecated; use JSON.parse"), JSON.parse.apply(null, arguments);
@@ -75,27 +75,27 @@ void 0 === jQuery.migrateMute && (jQuery.migrateMute = !0), function(e) {
             var r = t && t.toString();
             return !e.isArray(t) && r - parseFloat(r) + 1 >= 0;
         }(t);
-        return n !== a && r("jQuery.isNumeric() should not be called on constructed objects"), 
+        return n !== a && r("jQuery.isNumeric() should not be called on constructed objects"),
         a;
-    }, a(e, "holdReady", e.holdReady, "jQuery.holdReady is deprecated"), a(e, "unique", e.uniqueSort, "jQuery.unique is deprecated; use jQuery.uniqueSort"), 
-    n(e.expr, "filters", e.expr.pseudos, "jQuery.expr.filters is deprecated; use jQuery.expr.pseudos"), 
+    }, a(e, "holdReady", e.holdReady, "jQuery.holdReady is deprecated"), a(e, "unique", e.uniqueSort, "jQuery.unique is deprecated; use jQuery.uniqueSort"),
+    n(e.expr, "filters", e.expr.pseudos, "jQuery.expr.filters is deprecated; use jQuery.expr.pseudos"),
     n(e.expr, ":", e.expr.pseudos, "jQuery.expr[':'] is deprecated; use jQuery.expr.pseudos");
     var p = e.ajax;
     e.ajax = function() {
         var e = p.apply(this, arguments);
-        return e.promise && (a(e, "success", e.done, "jQXHR.success is deprecated and removed"), 
-        a(e, "error", e.fail, "jQXHR.error is deprecated and removed"), a(e, "complete", e.always, "jQXHR.complete is deprecated and removed")), 
+        return e.promise && (a(e, "success", e.done, "jQXHR.success is deprecated and removed"),
+        a(e, "error", e.fail, "jQXHR.error is deprecated and removed"), a(e, "complete", e.always, "jQXHR.complete is deprecated and removed")),
         e;
     };
     var f = e.fn.removeAttr, y = e.fn.toggleClass, m = /\S+/g;
     e.fn.removeAttr = function(t) {
         var n = this;
         return e.each(t.match(m), function(t, a) {
-            e.expr.match.bool.test(a) && (r("jQuery.fn.removeAttr no longer sets boolean properties: " + a), 
+            e.expr.match.bool.test(a) && (r("jQuery.fn.removeAttr no longer sets boolean properties: " + a),
             n.prop(a, !1));
         }), f.apply(this, arguments);
     }, e.fn.toggleClass = function(t) {
-        return void 0 !== t && "boolean" != typeof t ? y.apply(this, arguments) : (r("jQuery.fn.toggleClass( boolean ) is deprecated"), 
+        return void 0 !== t && "boolean" != typeof t ? y.apply(this, arguments) : (r("jQuery.fn.toggleClass( boolean ) is deprecated"),
         this.each(function() {
             var r = this.getAttribute && this.getAttribute("class") || "";
             r && e.data(this, "__className__", r), this.setAttribute && this.setAttribute("class", r || !1 === t ? "" : e.data(this, "__className__") || "");
@@ -122,36 +122,36 @@ void 0 === jQuery.migrateMute && (jQuery.migrateMute = !0), function(e) {
         if (n && "object" == typeof n && 2 === arguments.length) {
             o = e.hasData(t) && g.call(this, t);
             var i = {};
-            for (var s in n) s !== e.camelCase(s) ? (r("jQuery.data() always sets/gets camelCased names: " + s), 
+            for (var s in n) s !== e.camelCase(s) ? (r("jQuery.data() always sets/gets camelCased names: " + s),
             o[s] = n[s]) : i[s] = n[s];
             return g.call(this, t, i), n;
         }
-        return n && "string" == typeof n && n !== e.camelCase(n) && (o = e.hasData(t) && g.call(this, t)) && n in o ? (r("jQuery.data() always sets/gets camelCased names: " + n), 
+        return n && "string" == typeof n && n !== e.camelCase(n) && (o = e.hasData(t) && g.call(this, t)) && n in o ? (r("jQuery.data() always sets/gets camelCased names: " + n),
         arguments.length > 2 && (o[n] = a), o[n]) : g.apply(this, arguments);
     };
     var v = e.Tween.prototype.run, j = function(e) {
         return e;
     };
     e.Tween.prototype.run = function() {
-        e.easing[this.easing].length > 1 && (r("'jQuery.easing." + this.easing.toString() + "' should use only one argument"), 
+        e.easing[this.easing].length > 1 && (r("'jQuery.easing." + this.easing.toString() + "' should use only one argument"),
         e.easing[this.easing] = j), v.apply(this, arguments);
     }, e.fx.interval = e.fx.interval || 13, t.requestAnimationFrame && n(e.fx, "interval", e.fx.interval, "jQuery.fx.interval is deprecated");
     var Q = e.fn.load, b = e.event.add, w = e.event.fix;
-    e.event.props = [], e.event.fixHooks = {}, n(e.event.props, "concat", e.event.props.concat, "jQuery.event.props.concat() is deprecated and removed"), 
+    e.event.props = [], e.event.fixHooks = {}, n(e.event.props, "concat", e.event.props.concat, "jQuery.event.props.concat() is deprecated and removed"),
     e.event.fix = function(t) {
         var n, a = t.type, o = this.fixHooks[a], i = e.event.props;
         if (i.length) for (r("jQuery.event.props are deprecated and removed: " + i.join()); i.length; ) e.event.addProp(i.pop());
-        if (o && !o._migrated_ && (o._migrated_ = !0, r("jQuery.event.fixHooks are deprecated and removed: " + a), 
+        if (o && !o._migrated_ && (o._migrated_ = !0, r("jQuery.event.fixHooks are deprecated and removed: " + a),
         (i = o.props) && i.length)) for (;i.length; ) e.event.addProp(i.pop());
         return n = w.call(this, t), o && o.filter ? o.filter(n, t) : n;
     }, e.event.add = function(e, n) {
-        return e === t && "load" === n && "complete" === t.document.readyState && r("jQuery(window).on('load'...) called after load event occurred"), 
+        return e === t && "load" === n && "complete" === t.document.readyState && r("jQuery(window).on('load'...) called after load event occurred"),
         b.apply(this, arguments);
     }, e.each([ "load", "unload", "error" ], function(t, n) {
         e.fn[n] = function() {
             var e = Array.prototype.slice.call(arguments, 0);
-            return "load" === n && "string" == typeof e[0] ? Q.apply(this, e) : (r("jQuery.fn." + n + "() is deprecated"), 
-            e.splice(0, 0, n), arguments.length ? this.on.apply(this, e) : (this.triggerHandler.apply(this, e), 
+            return "load" === n && "string" == typeof e[0] ? Q.apply(this, e) : (r("jQuery.fn." + n + "() is deprecated"),
+            e.splice(0, 0, n), arguments.length ? this.on.apply(this, e) : (this.triggerHandler.apply(this, e),
             this));
         };
     }), e.each("blur focus focusin focusout resize scroll click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup contextmenu".split(" "), function(t, n) {
@@ -187,18 +187,18 @@ void 0 === jQuery.migrateMute && (jQuery.migrateMute = !0), function(e) {
             top: 0,
             left: 0
         };
-        return a && a.nodeType ? (n = (a.ownerDocument || t.document).documentElement, e.contains(n, a) ? x.apply(this, arguments) : (r("jQuery.fn.offset() requires an element connected to a document"), 
+        return a && a.nodeType ? (n = (a.ownerDocument || t.document).documentElement, e.contains(n, a) ? x.apply(this, arguments) : (r("jQuery.fn.offset() requires an element connected to a document"),
         o)) : (r("jQuery.fn.offset() requires a valid DOM element"), o);
     };
     var k = e.param;
     e.param = function(t, n) {
         var a = e.ajaxSettings && e.ajaxSettings.traditional;
-        return void 0 === n && a && (r("jQuery.param() no longer uses jQuery.ajaxSettings.traditional"), 
+        return void 0 === n && a && (r("jQuery.param() no longer uses jQuery.ajaxSettings.traditional"),
         n = a), k.call(this, t, n);
     };
     var A = e.fn.andSelf || e.fn.addBack;
     e.fn.andSelf = function() {
-        return r("jQuery.fn.andSelf() is deprecated and removed, use jQuery.fn.addBack()"), 
+        return r("jQuery.fn.andSelf() is deprecated and removed, use jQuery.fn.addBack()"),
         A.apply(this, arguments);
     };
     var S = e.Deferred, q = [ [ "resolve", "done", e.Callbacks("once memory"), e.Callbacks("once memory"), "resolved" ], [ "reject", "fail", e.Callbacks("once memory"), e.Callbacks("once memory"), "rejected" ], [ "notify", "progress", e.Callbacks("memory"), e.Callbacks("memory") ] ];
@@ -37302,13 +37302,13 @@ return /******/ (function(modules) { // webpackBootstrap
           oaAnno = _this.oaAnno;
         } else {
           oaAnno = viewerParams.getAnnoFromRegion(id)[0];
-        }        
+        }
         if (_this.isTextAnno) {
           _this.activeEditor.updateAnnotation(_this.textAnno);
           _this.eventEmitter.publish('annotationEditSave.' + _this.windowId, [_this.textAnno]);
         } else {
           _this.activeEditor.updateAnnotation(oaAnno);
-          _this.eventEmitter.publish('annotationEditSave.' + _this.windowId, [oaAnno]);  
+          _this.eventEmitter.publish('annotationEditSave.' + _this.windowId, [oaAnno]);
         }
       });
 
@@ -37404,7 +37404,7 @@ return /******/ (function(modules) { // webpackBootstrap
       tags = [],
       htmlAnnotations = [],
       id;
-      
+
       jQuery.each(annotations, function (index, annotation) {
         tags = [];
         if (jQuery.isArray(annotation.resource)) {
@@ -38675,7 +38675,7 @@ return /******/ (function(modules) { // webpackBootstrap
       let _this = this;
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('onAnnotationCreated.' + _this.windowId, function (event, oaAnno) {
       }));
-      
+
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('updateTooltips.' + _this.windowId, function (event, location, absoluteLocation) {
         _this.showTooltipsFromMousePosition(event, location, absoluteLocation);
       }));
@@ -38708,7 +38708,7 @@ return /******/ (function(modules) { // webpackBootstrap
         // });
         // jQuery.when(onAnnotationSaved.promise()).then(function () {
         //   _this.eventEmitter.publish('SET_STATE_MACHINE_POINTER.' + _this.windowId);
- 
+
         // }, function () {
         // });
       }));
@@ -38775,26 +38775,26 @@ return /******/ (function(modules) { // webpackBootstrap
           isTextAnno: true,
           textAnno: this.oaAnno
         });
-        
+
         var windowElement = this.state.getWindowElement(this.windowId);
-        
+
         this.annoToolTip.initializeViewerUpgradableToEditor({
           container: windowElement,
           viewport: windowElement
         });
-        
+
         this.listenForActions();
-        
+
         let start = document.evaluate(
           this.oaAnno.on.selector.item.startSelector.value,
           document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
           ).singleNodeValue;
-          
+
           let end = document.evaluate(
             this.oaAnno.on.selector.item.endSelector.value,
             document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
             ).singleNodeValue;
-            
+
           // This is not awesome, but we can't add the text annotations until the
           // the OCR annotations are present in the DOM. So we try 20 times (see above)
           // pausing for 300ms between tries.
@@ -38808,24 +38808,24 @@ return /******/ (function(modules) { // webpackBootstrap
             this.retries = 0;
             let range = null;
             let words = [];
-            
+
             let previousToStart = start.previousElementSibling;
             let ocrLayer = jQuery('#ocr-layer');
-            
+
             if (previousToStart) {
                 range = jQuery(`#${previousToStart.id}`).nextUntil(`#${end.id}`, 'span');
               } else {
                 range = jQuery(`#${start.id}`).nextUntil(`#${end.id}`, 'span');
               }
-            
+
             range.each(function(word){words.push(range.get(word).id)});
-            
+
             if (start.id == ocrLayer.children('span').first().attr('id')) {
               words.push(start.id);
             } else if (end.id == ocrLayer.children('span').last().attr('id')) {
               words.push(end.id);
             }
-            
+
             let startOffset = this.oaAnno.on.selector.item.startSelector.refinedBy.start;
             let endOffset = this.oaAnno.on.selector.item.endSelector.refinedBy.end;
             this._insertLinks(words, startOffset, endOffset);
@@ -38833,7 +38833,7 @@ return /******/ (function(modules) { // webpackBootstrap
         }
       }
     },
-          
+
 
     parseTextAnno() {
       let words = this._copy(this.textAnnotation.words);
@@ -38856,7 +38856,7 @@ return /******/ (function(modules) { // webpackBootstrap
           inEditOrCreateMode: false
         });
         var windowElement = this.state.getWindowElement(this.windowId);
-  
+
         this.annoToolTip.initializeViewerUpgradableToEditor({
           container: windowElement,
           viewport: windowElement
@@ -38889,7 +38889,7 @@ return /******/ (function(modules) { // webpackBootstrap
         // this.wrapWord(this.textAnnotation.range.startContainer.parentElement.id);
       }
 
-      
+
       if (!this.oaAnno.on) {
         var writeStrategy = new $.MiradorDualStrategy();
         writeStrategy.buildAnnotation({
@@ -38899,7 +38899,7 @@ return /******/ (function(modules) { // webpackBootstrap
         });
       }
     },
-    
+
     _addStyle() {
       let styleEl = document.getElementById(this.oaAnno['@id']);
       if (!styleEl) {
@@ -38968,7 +38968,7 @@ return /******/ (function(modules) { // webpackBootstrap
       wordSpan.innerHTML = `${word.slice(0, offset)}`;
       wordSpan.append(link);
     },
-    
+
     _handelEnd(wordElement, offset) {
       if (!wordElement) return;
       const wordSpan = document.getElementById(wordElement);
@@ -38978,7 +38978,7 @@ return /******/ (function(modules) { // webpackBootstrap
       wordSpan.innerHTML = word.slice(offset, word.length);
       wordSpan.prepend(link);
     },
-    
+
     _handelPart(wordElement, range) {
       const wordSpan = document.getElementById(wordElement);
       const word = wordSpan.innerText;
@@ -38990,14 +38990,14 @@ return /******/ (function(modules) { // webpackBootstrap
       wordSpan.append(link);
       wordSpan.append(end);
     },
-    
+
     _uuidv4() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
-    
+
     _createLink() {
       const link = document.createElement('a');
       link.setAttribute('href', '#');
@@ -39010,7 +39010,7 @@ return /******/ (function(modules) { // webpackBootstrap
       this.links.push(link);
       return link;
     },
-    
+
     _wrapWord(id) {
       const wordSpan = document.getElementById(id);
       const word = wordSpan.innerText;
@@ -39151,7 +39151,7 @@ return /******/ (function(modules) { // webpackBootstrap
         this.svgOverlay.hide();
       }
     },
-    
+
     render: function () {
       if (this.parent.mode !== $.AnnotationsLayer.DISPLAY_ANNOTATIONS) {
         return;
@@ -42133,7 +42133,7 @@ return /******/ (function(modules) { // webpackBootstrap
                 element: ocrEl,
                 location: new OpenSeadragon.Rect(loc[0], loc[1], loc[2], loc[3]),
                 onDraw: function(position, size, element) {
-                  /* 
+                  /*
                     Overrides OpenSeadragon.Overlay's `onDraw` function to scale
                     and rotate the OCR overlay elements.
                     This is where all the magic happens.
@@ -42147,7 +42147,7 @@ return /******/ (function(modules) { // webpackBootstrap
                     it includes a `data-letter-spacing` attribute. This is a
                     percentage of the initial calculated letter spacing of the
                     overall width of the element.
-                    
+
                   */
                   style.letterSpacing = `${parseFloat(element.getAttribute('data-letter-spacing')) * size.x}px`;
                   if (this.width !== null) {
@@ -42190,7 +42190,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
             } else {
-              // 
+              //
             }
           });
         },
@@ -42217,9 +42217,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
         var _this = this;
         this.annotationCanvas.style.display = 'none';
-        
+
         document.getElementById(this.osd.id).classList.remove('no-select-ocr');
-        
+
         this.osd.canvas.addEventListener('mousedown', event => {
           this.osd.setMouseNavEnabled(false);
           this.osd.gestureSettingsMouse.clickToZoom = false;
@@ -42227,7 +42227,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.osd.panVertical = false;
           this.osd.panHorizontal = false;
         });
-  
+
         this.osd.canvas.addEventListener('mouseup', event => {
           _this.annotationCanvas.style.display = 'block';
           let selection = window.getSelection();
@@ -42243,23 +42243,23 @@ return /******/ (function(modules) { // webpackBootstrap
               _this.textAnnotation.words.push(word.id)
             }
           });
-  
+
           if (_this.textAnnotation.words.length == 0) {
             _this.textAnnotation.words.push(range.startContainer.parentElement.id)
           }
-          
+
           this.annoTooltip = new $.AnnotationTooltip({
             targetElement: jQuery(_this.osd.element),
             state: this.state,
             eventEmitter: this.eventEmitter,
             windowId: this.windowId
           });
-          
+
           this.annoTooltip.initializeViewerUpgradableToEditor({
             container: document.getElementsByClassName('slot')[0],
             viewport: document.getElementsByClassName('slot')[0]
           });
-          
+
           this.annoTooltip.showEditor({
             annotation: {},
             onSaveClickCheck: function () {
@@ -42294,7 +42294,7 @@ return /******/ (function(modules) { // webpackBootstrap
     // spans to be added to the DOM. :(
     loadAnnotations: function(delay=1000) {
       var _this = this;
-      
+
       if (this.annotationsList) {
         this.annotationsList.forEach(function(oaAnno) {
           if (oaAnno.on && oaAnno.on instanceof Array) {
@@ -42340,7 +42340,7 @@ return /******/ (function(modules) { // webpackBootstrap
           _this.loadAnnotations(500);
         }
       }));
-      
+
       this.eventsSubscriptions.push(_this.eventEmitter.subscribe('modeChange.' + _this.windowId, function (event, mode) {
         if (mode === 'displayAnnotations' && !_this.showTextOverlay) {
           _this.showTextOverlay = true;
@@ -42460,7 +42460,7 @@ return /******/ (function(modules) { // webpackBootstrap
     //   wordSpan.innerHTML = `${word.slice(0, offset)}`;
     //   wordSpan.append(link);
     // },
-    
+
     // handelEnd(wordElement, offset) {
     //   if (!wordElement) return;
     //   const wordSpan = document.getElementById(wordElement);
@@ -42470,7 +42470,7 @@ return /******/ (function(modules) { // webpackBootstrap
     //   wordSpan.innerHTML = word.slice(offset, word.length);
     //   wordSpan.prepend(link);
     // },
-    
+
     // handelPart(wordElement, range) {
     //   const wordSpan = document.getElementById(wordElement);
     //   const word = wordSpan.innerText;
@@ -42482,14 +42482,14 @@ return /******/ (function(modules) { // webpackBootstrap
     //   wordSpan.append(link);
     //   wordSpan.append(end);
     // },
-    
+
     uuidv4() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
     },
-    
+
     // createLink() {
     //   const link = document.createElement('a');
     //   link.setAttribute('href', '#');
@@ -42498,7 +42498,7 @@ return /******/ (function(modules) { // webpackBootstrap
     //   link.className += this.uuid;
     //   return link;
     // },
-    
+
     // wrapWord(id) {
     //   const wordSpan = document.getElementById(id);
     //   const word = wordSpan.innerText;
@@ -42574,9 +42574,9 @@ return /******/ (function(modules) { // webpackBootstrap
         _this.newCanvasID = newCanvasID;
         _this.eventEmitter.publish('SET_CURRENT_CANVAS_ID.' + _this.windowID, newCanvasID.replace(/%3A/g, ':'), this);
       });
-      
+
       _this.canvasEvent = new CustomEvent('canvasswitch', {bubbles: true, detail: {}});
-      
+
       this.eventEmitter.subscribe('windowUpdated', (event, new_state) => {
 
         // _this.canvasEvent.detail.volume = _this.volume;
@@ -42584,7 +42584,7 @@ return /******/ (function(modules) { // webpackBootstrap
         // _this.canvasEvent.detail.annotationAdded = false;
         // _this.canvasEvent.detail.annotationDeleted = false;
         // window.dispatchEvent(_this.canvasEvent);
-        
+
         // If the user navigated to the canvas using the back or forward buttons,
         // we don't want to mess with the state. Doing so would clear any forward states
         // and make the back only one canvas deep.
@@ -42612,7 +42612,7 @@ return /******/ (function(modules) { // webpackBootstrap
         }
       });
   },
-  
+
   //Search endpoint for all annotations with a given URI in options
   search: function(options, successCallback, errorCallback) {
     // if (this.username == null) return;
@@ -42621,7 +42621,7 @@ return /******/ (function(modules) { // webpackBootstrap
     this.page = options.uri.split('/').reverse()[0];
 
     let _this = this;
-    
+
     //use options.uri
     jQuery.ajax({
       url: `/annotations/${options.username}/${_this.volume}/list/${_this.page}`,
@@ -42633,7 +42633,7 @@ return /******/ (function(modules) { // webpackBootstrap
       success: function(data) {
           jQuery.each(data, function(index, value) {
             if (value && value instanceof Array) {
-              value.forEach(annotation => {                
+              value.forEach(annotation => {
                 // TODO: Maybe a check for annotated by current user?
                 if (annotation.resource) {
                   annotation.endpoint = _this;
@@ -42644,6 +42644,7 @@ return /******/ (function(modules) { // webpackBootstrap
           });
           _this.canvasEvent.detail.annotationsOnPage = _this.annotationsList.length;
           _this.canvasEvent.detail.canvas = _this.page;
+          _this.canvasEvent.detail.volume = _this.volume;
           _this.canvasEvent.detail.annotationAdded = false;
           _this.canvasEvent.detail.annotationDeleted = false;
         window.dispatchEvent(_this.canvasEvent);
@@ -42657,10 +42658,10 @@ return /******/ (function(modules) { // webpackBootstrap
       }
     });
   },
-    
+
     //Delete an annotation by endpoint identifier
     deleteAnnotation: function(annotationID, successCallback, errorCallback) {
-      var _this = this;        
+      var _this = this;
       jQuery.ajax({
         url: '/annotations-crud/',
         type: 'DELETE',
@@ -42687,14 +42688,14 @@ return /******/ (function(modules) { // webpackBootstrap
         }
       });
     },
-    
+
     //Update an annotation given the OA version
     update: function(oaAnnotation, successCallback, errorCallback) {
       // console.log("oaAnnotation", oaAnnotation)
       delete oaAnnotation.endpoint;
       var annotation = this.getAnnotationInEndpoint(oaAnnotation),
       _this = this;
-      
+
       jQuery.ajax({
         url: '/annotations-crud/',
         type: 'PUT',
@@ -42721,7 +42722,7 @@ return /******/ (function(modules) { // webpackBootstrap
     //takes OA Annotation, gets Endpoint Annotation, and saves
     //if successful, MUST return the OA rendering of the annotation
     create: function(oaAnnotation, successCallback, errorCallback) {
-      
+
       var _this = this;
       var canvas = null;
       if (jQuery.isArray(oaAnnotation.on)) {
@@ -42732,7 +42733,7 @@ return /******/ (function(modules) { // webpackBootstrap
       if (!oaAnnotation['@id']) {
         oaAnnotation['@id'] = _this.uuidv4();
       }
-      
+
       jQuery.ajax({
         url: '/annotations-crud/',
         type: 'POST',
@@ -42780,7 +42781,7 @@ return /******/ (function(modules) { // webpackBootstrap
     userAuthorize: function(action, annotation) {
       return true;
     },
-    
+
     uuidv4() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -43128,7 +43129,7 @@ return /******/ (function(modules) { // webpackBootstrap
     updateAnnotation: function (oaAnno) {
       var selectedTags = this.editorContainer.find('.tags-editor').val(),
       resourceText = tinymce.activeEditor.getContent();
-      
+
       if (selectedTags.length > 0) {
         if (oaAnno.resource instanceof Array) {
           // remove existing tags
@@ -44019,7 +44020,7 @@ return /******/ (function(modules) { // webpackBootstrap
               imagesList: _this.imagesList,
               imagesListLtr: _this.imagesListLtr,
               imagesListRtl: _this.imagesListRtl,
-              vDirectionStatus: _this.vDirectionStatus,		
+              vDirectionStatus: _this.vDirectionStatus,
               thumbInfo: {thumbsHeight: 80, listingCssCls: 'panel-listing-thumbs', thumbnailCls: 'panel-thumbnail-view'}
             });
           }
@@ -44381,7 +44382,7 @@ return /******/ (function(modules) { // webpackBootstrap
                 }
               });
             } else {
-              annotations = [list.resource];  
+              annotations = [list.resource];
             }
             jQuery.each(annotations, function(index, value) {
               // Remove OCR text from annotation list.
@@ -46317,7 +46318,7 @@ return /******/ (function(modules) { // webpackBootstrap
           _this.next();
         }
       });
-    
+
       this.element.find('.mirador-osd-previous').on('click', function () {
         _this.previous();
       });
@@ -46363,7 +46364,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
         }
       });
-      
+
       this.element.find('.mirador-manipulation-toggle').on('click', function () {
         if (_this.hud.manipulationState.current === 'none') {
           _this.hud.manipulationState.startup(this);
@@ -46733,7 +46734,7 @@ return /******/ (function(modules) { // webpackBootstrap
           };
           _this.osd.addHandler('tile-drawn', tileDrawnHandler);
 
-         
+
           _this.selecting = false;
           // var textOverlay = new Mirador.TextOverlay({
           //   osd: _this.osd,
@@ -48729,13 +48730,13 @@ return /******/ (function(modules) { // webpackBootstrap
           jQuery(this).css('display', 'block');
         });
       });
-      
+
       jQuery(_this.element).scroll(function () {
         _this.loadImages();
       });
-      
+
       // add any other events that would trigger thumbnail display (resize, etc)
-      
+
       _this.element.find('.thumbnail-image').on('click', function () {
         var canvasID = jQuery(this).attr('data-image-id');
         _this.eventEmitter.publish('SET_CURRENT_CANVAS_ID.' + _this.windowId, canvasID);
