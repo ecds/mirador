@@ -42581,6 +42581,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
         _this.canvasEvent.detail.volume = _this.volume;
         _this.canvasEvent.detail.canvas = _this.page;
+        _this.canvasEvent.detail.resource = _this.page.resource;
         // _this.canvasEvent.detail.annotationAdded = false;
         // _this.canvasEvent.detail.annotationDeleted = false;
         window.dispatchEvent(_this.canvasEvent);
@@ -42645,7 +42646,6 @@ return /******/ (function(modules) { // webpackBootstrap
           _this.canvasEvent.detail.annotationsOnPage = _this.annotationsList.length;
           _this.canvasEvent.detail.canvas = _this.page;
           _this.canvasEvent.detail.volume = _this.volume;
-          _this.canvasEvent.detail.resource = _this.page.resource;
           _this.canvasEvent.detail.annotationAdded = false;
           _this.canvasEvent.detail.annotationDeleted = false;
         window.dispatchEvent(_this.canvasEvent);
