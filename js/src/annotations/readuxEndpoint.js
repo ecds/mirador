@@ -49,11 +49,11 @@
 
       this.eventEmitter.subscribe('windowUpdated', (event, new_state) => {
 
-        _this.canvasEvent.detail.volume = _this.volume;
-        _this.canvasEvent.detail.canvas = _this.page;
+        // _this.canvasEvent.detail.volume = _this.volume;
+        // _this.canvasEvent.detail.canvas = _this.page;
         // _this.canvasEvent.detail.annotationAdded = false;
         // _this.canvasEvent.detail.annotationDeleted = false;
-        window.dispatchEvent(_this.canvasEvent);
+        // window.dispatchEvent(_this.canvasEvent);
 
         // If the user navigated to the canvas using the back or forward buttons,
         // we don't want to mess with the state. Doing so would clear any forward states
@@ -114,7 +114,7 @@
           });
           _this.canvasEvent.detail.annotationsOnPage = _this.annotationsList.length;
           _this.canvasEvent.detail.canvas = _this.page;
-          _this.canvasEvent.detail.volume = _this.volume;
+          _this.canvasEvent.detail.resource = _this.page.resource;
           _this.canvasEvent.detail.annotationAdded = false;
           _this.canvasEvent.detail.annotationDeleted = false;
         window.dispatchEvent(_this.canvasEvent);
