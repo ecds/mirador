@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="css/mirador-combined.min.css"
+    />
+    <title>Mirador Viewer</title>
+    <style type="text/css">
+      #viewer {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewer"></div>
+
+    <script src="mirador.min.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        myMiradorInstance = Mirador({
+          id: "viewer",
+          layout: "1x2",
+          buildPath: "",
+          data: [
+            {
+              manifestUri:
+                "https://gallica.bnf.fr/iiif/ark:/12148/btv1b52504106s/manifest.json",
+              location: "University",
+            },
+            {
+              manifestUri:
+                "https://www.davidrumsey.com/luna/servlet/iiif/m/RUMSEY~8~1~301423~90074115/manifest",
+              location: "University",
+            },
+            {
+              manifestUri:
+                "https://digi.ub.uni-heidelberg.de/diglit/iiif/piante_roma_bd5/manifest.json",
+              location: "University",
+            },
+            {
+              manifestUri:
+                "https://figgy.princeton.edu/concern/scanned_resources/e38d7ebb-3ae6-4eb8-a3ef-d70b5184b005/manifest",
+              location: "University",
+            },
+            {
+              manifestUri:
+                "https://readux.ecdsdev.org/iiif/v2/readux:thhgb/manifest",
+              location: "University",
+            },
+            {
+              manifestUri:
+                "https://readux.ecdsdev.org/iiif/v2/readux:thgg7/manifest",
+              location: "University",
+            },
+            {
+              manifestUri:
+                "https://iiif.archivelab.org/iiif/gri_33125008447415/manifest.json",
+              location: "University",
+            },
+            {
+              manifestUri: "https://www.e-rara.ch/i3f/v20/4111572/manifest",
+              location: "ETH-Bibliothek Zürich, Rar 1314",
+            },
+            {
+              manifestUri: "https://www.e-rara.ch/i3f/v20/2624618/manifest",
+              location: "ETH-Bibliothek Zürich, Rar 10023",
+            },
+            {
+              manifestUri:
+                "https://media.nga.gov/public/manifests/CASVA/tempesta_complete.json",
+              location: "Stockholm, National Library of Sweden",
+            },
+            {
+              manifestUri:
+                "https://media.nga.gov/public/manifests/CASVA/falda_pianta_di_roma_copy.json",
+              location:
+                "Rome, Biblioteca di Archeologia e Storia dell’Arte. Photograph: Mauro Coen",
+            },
+            {
+              manifestUri:
+                "https://media.nga.gov/public/manifests/CASVA/bl_duperac-high.json",
+              location: "London, The British Library",
+            },
+            {
+              manifestUri:
+                "https://adore.ugent.be/IIIF/manifests/archive.ugent.be%3A5C2CC3DA-AA85-11E3-8038-0DCBD43445F2",
+              location: "Provided by Ghent University Library",
+            },
+            {
+              manifestUri:
+                "https://www.davidrumsey.com/luna/servlet/iiif/m/RUMSEY~8~1~308707~90078572/manifest",
+              location: "David Rumsey Map Collection CC-BY-NC",
+            },
+            {
+              manifestUri: "https://readux.io/iiif/v2/falda1676/manifest",
+              location:
+                "Rijksmuseum Object number RP-P-OB-207.658 Public Domain",
+            },
+            {
+              manifestUri:
+                "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/1",
+              location: "SMK Open",
+            },
+            {
+              manifestUri:
+                "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/2",
+              location: "SMK Open",
+            },
+            {
+              manifestUri:
+                "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/3",
+              location: "SMK Open",
+            },
+            {
+              manifestUri:
+                "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/4",
+              location: "SMK Open",
+            },
+            {
+              manifestUri:
+                "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/5",
+              location: "SMK Open",
+            },
+            {
+              manifestUri:
+                "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/6",
+              location: "SMK Open",
+            },
+          ],
+          windowObjects: [
+            {
+              loadedManifest:
+                "http://iiif.harvardartmuseums.org/manifests/object/299843",
+              viewType: "ImageView",
+              slotAddress: "row1.column1",
+            },
+            {
+              loadedManifest:
+                "http://media.nga.gov/public/manifests/nga_highlights.json",
+              slotAddress: "row1.column2",
+              viewType: "ImageView",
+            },
+          ],
+          annotationEndpoint: {
+            name: "Local Storage",
+            module: "LocalStorageEndpoint",
+          },
+          windowSettings: {
+            canvasControls: {
+              // The types of controls available to be displayed on a canvas
+              imageManipulation: {
+                manipulationLayer: true,
+                controls: {
+                  mirror: true,
+                },
+              },
+            },
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

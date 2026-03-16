@@ -1,115 +1,164 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" type="text/css" href="build/mirador/css/mirador-combined.css">
-    <title>Mirador Viewer</title>
-    <style type="text/css">
-     #viewer {
-       width: 100%;
-       height: 100%;
-       position: fixed;
-     }
-    </style>
-  </head>
-  <body>
-    <div id="viewer"></div>
+<head>
+  <meta charset="utf-8">
+  <title>Mirador &mdash; Home</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300,200' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Lato:300,900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/skel.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style-wide.css" />
+    <link rel="stylesheet" href="css/style-noscript.css" />
+  <!--[if lte IE 8]><link rel="stylesheet" href="css/ie/v8.css" /><![endif]-->
+  <!--[if lte IE 9]><link rel="stylesheet" href="css/ie/v9.css" /><![endif]-->
+</head>
 
-    <script src="build/mirador/mirador.js"></script>
-    <script type="text/javascript">
+<body>
+  <header id="header" class="alt">
+    <nav>
+      <ul>
+        <li class="current">
+          <a href="/index.html">Home</a>
+        </li>
+        <li class="">
+          <a href="demo/">Demo</a>
+        </li>
+        <li class="">
+          <a href="docs/">Docs</a>
+        </li>
+        <li class="">
+          <a href="https://github.com/projectmirador/mirador">Code</a>
+        </li>
+        <li class="">
+          <a href="#participate">participate</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
 
-     $(function() {
-       Mirador({
-         "id": "viewer",
-         "mainMenuSettings" : {
-            'show' : false
-          },
-         "layout": "1x2",
-         "data": [
-        {
-          "manifestUri": "https://gallica.bnf.fr/iiif/ark:/12148/btv1b52504106s/manifest.json", "location": "University"
-        },
-        {
-          "manifestUri": "https://www.davidrumsey.com/luna/servlet/iiif/m/RUMSEY~8~1~301423~90074115/manifest", "location": "University"
-        },
-        {
-          "manifestUri": "https://digi.ub.uni-heidelberg.de/diglit/iiif/piante_roma_bd5/manifest.json", "location": "University"
-        },
-        {
-          "manifestUri": "https://figgy.princeton.edu/concern/scanned_resources/e38d7ebb-3ae6-4eb8-a3ef-d70b5184b005/manifest", "location": "University"
-        },
-        {
-          "manifestUri": "https://readux.ecdsdev.org/iiif/v2/readux:thhgb/manifest", "location": "University"
-        },
-        {
-          "manifestUri": "https://readux.ecdsdev.org/iiif/v2/readux:thgg7/manifest", "location": "University"
-        },
-        {
-          "manifestUri": "https://iiif.archivelab.org/iiif/gri_33125008447415/manifest.json", "location": "University"
-        },
-        {
-          "manifestUri": "https://www.e-rara.ch/i3f/v20/4111572/manifest", "location": "ETH-Bibliothek Zürich, Rar 1314"
-        },
-        {
-          "manifestUri": "https://www.e-rara.ch/i3f/v20/2624618/manifest", "location": "ETH-Bibliothek Zürich, Rar 10023"
-        },
-        {
-          "manifestUri": "https://media.nga.gov/public/manifests/CASVA/tempesta_complete.json", "location": "Stockholm, National Library of Sweden"
-        },
-        {
-          "manifestUri": "https://media.nga.gov/public/manifests/CASVA/falda_pianta_di_roma_copy.json", "location": "Rome, Biblioteca di Archeologia e Storia dell’Arte. Photograph: Mauro Coen"
-        },
-        {
-          "manifestUri": "https://media.nga.gov/public/manifests/CASVA/bl_duperac-high.json", "location": "London, The British Library"
-        },
-        {
-          "manifestUri": "https://adore.ugent.be/IIIF/manifests/archive.ugent.be%3A5C2CC3DA-AA85-11E3-8038-0DCBD43445F2", "location": "Provided by Ghent University Library"
-        },
-        {
-          "manifestUri": "https://www.davidrumsey.com/luna/servlet/iiif/m/RUMSEY~8~1~308707~90078572/manifest", "location": "David Rumsey Map Collection CC-BY-NC"
-        },
-        {
-          "manifestUri": "https://readux.io/iiif/v2/falda1676/manifest", "location": "Rijksmuseum Object number RP-P-OB-207.658 Public Domain"
-        },
-        {
-          "manifestUri": "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/1", "location": "SMK Open"
-        },
-        {
-          "manifestUri": "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/2", "location": "SMK Open"
-        },
-        {
-          "manifestUri": "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/3", "location": "SMK Open"
-        },
-        {
-          "manifestUri": "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/4", "location": "SMK Open"
-        },
-        {
-          "manifestUri": "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/5", "location": "SMK Open"
-        },
-        {
-          "manifestUri": "https://api.smk.dk/api/v1/iiif/manifest/?id=KKSgb9930/6", "location": "SMK Open"
-        }
-      ],
-         "windowObjects": [{
-           loadedManifest: "https://gallica.bnf.fr/iiif/ark:/12148/btv1b52504106s/manifest.json",
-           viewType: "ImageView",
-           slotAddress: "row1.column1",
-           "displayLayout": true,
-           "bottomPanel" : false,
-           "sidePanel" : false,
-           "annotationLayer" : false
-         },{
-           loadedManifest: "https://readux.io/iiif/v2/falda1676/manifest",
-           slotAddress: "row1.column2",
-           viewType: "ImageView",
-           "displayLayout": true,
-           "bottomPanel" : false,
-           "sidePanel" : false,
-           "annotationLayer" : false
-         }]
-      });
-     });
-    </script>
-  </body>
+  <section id="banner">
+    <div class="inner">
+      <header>
+        <img src="img/mirador-logo.png" alt="Mirador">
+        <h2>mirador</h2>
+      </header>
+      <p>
+      <span style="font-weight: 400;">Open-source</span>,
+      web based, multi-window image viewing platform <br>
+      with the ability to zoom, display, compare and annotate <br>
+      images from around the world.
+      </p>
+    </div>
+    <div>
+      <a class="button button-primary" href="demo/">Try a Live Demo</a>
+      <br/>
+      <a class="button button-primary" href="demo/advanced_features.html" style="padding-left: 0.7em; padding-right: 0.7em">Advanced Features Demo</a>
+      <!-- <a class="button button-primary" href="https://www.youtube.com/watch?v=9b1ReCZh9-E">See A Screencast</a> -->
+    </div>
+  </section>
+
+  <article id="main">
+
+    <header class="special container">
+      <h2>Fully Featured IIIF Viewer</h2>
+      <p>
+      Mirador is a configurable, extensible, and easy-to-integrate image viewer, which enables image annotation and comparison of images from repositories dispersed around the world. Mirador has been optimized to display resources from repositories that support the <a href="http://iiif.io/">International Image Interoperability Framework</a> (IIIF) API's.  It provides a tiling windowed environment for comparing multiple image-based resources, synchronized structural and visual navigation of content using <a href="https://openseadragon.github.io/">OpenSeadragon</a>, <a href="http://www.openannotation.org/">Open Annotation</a> compliant annotation creation and viewing on deep-zoomable canvases, metadata display, book reading, bookmarking and more.
+      </p>
+    </header>
+
+    <section class="wrapper container special-alt">
+      <iframe id="iframe-demo" width="800" height="600" marginwidth="0" marginheight="0" frameborder="10" scrolling="no" id="frame" allowfullscreen="">You need an iFrame capable browser to view this.</iframe>
+    </section>
+
+    <section class="wrapper style1 container special">
+      <div class="row">
+        <div class="4u 12u(narrower)">
+          <section>
+            <span class="icon featured fa-github"></span>
+            <header>
+              <h3>Open source</h3>
+            </header>
+            <p>Participate in development on Github. Submit issues, changes, or suggestions, and be a part of the process. You can also join the discussion on the mirador-tech mailing list and slack channel.</p>
+          </section>
+
+        </div>
+        <div class="4u 12u(narrower)">
+
+          <section>
+            <span class="icon featured fa-list"></span>
+            <header>
+              <h3>Full Featured</h3>
+            </header>
+            <p>Mirador implements the full client functionality of the IIIF Image and Presentation APIs. It provides tools for bringing in metadata, images, structures, and can create, edit, delete, and view annotations in Open Annotation Format.</p>
+          </section>
+
+        </div>
+        <div class="4u 12u(narrower)">
+          <section>
+            <span class="icon featured fa-cogs"></span>
+            <header>
+              <h3>Configurable</h3>
+            </header>
+            <p>Mirador can be easily configured to provide the simple functionality of an embedded viewer or bookreader, or opened up into a fully-featured scholarly workspace.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+    <header id="participate" class="special container">
+      <h2>Participate in the Community</h2>
+      <p>
+      Mirador has been built from the needs of the community, and develops through ongoing feedback and discussion. To participate in Mirador's development, bring up your ideas to the <a href="https://groups.google.com/forum/#!forum/mirador-tech">mirador-tech</a> and <a href="https://groups.google.com/forum/#!forum/iiif-discuss">iiif-discuss</a> mailing lists, <a href="http://bit.ly/iiif-slack">IIIF/mirador slack channel</a>, and follow updates on the <a href="https://www.youtube.com/channel/UClcQIkLdYra7ZnOmMJnC5OA">IIIF youtube channel</a>. To suggest features, report bugs, and clarify usage, submit a new github issue at <a href="https://github.com/projectmirador/mirador/issues">https://github.com/projectmirador/mirador/issues</a>.
+      </p>
+    </header>
+
+      <header class="special container">
+        <h2>Acknowledgements</h2>
+      </header>
+    <section class="wrapper style2 container special">
+      <div class="row">
+        <h3 class="date">
+          September 15, 2016
+        </h3>
+
+        <div class="body-text">
+          <p>
+            The first version of Mirador was generously funded by a grant from the Andrew W. Mellon Foundation to Stanford University. Conceived of as a shared, open source development project from the start, Mirador really took off when Harvard University opted to join the effort in 2014.
+          </p>
+
+          <p>
+            Since then, Rashmi Singhal from Harvard and Drew Winget from Stanford have led its technical development, with Stu Snydman from Stanford organizing and coordinating the Mirador community effort. With their steady and expert leadership, the Mirador community has now grown to include a score of contributors from more than a dozen institutions, and countless users worldwide.
+          </p>
+
+          <p>
+            Version 2.1 in particular features advanced annotation capabilities that introduce powerful new functionality for creating and editing annotations using a variety of shapes and colors.  These features were inspired by requirements for the <a href="http://conspace.wixsite.com/conservationspace">ConservationSpace</a> project, also Mellon funded and led by the National Gallery of Art.  The leadership and effort of David Beaudet from NGA, along with contributions from the engineering team at the <a href="http://www.sirma.com/en">Sirma Group</a> made these powerful new features possible.
+          </p>
+
+          <p>
+            A talented and global group of professionals and technologists contributed to the design, development, and testing of Mirador 2.1, helped produce documentation, offered sage advice on the project’s direction, and consistently joined the biweekly community calls that sustain the effort.  Special thanks to John Abrahams, Michael Appleby, Arthur Barrett, Jazahn Clevenger, Ralf Eichinger, Yury Emelyanov, Gary Geisler, Chip Goines, Bryan Haberberger, Seong Kim, Stanislav Kostadinov, Dixon Law, Mark Matney, Kiyonori Nagasaki, Radoslav Petkov, Jack Reed, Régis Robineau, Emma Stanford, Randy Stern, William Straub, Fabio Torchetti, Jennifer Vine and Jeff Witt.
+          </p>
+
+          <p>
+            Mirador wouldn’t be possible without the support and advocacy of leaders at the institutions that committed staff time and invested resources in Mirador’s ongoing development.  Many thanks to Ben Albritton, Tom Cramer, John Haeger, and Michael Keller at Stanford; Franziska Frey, Jeffrey Hamburger, and Jud Harward at Harvard, and Merv Richard and Alan Newman at the National Gallery of Art.
+          </p>
+
+          <p>
+            The Mirador team would also like to acknowledge the contributions of Ian Gilman, the maintainer of OpenSeadragon. Not only is OpenSeadragon the core image viewing technology used by Mirador, but Ian and his colleague Melinda Minch made important enhancements to OpenSeadragon to support the IIIF specifications and other specialized functionality.
+          </p>
+
+          <p>
+            Mirador has been a gratifying and exciting collaboration that is growing and moving in exciting new directions. We are excited to expand the community of contributors in the next and future releases.
+          </p>
+
+        </div>
+      </div>
+    </section>
+  </article>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.scrollgress.min.js"></script>
+    <script src="js/skel.min.js"></script>
+    <script src="js/skel-layers.min.js"></script>
+    <script src="js/init.js"></script>
+</body>
 </html>
